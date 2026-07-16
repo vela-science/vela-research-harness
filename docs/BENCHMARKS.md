@@ -21,13 +21,13 @@ execution: the native Codex runtime needed thread creation and the compatibility
 page-size sysctl inside the outer Seatbelt profile; startup also needed
 metadata-only visibility of the absent managed-requirements path and a finite
 set of named macOS runtime services. Codex's own macOS network policy identified
-the exact DNS/TLS services and public resolver files needed at the outer
-boundary; no wildcard service or broad user-preference read was added. The
-package also needed to include the exact registered runner source. The last
-provider-disabled diagnostic reached the expected network denial with no other
-reported Seatbelt denial. The registration records the resulting implementation
-commit. No failed probe reached the provider, and none changed the benchmark
-information, arms, model, budgets, rubric, or decision rule.
+the exact DNS/TLS services, public resolver files, mDNSResponder socket, and
+notification-center shared memory needed at the outer boundary; no wildcard
+service or broad user-preference read was added. The package also needed to
+include the exact registered runner source. The provider-disabled diagnostic
+reached the expected network denial. The registration records the resulting
+implementation commit. No failed probe reached the provider, and none changed
+the benchmark information, arms, model, budgets, rubric, or decision rule.
 
 Dollar pricing is unavailable on the Codex subscription surface used here, so
 the report preserves exact token counts rather than inventing a dollar value.
