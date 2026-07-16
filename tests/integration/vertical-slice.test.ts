@@ -77,7 +77,7 @@ class FakeVela implements VelaPort {
 
   public async inspect(repoRoot: string): Promise<VelaInspection> {
     return {
-      version: "0.800.17",
+      version: "0.800.19",
       roots: {
         git_commit: await git(repoRoot, "rev-parse", "HEAD^{commit}"),
         git_tree: await git(repoRoot, "rev-parse", "HEAD^{tree}"),
@@ -278,7 +278,7 @@ test("bounded vertical slice lands pending and reproduces from a clean clone", a
     schema: "canopus.mission.v0",
     id: "mission_vertical_slice",
     target: "finite:42",
-    vela_version: "0.800.17",
+    vela_version: "0.800.19",
     vela_sha256: scientificRoot,
     frontier: "frontier",
     actor: "agent:canopus-test",
@@ -379,7 +379,7 @@ test("all four bounded roles traverse freeze, verifier, Receipt, Defer, and repr
       schema: "canopus.mission.v0",
       id: `mission_role_${role}`,
       target: "finite:42",
-      vela_version: "0.800.17",
+      vela_version: "0.800.19",
       vela_sha256: scientificRoot,
       frontier: "frontier",
       actor: `agent:canopus-${role}`,
@@ -461,7 +461,7 @@ test("post-land failure retains raw Vela effect and recovery roots", async () =>
     schema: "canopus.mission.v0",
     id: "mission_landing_recovery",
     target: "finite:42",
-    vela_version: "0.800.17",
+    vela_version: "0.800.19",
     vela_sha256: scientificRoot,
     frontier: "frontier",
     actor: "agent:canopus-recovery",

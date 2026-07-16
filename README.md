@@ -17,7 +17,7 @@ and Vela roots remain the durable identity.
 
 ## Status
 
-Canopus `v0.1.2` targets checksum-pinned Vela `v0.800.17`. A run is not, by
+Canopus `v0.1.3` targets checksum-pinned Vela `v0.800.19`. A run is not, by
 itself, scientific acceptance. `defer` is pending review with zero accepted
 event delta; `permit` means an already signed Vela policy admitted the exact
 proposal. Canopus cannot manufacture either a human decision or an external

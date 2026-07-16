@@ -84,7 +84,7 @@ async function fixture(): Promise<{
       schema: "canopus.mission.v0",
       id: "mission_verifier",
       target: "target-1",
-      vela_version: "0.800.17",
+      vela_version: "0.800.19",
       vela_sha256: rootDigest,
       frontier: "frontier",
       actor: "agent:canopus-test",

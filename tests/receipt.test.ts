@@ -23,7 +23,7 @@ function mission(): Mission {
     schema: "canopus.mission.v0",
     id: "mission_receipt",
     target: "target-1",
-    vela_version: "0.800.17",
+    vela_version: "0.800.19",
     vela_sha256: digest,
     frontier: "frontier",
     actor: "agent:canopus-test",

@@ -1,8 +1,27 @@
 # Release evidence
 
+## Canopus v0.1.3
+
+`v0.1.3` is the active release. It advances the checksum-pinned composition
+gate to public Vela `v0.800.19` without changing the harness architecture,
+mission schema, Receipt mapping, authority boundary, or frozen ADR 0004 Stage A
+benchmark.
+
+- Repository: [`vela-science/vela-research-harness`](https://github.com/vela-science/vela-research-harness)
+- Release: [`v0.1.3`](https://github.com/vela-science/vela-research-harness/releases/tag/v0.1.3)
+- Released Vela input: `v0.800.19`, commit
+  `5a270f8b5ec038ade7c1274dc64a33dd99117851`
+- Published Vela macOS arm64 SHA-256:
+  `705f56293679a6c46ae7ddee2c9d07098772069a76f8d289035335b58bc51fa3`
+
+The default suite passes 72 tests with the released-binary integration
+intentionally skipped. Enabling that exact published binary passes all 73.
+Canopus remains a removable producer and verifier harness with no signer,
+policy, event log, accepted-state store, or scientific verdict surface.
+
 ## Canopus v0.1.2
 
-`v0.1.2` is the active release. It targets public Vela `v0.800.17`, adds the
+`v0.1.2` was the previous release. It targets public Vela `v0.800.17`, adds the
 bounded ADR 0004 Stage A composition runner, and keeps dependency-standing and
 exact-lock semantics in released public Vela references rather than duplicating
 them inside Canopus.

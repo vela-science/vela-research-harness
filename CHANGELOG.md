@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.3 - 2026-07-16
+
+- Advance the active released-binary composition gate to public Vela
+  `v0.800.19`, including the exact published macOS arm64 checksum.
+- Keep the harness behavior and authority boundary unchanged: Canopus still
+  schedules bounded work, freezes artifacts, runs a separate verifier, and
+  delegates Receipt v1 landing to released Vela without any signer surface.
+- Preserve the ADR 0004 Stage A benchmark as frozen `v0.800.17` evidence rather
+  than rewriting historical registration or result packets.
+
 ## 0.1.2 - 2026-07-16
 
 - Target released Vela `v0.800.17` and add the bounded ADR 0004 Stage A
