@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.8 - 2026-07-16
+
+- Open Stage A v3 after v2 reached Codex but failed DNS resolution before any
+  provider response or scored cell.
+- Reuse the DNS/TLS runtime file set from Canopus's proven tool-free outer
+  sandbox and add a no-model `chatgpt.com` DNS check to the four-cell preflight.
+- Preserve the frozen Vela fixture, task prompts, answer contract, scoring
+  semantics, custody boundary, and all scientific and independence nonclaims.
+
 ## 0.1.7 - 2026-07-16
 
 - Open Stage A v2 after v1 retained two zero-call controller infrastructure

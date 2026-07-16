@@ -1,7 +1,7 @@
 {
   "schema": "canopus.temporal-registration-stage-a-registration.v1",
   "status": "registered_not_executed",
-  "stage_iteration": 2,
+  "stage_iteration": 3,
   "registered_at": "2026-07-16",
   "fixture": {
     "path": "benchmarks/fixtures/v1/temporal-registration",
@@ -72,11 +72,11 @@
     },
     "registration_builder": {
       "path": "scripts/register-temporal-registration-stage-a.mjs",
-      "sha256": "sha256:7b975b627b8511d13a3cfe936133e606355775489540242ae8816c43e6f493a3"
+      "sha256": "sha256:c4dfa949d8fe68549f425e1e114f104e3ea42d3811487c8f9377a052091f35e1"
     },
     "runner": {
       "path": "scripts/run-temporal-registration-stage-a.mjs",
-      "sha256": "sha256:e4d9b335f2aa993bfc9ffa4de60c8118bdb3a5d8c4895c24f90770487cd30f29"
+      "sha256": "sha256:fff22dac51ad506396c02223c308acedf0b7eb2e797f3045cb27260f62c6d5a0"
     }
   },
   "runner": {
@@ -123,6 +123,14 @@
       "model_calls": 0,
       "scored_cells": 0,
       "semantic_guidance": false
+    },
+    {
+      "superseded_registration_root": "sha256:d97224f0ca1be5dc94c45cfc7619effab29729892491de1e9964fb5727d36615",
+      "failure_class": "controller_provider_transport",
+      "defect": "outer sandbox omitted DNS runtime files required for the Codex provider connection",
+      "model_calls": 0,
+      "scored_cells": 0,
+      "semantic_guidance": false
     }
   ],
   "hard_stop_conditions": [
@@ -160,5 +168,5 @@
     "authority": false,
     "causal": false
   },
-  "registration_root": "sha256:d97224f0ca1be5dc94c45cfc7619effab29729892491de1e9964fb5727d36615"
+  "registration_root": "sha256:e1a45975802c0bed66e6059a4563103c21e36a713b23df3402ff6e843c30db24"
 }

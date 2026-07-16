@@ -255,6 +255,19 @@ async function sandboxedCodexArgv(options) {
     realpath(lexicalSchema),
   ]);
   const finalPath = path.join(lexicalWorkspace, ".benchmark", "final.json");
+  const networkRuntimeFiles = [
+    "/Library/Preferences/com.apple.networkd.plist",
+    "/etc/hosts",
+    "/etc/protocols",
+    "/etc/resolv.conf",
+    "/etc/services",
+    "/private/etc/hosts",
+    "/private/etc/protocols",
+    "/private/etc/resolv.conf",
+    "/private/etc/services",
+    "/private/var/run/resolv.conf",
+    "/var/run/resolv.conf",
+  ];
   const allowedExec = [
     codex,
     lexicalCodex,
@@ -288,9 +301,12 @@ async function sandboxedCodexArgv(options) {
     lexicalSchema,
     finalPath,
     "/etc/ssl/cert.pem",
-    "/private/etc/resolv.conf",
+    ...networkRuntimeFiles,
     "/private/var/run/mDNSResponder",
   ]);
+  const networkReadRules = networkRuntimeFiles
+    .map((value) => `(literal "${sbpl(value)}")`)
+    .join(" ");
   const profile = [
     "(version 1)",
     "(deny default)",
@@ -308,7 +324,7 @@ async function sandboxedCodexArgv(options) {
     '(allow system-socket (socket-domain AF_SYSTEM))',
     '(allow system-socket (socket-domain AF_UNIX))',
     '(allow file-read* (subpath "/Applications/Xcode.app/Contents/Developer") (subpath "/Library/Apple") (subpath "/Library/Developer") (subpath "/System") (subpath "/usr/lib") (subpath "/usr/share") (subpath "/var/select") (subpath "/private/var/select") (subpath "/private/etc/ssl") (subpath "/private/var/db/timezone") (literal "/dev/null") (literal "/dev/urandom"))',
-    `(allow file-read* file-test-existence (subpath "${sbpl(workspace)}") (subpath "${sbpl(lexicalWorkspace)}") (subpath "${sbpl(codexHome)}") (subpath "${sbpl(lexicalCodexHome)}") (subpath "${sbpl(home)}") (subpath "${sbpl(lexicalHome)}") (literal "${sbpl(codex)}") (literal "${sbpl(lexicalCodex)}") (literal "${sbpl(schema)}") (literal "${sbpl(lexicalSchema)}") (literal "/etc/ssl/cert.pem") (literal "/private/etc/resolv.conf"))`,
+    `(allow file-read* file-test-existence (subpath "${sbpl(workspace)}") (subpath "${sbpl(lexicalWorkspace)}") (subpath "${sbpl(codexHome)}") (subpath "${sbpl(lexicalCodexHome)}") (subpath "${sbpl(home)}") (subpath "${sbpl(lexicalHome)}") (literal "${sbpl(codex)}") (literal "${sbpl(lexicalCodex)}") (literal "${sbpl(schema)}") (literal "${sbpl(lexicalSchema)}") (literal "/etc/ssl/cert.pem") ${networkReadRules})`,
     `(allow file-write* (subpath "${sbpl(workspace)}") (subpath "${sbpl(lexicalWorkspace)}") (subpath "${sbpl(codexHome)}") (subpath "${sbpl(lexicalCodexHome)}") (subpath "${sbpl(home)}") (subpath "${sbpl(lexicalHome)}") (literal "/dev/null"))`,
     '(allow network-outbound (control-name "com.apple.netsrc") (literal "/private/var/run/mDNSResponder") (remote tcp) (remote udp))',
   ].join(" ");
@@ -679,7 +695,7 @@ async function runCell(options) {
       "--",
       "/bin/zsh",
       "-c",
-      'test -r "$CODEX_HOME/auth.json" && test -w "$CODEX_HOME" && test -r "$HOME" && test -x "./bin/vela" && git -C primary rev-parse HEAD >/dev/null',
+      'test -r "$CODEX_HOME/auth.json" && test -w "$CODEX_HOME" && test -r "$HOME" && test -x "./bin/vela" && git -C primary rev-parse HEAD >/dev/null && dscacheutil -q host -a name chatgpt.com | grep -q ip_address',
     ],
     {
       cwd: workspace,

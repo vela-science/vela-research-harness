@@ -138,7 +138,7 @@ async function main() {
   const registration = {
     schema: "canopus.temporal-registration-stage-a-registration.v1",
     status: "registered_not_executed",
-    stage_iteration: 2,
+    stage_iteration: 3,
     registered_at: "2026-07-16",
     fixture: {
       path: "benchmarks/fixtures/v1/temporal-registration",
@@ -211,6 +211,16 @@ async function main() {
         failure_class: "controller_sandbox_transport",
         defect:
           "outer sandbox bound real /private/tmp paths but CODEX_HOME used lexical /tmp",
+        model_calls: 0,
+        scored_cells: 0,
+        semantic_guidance: false,
+      },
+      {
+        superseded_registration_root:
+          "sha256:d97224f0ca1be5dc94c45cfc7619effab29729892491de1e9964fb5727d36615",
+        failure_class: "controller_provider_transport",
+        defect:
+          "outer sandbox omitted DNS runtime files required for the Codex provider connection",
         model_calls: 0,
         scored_cells: 0,
         semantic_guidance: false,

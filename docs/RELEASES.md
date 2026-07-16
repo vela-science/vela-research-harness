@@ -1,6 +1,30 @@
 # Release evidence
 
-## Canopus v0.1.7 release candidate
+## Canopus v0.1.8 release candidate
+
+`v0.1.8` opens Stage A v3 after v2 reached the Codex process but could not
+resolve the provider host. The failure occurred before any provider response,
+model execution, or scored cell.
+
+The v3 controller reuses the exact DNS/TLS runtime file set from Canopus's
+already tested tool-free outer sandbox and adds a no-model `chatgpt.com` DNS
+check to the four-cell preflight. The fixture, prompts, answer contract, and
+scorer semantics remain unchanged.
+
+- Released Vela input: `v0.800.21`, commit
+  `2bbcf8323e53643fcaacb81137645fc757789073`
+- Superseded v2 root:
+  `sha256:d97224f0ca1be5dc94c45cfc7619effab29729892491de1e9964fb5727d36615`
+- Total prior model calls: `0`
+- Total prior scored cells: `0`
+- Semantic maintainer guidance: none
+- Active Stage A v3 registration root:
+  `sha256:e1a45975802c0bed66e6059a4563103c21e36a713b23df3402ff6e843c30db24`
+- Four-cell no-model sandbox and provider-DNS preflight: passed
+
+Tag, CI, preflight, and v3 registration evidence are pending.
+
+## Canopus v0.1.7
 
 `v0.1.7` opens Stage A v2 after retaining both v1 controller failures. The
 second exact invocation stopped before session creation because the outer
@@ -11,6 +35,13 @@ The v2 controller binds lexical and real workspace, HOME, and CODEX_HOME paths
 and adds a no-model four-cell sandbox preflight before execution. The fixture,
 prompts, answer contract, and scorer semantics remain unchanged.
 
+- Release:
+  [`v0.1.7`](https://github.com/vela-science/vela-research-harness/releases/tag/v0.1.7)
+- Tag commit: `d2ad8c85d6a99c1c07ce688d2854fc81b000eace`
+- Main CI:
+  [run 29525266409](https://github.com/vela-science/vela-research-harness/actions/runs/29525266409)
+- Tag CI:
+  [run 29525331012](https://github.com/vela-science/vela-research-harness/actions/runs/29525331012)
 - Released Vela input: `v0.800.21`, commit
   `2bbcf8323e53643fcaacb81137645fc757789073`
 - Superseded v1 roots:
