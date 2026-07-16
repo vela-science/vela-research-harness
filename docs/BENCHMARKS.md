@@ -210,8 +210,13 @@ evidence and the bounded summary are in
 The ADR 0005 cold-use packet is registered but not yet executed. Its fixture
 registration SHA-256 is
 `sha256:59c31a04bdb75b55d714558b849942f472043a90bff4fcb31c2538dabd100411`;
-the four-cell Stage A registration root is
-`sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53`.
+the active four-cell Stage A registration root is
+`sha256:79557a2d1c283640c96559fcc473d5e7751e2829ea98e9ed7314bb878018b8ea`.
+The initial controller invocation stopped before any model call because its
+cell object was not locally bound. The single registered transport repair
+superseded root
+`sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53`;
+no task, scorer rule, fixture byte, or semantic instruction changed.
 
 The fixture was created only with the published Vela `v0.800.21` macOS arm64
 binary, SHA-256

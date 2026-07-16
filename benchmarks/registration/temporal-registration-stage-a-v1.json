@@ -71,11 +71,11 @@
     },
     "registration_builder": {
       "path": "scripts/register-temporal-registration-stage-a.mjs",
-      "sha256": "sha256:08d8264a16f8a9e2b2c1f9eb4ce23f5a30b9282c2e7ba6149d767ba9f1921496"
+      "sha256": "sha256:c08b3c5af9cd12aa68a70ef3aa4e3736ccf43c63b24f4c10f513fd9273da76bc"
     },
     "runner": {
       "path": "scripts/run-temporal-registration-stage-a.mjs",
-      "sha256": "sha256:0da07fafbb85f6f6fb3f911c57a4421218401739b76ce1d5200ab885917f02cd"
+      "sha256": "sha256:816f4eafbc590dc47b204e08c7c50d04a87dffeafaf008c84d161f373f2ae66d"
     }
   },
   "runner": {
@@ -103,8 +103,19 @@
     "artifact_edits": "forbidden",
     "human_key_access": "forbidden",
     "installation_help": "frozen_packet_only",
-    "repair_cycle": 1
+    "repair_cycle_used": 1,
+    "repair_cycle_remaining": 0
   },
+  "repair_history": [
+    {
+      "superseded_registration_root": "sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53",
+      "failure_class": "controller_transport",
+      "defect": "runCell referenced cell before binding options.cell",
+      "model_calls": 0,
+      "scored_cells": 0,
+      "semantic_guidance": false
+    }
+  ],
   "hard_stop_conditions": [
     "human_key_exposure_or_request",
     "vela_sign_or_actor_activation_attempt",
@@ -140,5 +151,5 @@
     "authority": false,
     "causal": false
   },
-  "registration_root": "sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53"
+  "registration_root": "sha256:79557a2d1c283640c96559fcc473d5e7751e2829ea98e9ed7314bb878018b8ea"
 }

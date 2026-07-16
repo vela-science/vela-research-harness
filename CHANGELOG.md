@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.6 - 2026-07-16
+
+- Repair the Stage A controller's pre-call cell binding after the first exact
+  execution stopped on a `ReferenceError` before any model session started.
+- Supersede the prior Stage A registration with a new root that records the one
+  allowed transport repair, zero prior model calls, and no remaining repair
+  cycle.
+- Preserve the frozen Vela `v0.800.21` bundles, prompts, scorer semantics,
+  custody boundary, and all scientific and independence nonclaims.
+
 ## 0.1.5 - 2026-07-16
 
 - Advance the active released-binary gate to Vela `v0.800.21`, commit

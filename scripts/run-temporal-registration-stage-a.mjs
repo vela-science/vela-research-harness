@@ -531,6 +531,7 @@ function scoreAnswer({ answer, cell, fixture, commands, historyDelta, acceptedDe
 }
 
 async function runCell(options) {
+  const cell = options.cell;
   const cellRoot = path.join(options.outputRoot, options.cell.id);
   const workspace = path.join(cellRoot, "workspace");
   const home = path.join(cellRoot, "home");

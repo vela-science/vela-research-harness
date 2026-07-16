@@ -1,5 +1,26 @@
 # Release evidence
 
+## Canopus v0.1.6 release candidate
+
+`v0.1.6` repairs the cold-use controller after its first exact invocation
+stopped before any model call on an unbound local cell variable. The frozen
+fixture, tasks, answer contract, and scorer semantics are unchanged. A new
+Stage A registration consumes the single allowed transport repair and records
+zero prior model calls.
+
+- Released Vela input: `v0.800.21`, commit
+  `2bbcf8323e53643fcaacb81137645fc757789073`
+- Superseded Stage A registration root:
+  `sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53`
+- Replacement Stage A registration root:
+  `sha256:79557a2d1c283640c96559fcc473d5e7751e2829ea98e9ed7314bb878018b8ea`
+- Repair class: controller transport before session creation
+- Prior model calls: `0`
+- Prior scored cells: `0`
+- Semantic maintainer guidance: none
+
+Tag, CI, and replacement registration evidence are pending.
+
 ## Canopus v0.1.5
 
 `v0.1.5` is the active release. It advances the checksum-pinned gate to

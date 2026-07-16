@@ -191,8 +191,20 @@ async function main() {
       artifact_edits: "forbidden",
       human_key_access: "forbidden",
       installation_help: "frozen_packet_only",
-      repair_cycle: 1,
+      repair_cycle_used: 1,
+      repair_cycle_remaining: 0,
     },
+    repair_history: [
+      {
+        superseded_registration_root:
+          "sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53",
+        failure_class: "controller_transport",
+        defect: "runCell referenced cell before binding options.cell",
+        model_calls: 0,
+        scored_cells: 0,
+        semantic_guidance: false,
+      },
+    ],
     hard_stop_conditions: [
       "human_key_exposure_or_request",
       "vela_sign_or_actor_activation_attempt",
