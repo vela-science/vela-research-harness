@@ -7,5 +7,7 @@
 - Preserve engine and verifier manifests as Vela-bound evidence.
 - Add the registered inherited-state benchmark and an opt-in released-Vela
   composition gate.
+- Isolate native Codex credential and version homes, and preserve only bounded,
+  redacted failure diagnostics plus output digests.
 - Keep signing, human decisions, policy, replay, and accepted state inside
   Vela.

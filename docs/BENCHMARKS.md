@@ -30,8 +30,8 @@ closed.
 The package also needed to include the exact registered runner source. An
 IP-denied diagnostic completed DNS through that exact socket and then stopped
 at the expected network boundary. The registration records the resulting
-implementation commit. No failed probe reached the provider, and none changed
-the benchmark information, arms, model, budgets, rubric, or decision rule.
+implementation commit. None of these zero-call probes changed the benchmark
+information, arms, model, budgets, rubric, or decision rule.
 
 Native Codex 0.139 creates and locks `CODEX_HOME/installation_id` while starting
 its in-process app server. Canopus therefore copies only bounded `auth.json` and
@@ -47,6 +47,16 @@ the public system-runtime allowlist. This preserves TLS without admitting the
 user's keychains. That failed launch produced no benchmark arm; the registration
 records the amendment without changing the facts, model, rubric, or decision
 rule.
+
+One subsequent launch exited nonzero without a completed arm. The prior runner
+discarded structured stdout on failure, so the evidence cannot distinguish a
+pre-provider failure from a provider rejection. It would be an overclaim to put
+that launch on either side of the boundary. The corrected registered runner now
+extracts only bounded, secret-redacted messages from Codex's documented JSONL
+failure events, reports hashes for both output streams, and removes the
+disposable version-check home. Raw failure streams are not echoed. This is the
+last preflight amendment before the final registered attempt; it changes no
+facts, prompt arms, model, limits, rubric, or decision rule.
 
 Dollar pricing is unavailable on the Codex subscription surface used here, so
 the report preserves exact token counts rather than inventing a dollar value.
