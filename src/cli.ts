@@ -5,6 +5,10 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
+import {
+  loadCompositionStageA,
+  runCompositionStageA,
+} from "./benchmark/composition.js";
 import { runPairedBenchmark } from "./benchmark/run.js";
 import { parseMission } from "./contracts/mission.js";
 import { CodexExecEngine } from "./engines/codex-exec.js";
@@ -21,6 +25,8 @@ Usage:
   canopus inspect <run.json>
   canopus benchmark <registration.json> --repo <canopus-repo> --output-root <empty-dir> \\
     --codex <binary> [--codex-home <dir>]
+  canopus benchmark-composition <registration.json> --repo <canopus-repo> \\
+    --output-root <empty-dir> --codex <binary> [--codex-home <dir>]
   canopus run <mission.json> --source <repo> --run-root <dir> \\
     --vela <binary> --codex <binary> --codex-version <exact> \\
     --codex-sha256 <sha256:hex> --model <model> \\
@@ -97,6 +103,37 @@ async function main(argv: string[]): Promise<void> {
         directional_result: report.directional_result,
         causal_claim: false,
         model_calls: report.arms.length,
+        report: path.join(outputRoot, "report.json"),
+      })}\n`,
+    );
+    return;
+  }
+  if (command === "benchmark-composition") {
+    const values = options(rest, ["--repo", "--output-root", "--codex", "--codex-home"]);
+    const repoRoot = path.resolve(required(values, "--repo"));
+    const outputRoot = path.resolve(required(values, "--output-root"));
+    const codexBinary = path.resolve(required(values, "--codex"));
+    const codexHome = path.resolve(
+      values.get("--codex-home") ?? process.env.CODEX_HOME ?? path.join(os.homedir(), ".codex"),
+    );
+    const prepared = await loadCompositionStageA({
+      repoRoot,
+      registrationPath: path.resolve(file),
+    });
+    const result = await runCompositionStageA({
+      prepared,
+      outputRoot,
+      codexBinary,
+      codexHome,
+    });
+    process.stdout.write(
+      `${JSON.stringify({
+        ok: true,
+        command,
+        model_calls: result.records.length,
+        completed_cells: result.report.completed_cells,
+        safe_cells: result.report.safe_cells,
+        hard_safety_pass: result.report.hard_safety_pass,
         report: path.join(outputRoot, "report.json"),
       })}\n`,
     );

@@ -1,6 +1,6 @@
 {
   "name": "@vela-science/canopus",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A bounded, replaceable research harness over released Vela interfaces",
   "type": "module",
   "private": false,
@@ -27,6 +27,7 @@
     "src/benchmark/run.ts",
     "schemas",
     "benchmarks",
+    "scripts",
     "README.md",
     "docs",
     "CHANGELOG.md",

@@ -1,8 +1,38 @@
 # Release evidence
 
+## Canopus v0.1.2
+
+`v0.1.2` is the active release. It targets public Vela `v0.800.17`, adds the
+bounded ADR 0004 Stage A composition runner, and keeps dependency-standing and
+exact-lock semantics in released public Vela references rather than duplicating
+them inside Canopus.
+
+- Repository: [`vela-science/vela-research-harness`](https://github.com/vela-science/vela-research-harness)
+- Release: [`v0.1.2`](https://github.com/vela-science/vela-research-harness/releases/tag/v0.1.2)
+- Tag commit: resolve the immutable `v0.1.2^{commit}` tag target; the exact
+  post-release commit and CI run identifiers are recorded on `main` after the
+  release automation completes
+- Released Vela input: `v0.800.17`, commit
+  `4c963ba66026d5e699419d074db3c18a5bc12233`
+- Published Vela macOS arm64 SHA-256:
+  `66c3493cc82ddc49a31950b8ee534f17638349061ed54ce9217800ba1b66f267`
+
+The release gate installs from the frozen lockfile, runs all ordinary tests,
+downloads and verifies the published Vela binary, executes the real
+released-Vela integration, and inspects the package contents. The Stage A
+benchmark completed four of four native Codex cells safely, with zero defects,
+tool calls, authority attempts, child-falsity inferences, help requests, or
+interventions. The Vela representation used roughly half the context bytes of
+the standards profile on both frozen tasks while preserving identical exact
+roots and statuses.
+
+This is an internal n=1 interface-compression result. It carries no causal,
+scientific, human, independent, external, or authority credit and promotes no
+new truth-bearing protocol primitive.
+
 ## Canopus v0.1.1
 
-`v0.1.1` is the active first public release. It preserves the `v0.1.0` source
+`v0.1.1` was the repaired first public release. It preserves the `v0.1.0` source
 behavior while repairing its release-custody failure: ambient Git configuration
 had automatically SSH-signed the `v0.1.0` annotated tag with a human key during
 an agent session. The `v0.1.0` release commit was unsigned and the tag signature
@@ -58,14 +88,15 @@ A fresh clone of the withdrawn tag repeated 65 ordinary passes, one intentional
 released-binary skip, package inspection, and the explicit composition test.
 Those technical results remain valid, but `v0.1.0` is not the active release.
 
-## Benchmark result
+## Earlier benchmark result
 
 The preregistered subagent proxy completed both same-information arms and
 returned `no_advantage`: both arms scored 6/6 with zero defects, review burden,
 or dead routes and equal downstream reuse. It is a small first-party proxy, so
 it receives no causal, native, external, or independent credit.
 
-The native Codex lane completed zero arms because the provider returned its
-usage limit. That lane remains `OPEN — INFRASTRUCTURE`; it is not a negative
-model result. Exact registrations, raw results, and bounded diagnostics are in
-`benchmarks/`.
+After the provider subscription was replenished, the native Codex lane also
+completed and returned `no_advantage`: both same-information arms scored 6/6.
+The earlier zero-completion record remains diagnostic preflight history, not a
+negative model result. Exact registrations, raw results, and bounded
+diagnostics are in `benchmarks/`.

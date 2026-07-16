@@ -7,6 +7,7 @@ export * from "./artifact/freeze.js";
 export * from "./activity/events.js";
 export * from "./activity/store.js";
 export * from "./benchmark/run.js";
+export * from "./benchmark/composition.js";
 export * from "./candidate/validate.js";
 export * from "./util/canonical.js";
 export * from "./util/command.js";
