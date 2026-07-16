@@ -156,6 +156,59 @@ test("Vela client proves Git, replay, and proof roots", async () => {
   assert.equal(fake.environments.every((env) => env.VELA_NO_KEY_ACCESS === "1"), true);
 });
 
+test("Vela client serializes strict check before proof verification", async () => {
+  const fake = fakeRunner();
+  let checkFinished = false;
+  const runner: CommandRunner = async (options) => {
+    if (options.argv[1] === "check") {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      const observed = await fake.runner(options);
+      checkFinished = true;
+      return observed;
+    }
+    if (options.argv[1] === "proof" && !checkFinished) {
+      return result(options.argv, { error: "proof raced strict check" }, 1);
+    }
+    return await fake.runner(options);
+  };
+  const inspection = await client(runner).inspect("/repo", "frontier");
+  assert.deepEqual(inspection.roots, mission().roots);
+});
+
+test("Vela client reports bounded structured errors and only digests raw streams", async () => {
+  const fake = fakeRunner();
+  const runner: CommandRunner = async (options) => {
+    if (options.argv[1] === "proof") {
+      return {
+        ...result(
+          options.argv,
+          {
+            state_integrity: {
+              structural_errors: [
+                { message: "proof conflict with sk-never-display-123456789" },
+              ],
+            },
+          },
+          1,
+        ),
+        stderr: Buffer.from("Bearer never-display-this"),
+      };
+    }
+    return await fake.runner(options);
+  };
+  await assert.rejects(
+    client(runner).inspect("/repo", "frontier"),
+    (error: unknown) => {
+      assert.ok(error instanceof VelaClientError);
+      assert.match(error.message, /proof conflict with \[secret-redacted\]/u);
+      assert.match(error.message, /stdout_sha256=sha256:/u);
+      assert.match(error.message, /stderr_sha256=sha256:/u);
+      assert.doesNotMatch(error.message, /never-display-this/u);
+      return true;
+    },
+  );
+});
+
 test("Vela client rejects the wrong released binary version", async () => {
   const fake = fakeRunner({ version: "0.800.13" });
   await assert.rejects(

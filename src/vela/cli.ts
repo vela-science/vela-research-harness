@@ -110,6 +110,54 @@ function parseJsonObject(stdout: Buffer, command: string): Record<string, unknow
   }
 }
 
+function safeFailureMessage(value: unknown): string | undefined {
+  if (typeof value !== "string" || value.length === 0) return undefined;
+  const normalized = value
+    .replace(/[\u0000-\u001f\u007f]+/gu, " ")
+    .replace(/\bBearer\s+[A-Za-z0-9._~+\/-]+=*/giu, "Bearer [redacted]")
+    .replace(/\b(?:sk|sess|key)-[A-Za-z0-9_-]{8,}\b/gu, "[secret-redacted]")
+    .replace(/\s+/gu, " ")
+    .trim();
+  return [...normalized].slice(0, 512).join("");
+}
+
+function commandFailureSummary(result: CommandResult): string {
+  const diagnostics: string[] = [];
+  for (const bytes of [result.stdout, result.stderr]) {
+    try {
+      const parsed = JSON.parse(bytes.toString("utf8")) as unknown;
+      if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) continue;
+      const object = parsed as Record<string, unknown>;
+      const direct = safeFailureMessage(object.error) ?? safeFailureMessage(object.message);
+      if (direct !== undefined && !diagnostics.includes(direct)) diagnostics.push(direct);
+      const nested = object.error;
+      if (typeof nested === "object" && nested !== null && !Array.isArray(nested)) {
+        const message = safeFailureMessage((nested as Record<string, unknown>).message);
+        if (message !== undefined && !diagnostics.includes(message)) diagnostics.push(message);
+      }
+      const integrity = object.state_integrity;
+      if (typeof integrity === "object" && integrity !== null && !Array.isArray(integrity)) {
+        const errors = (integrity as Record<string, unknown>).structural_errors;
+        if (Array.isArray(errors)) {
+          for (const error of errors) {
+            if (typeof error !== "object" || error === null || Array.isArray(error)) continue;
+            const message = safeFailureMessage((error as Record<string, unknown>).message);
+            if (message !== undefined && !diagnostics.includes(message)) diagnostics.push(message);
+            if (diagnostics.length === 2) break;
+          }
+        }
+      }
+    } catch {
+      // Only documented structured error fields are eligible for display.
+    }
+  }
+  return [
+    ...(diagnostics.length === 0 ? ["no structured Vela failure message"] : diagnostics.slice(0, 2)),
+    `stdout_sha256=${sha256Bytes(result.stdout)}`,
+    `stderr_sha256=${sha256Bytes(result.stderr)}`,
+  ].join("; ");
+}
+
 function bool(value: unknown, at: string): boolean {
   if (typeof value !== "boolean") {
     throw new VelaClientError("malformed_output", `${at} must be a boolean`);
@@ -307,7 +355,7 @@ export class VelaClient {
     if (result.exitCode !== 0) {
       throw new VelaClientError(
         "command_failed",
-        `${argv[0]} ${argv.slice(1).join(" ")} exited ${result.exitCode}: ${result.stderr.toString("utf8")}`,
+        `${argv[0]} ${argv.slice(1).join(" ")} exited ${result.exitCode}: ${commandFailureSummary(result)}`,
       );
     }
     return result;
@@ -358,12 +406,18 @@ export class VelaClient {
   public async inspect(repoRoot: string, frontier: string): Promise<VelaInspection> {
     const safeFrontier = frontierPath(frontier);
     const version = await this.assertVersion(repoRoot);
-    const [gitCommit, gitTree, check, proof] = await Promise.all([
+    const [gitCommit, gitTree, check] = await Promise.all([
       this.#gitObject(repoRoot, "HEAD^{commit}"),
       this.#gitObject(repoRoot, "HEAD^{tree}"),
       this.#json(["check", safeFrontier, "--strict", "--json"], repoRoot, "vela check"),
-      this.#json(["proof", "verify", safeFrontier, "--json"], repoRoot, "vela proof verify"),
     ]);
+    // `vela check --strict` may refresh reducer-owned proof material. Do not
+    // race proof verification against that operation through a shared clone.
+    const proof = await this.#json(
+      ["proof", "verify", safeFrontier, "--json"],
+      repoRoot,
+      "vela proof verify",
+    );
 
     if (!bool(check.ok, "vela check.ok")) {
       throw new VelaClientError("command_failed", "vela check returned ok=false");
