@@ -1,6 +1,8 @@
 {
   "schema": "canopus.benchmark-registration.v0",
   "registered_at": "2026-07-15T00:00:00Z",
+  "implementation_commit": "e87f69a272596ecf5cec822ac4191b1c22e90f12",
+  "preflight_amendment": "Before any model call, the real native Codex preflight showed that the outer macOS sandbox needed process-fork for runtime threads and the package needed to ship the registered runner source. Commit e87f69a272596ecf5cec822ac4191b1c22e90f12 contains those bounded fixes; the facts, answer schema, runner bytes, model, budgets, arms, rubric, and decision rule are unchanged.",
   "purpose": "Internal agent proxy for whether inherited Vela state reduces dead-route work and review burden.",
   "case": {
     "id": "inheritance-001",
