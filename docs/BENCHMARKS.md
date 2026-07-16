@@ -33,6 +33,13 @@ at the expected network boundary. The registration records the resulting
 implementation commit. No failed probe reached the provider, and none changed
 the benchmark information, arms, model, budgets, rubric, or decision rule.
 
+Native Codex 0.139 creates and locks `CODEX_HOME/installation_id` while starting
+its in-process app server. Canopus therefore copies only bounded `auth.json` and
+optional `models_cache.json` bytes into a fresh writable home for each arm. The
+outer sandbox can write only inside that home, and the runner removes it in a
+`finally` block. The user's real credential directory is never writable by the
+model process and credential bytes are not retained in benchmark output.
+
 Dollar pricing is unavailable on the Codex subscription surface used here, so
 the report preserves exact token counts rather than inventing a dollar value.
 The harness does not use the available Anthropic balance for this initial

@@ -1,8 +1,8 @@
 {
   "schema": "canopus.benchmark-registration.v0",
   "registered_at": "2026-07-15T00:00:00Z",
-  "implementation_commit": "3f1776eb5c54d23405d4f6767b1b7b496dbf23e5",
-  "preflight_amendment": "Before any model call, real native-Codex preflights showed that the outer macOS sandbox needed process-fork for runtime threads, the compatibility page-size sysctl used by Rust stack initialization, metadata-only visibility of the absent managed requirements path, a finite set of named macOS startup services, the exact DNS/TLS services and public resolver files used by Codex's own macOS network policy, explicit access to notification-center shared memory, and the canonical /private/var/run/mDNSResponder path that Seatbelt evaluates behind the /var/run firmlink. Commit 3f1776eb5c54d23405d4f6767b1b7b496dbf23e5 replaces the unsafe broad network allow with the Chromium-style boundary: the one resolver socket plus remote TCP/UDP. The package also needed to ship the registered runner source. Every failed probe stopped before provider execution; an IP-denied diagnostic completed DNS through that exact socket and then stopped at the expected network boundary. The facts, answer schema, runner bytes, model, budgets, arms, rubric, and decision rule are unchanged.",
+  "implementation_commit": "627b6c7438fdc8048306949b453d539fc9015eb2",
+  "preflight_amendment": "Before any model call, real native-Codex preflights showed that the outer macOS sandbox needed process-fork for runtime threads, the compatibility page-size sysctl used by Rust stack initialization, metadata-only visibility of the absent managed requirements path, a finite set of named macOS startup services, the exact DNS/TLS services and public resolver files used by Codex's own macOS network policy, explicit access to notification-center shared memory, and the canonical /private/var/run/mDNSResponder path that Seatbelt evaluates behind the /var/run firmlink. The broad network allow was replaced by the Chromium-style boundary: the one resolver socket plus remote TCP/UDP. Codex 0.139 also creates and locks CODEX_HOME/installation_id during in-process app-server startup, so commit 627b6c7438fdc8048306949b453d539fc9015eb2 stages only bounded auth.json and optional models_cache.json bytes into a fresh writable per-arm home and removes that home in a finally block; the user's real credential directory stays read-only and is not retained in benchmark output. That commit also updates the registered runner, which the package ships exactly. Every failed probe stopped before provider execution; an IP-denied diagnostic completed DNS through the exact socket and then stopped at the expected network boundary. The facts, answer schema, model, budgets, arms, rubric, and decision rule are unchanged.",
   "purpose": "Internal agent proxy for whether inherited Vela state reduces dead-route work and review burden.",
   "case": {
     "id": "inheritance-001",
@@ -13,7 +13,7 @@
   },
   "runner": {
     "path": "src/benchmark/run.ts",
-    "sha256": "sha256:273eca1051122bb210ea5e9a5065d38a7c24a988f5c4aa2090c49ac9d0e3a78b",
+    "sha256": "sha256:1e059e04a6f63de159258ad273fcfef5d8a5399ad5d8d2adc29998f7a4c07173",
     "arms": ["baseline", "treatment"],
     "runs_per_arm": 1,
     "maximum_model_calls": 2,
