@@ -19,11 +19,12 @@ causal claim at n=1. A tie is `no_advantage`, not evidence for more protocol.
 Zero-call preflights found and corrected release-boundary defects before
 execution: the native Codex runtime needed thread creation and the compatibility
 page-size sysctl inside the outer Seatbelt profile; startup also needed
-metadata-only visibility of the absent managed-requirements path. The package
-needed to include the exact registered runner source. The registration records
-the resulting implementation commit. No failed probe reached the provider, and
-none changed the benchmark information, arms, model, budgets, rubric, or
-decision rule.
+metadata-only visibility of the absent managed-requirements path and a finite
+set of named macOS runtime services. The package needed to include the exact
+registered runner source. The last provider-disabled diagnostic reached the
+expected network denial. The registration records the resulting implementation
+commit. No failed probe reached the provider, and none changed the benchmark
+information, arms, model, budgets, rubric, or decision rule.
 
 Dollar pricing is unavailable on the Codex subscription surface used here, so
 the report preserves exact token counts rather than inventing a dollar value.

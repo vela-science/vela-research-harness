@@ -1,8 +1,8 @@
 {
   "schema": "canopus.benchmark-registration.v0",
   "registered_at": "2026-07-15T00:00:00Z",
-  "implementation_commit": "fda17268c673ddf523eccecff1ec426fbcded249",
-  "preflight_amendment": "Before any model call, real native-Codex preflights showed that the outer macOS sandbox needed process-fork for runtime threads, the compatibility page-size sysctl used by Rust stack initialization, and metadata-only visibility of the absent managed requirements path; the package also needed to ship the registered runner source. Commit fda17268c673ddf523eccecff1ec426fbcded249 contains those bounded fixes. Every failed probe stopped before provider execution, and the facts, answer schema, runner bytes, model, budgets, arms, rubric, and decision rule are unchanged.",
+  "implementation_commit": "5124d2f7aa88083746cd025341c1fc5a4dbe9dea",
+  "preflight_amendment": "Before any model call, real native-Codex preflights showed that the outer macOS sandbox needed process-fork for runtime threads, the compatibility page-size sysctl used by Rust stack initialization, metadata-only visibility of the absent managed requirements path, and a finite set of named macOS startup services. The package also needed to ship the registered runner source. Commit 5124d2f7aa88083746cd025341c1fc5a4dbe9dea contains those bounded fixes. Every failed probe stopped before provider execution; a final network-denied diagnostic reached the expected network boundary. The facts, answer schema, runner bytes, model, budgets, arms, rubric, and decision rule are unchanged.",
   "purpose": "Internal agent proxy for whether inherited Vela state reduces dead-route work and review burden.",
   "case": {
     "id": "inheritance-001",
