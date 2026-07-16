@@ -1,24 +1,26 @@
 # Release evidence
 
-## Canopus v0.1.0
+## Canopus v0.1.1
+
+`v0.1.1` is the active first public release. It preserves the `v0.1.0` source
+behavior while repairing its release-custody failure: ambient Git configuration
+had automatically SSH-signed the `v0.1.0` annotated tag with a human key during
+an agent session. The `v0.1.0` release commit was unsigned and the tag signature
+never entered Vela scientific authority, but any agent use of a human key is
+forbidden. The repository now disables commit and tag signing locally, and both
+the `v0.1.1` commit and annotated tag are explicitly unsigned.
 
 - Repository: [`vela-science/vela-research-harness`](https://github.com/vela-science/vela-research-harness)
-- Release: [`v0.1.0`](https://github.com/vela-science/vela-research-harness/releases/tag/v0.1.0)
-- Tag commit: `0c0e59bf025b93faca8e8078b098b5aee9c67078`
-- Main CI:
-  [run 29471356493](https://github.com/vela-science/vela-research-harness/actions/runs/29471356493),
-  succeeded at the tag commit
-- Tag CI:
-  [run 29478846248](https://github.com/vela-science/vela-research-harness/actions/runs/29478846248),
-  succeeded at the tag commit
+- Release: `v0.1.1` (exact commit, tag CI, and release URL are added after the
+  immutable tag exists)
 - Released Vela input: `v0.800.15`, commit
   `9c939cd914cc46563204b6b1d78487a53f68e8ed`
 - Published Vela macOS arm64 SHA-256:
   `09cf489a5fc1b9a94fc75044643e387e564a99e34d1905f0ff875d7c6a692f11`
 
-Both hosted Canopus runs install with the frozen lockfile, run the ordinary
-test suite, download and checksum the published Vela binary, execute the real
-released-Vela composition test, and inspect the package contents. The explicit
+The release gate installs with the frozen lockfile, runs the ordinary test
+suite, downloads and checksums the published Vela binary, executes the real
+released-Vela composition test, and inspects the package contents. The explicit
 composition test proves:
 
 1. the mission target appears exactly once in the released `vela next` offer;
@@ -29,10 +31,26 @@ composition test proves:
 6. the retained receipt binds the exact artifacts and verifier result; and
 7. an ordinary clean clone reproduces the frozen result.
 
-A fresh clone of the tag repeated 65 ordinary passes, one intentional
-released-binary skip, package inspection, and the explicit composition test.
 No signing command, human-key read, external-use claim, or independent
-scientific verdict is part of this evidence.
+scientific verdict is part of the harness.
+
+## Withdrawn Canopus v0.1.0
+
+- Tag commit: `0c0e59bf025b93faca8e8078b098b5aee9c67078`
+- Main CI:
+  [run 29471356493](https://github.com/vela-science/vela-research-harness/actions/runs/29471356493),
+  succeeded at the tag commit
+- Tag CI:
+  [run 29478846248](https://github.com/vela-science/vela-research-harness/actions/runs/29478846248),
+  succeeded at the tag commit
+- Withdrawal reason: its annotated tag carries an unintended human SSH
+  signature created by ambient Git configuration. This is release-custody
+  evidence only; it does not alter the source bytes or confer scientific
+  authority.
+
+A fresh clone of the withdrawn tag repeated 65 ordinary passes, one intentional
+released-binary skip, package inspection, and the explicit composition test.
+Those technical results remain valid, but `v0.1.0` is not the active release.
 
 ## Benchmark result
 
