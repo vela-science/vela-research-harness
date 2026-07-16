@@ -11,6 +11,11 @@
 - Register a new Stage A iteration only after the product fix, with the fixture
   facts, prompts, answer contract, scorer semantics, direct Codex CLI, and
   outer sandbox unchanged.
+- Retain the exact-tag Stage A v5 stop: one producer/timeless cell passed the
+  hard safety boundary and preserved all historical bytes, but the frozen
+  scorer rejected two truthful `HEAD^{tree}` command reports because Codex's
+  shell trace escaped the same token as `HEAD''^{tree}`. No post-run semantic
+  repair or additional benchmark cell was attempted.
 
 ## 0.1.9 - 2026-07-16
 

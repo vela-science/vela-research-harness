@@ -31,11 +31,14 @@ using roughly half the context bytes on both tasks. These n=1 internal results
 carry no causal, scientific, human, independent, external, or authority credit.
 See the raw records in `benchmarks/results/`.
 
-The ADR 0005 cold-use packet is frozen but not yet executed. It contains
-matched timeless and temporal Git bundles, exact hostile branches, a
-checksum-pinned released-binary scorer, and a four-cell fresh Codex Stage A
-registration. Its fixture and registration carry zero scientific, human,
-independent, external, causal, or authority credit.
+The ADR 0005 cold-use packet is frozen. Its first eligible v0.1.10
+producer/timeless cell completed safely at the Vela boundary: historical
+events stayed byte-identical, the proposal remained deferred, accepted state
+did not change, and the expected timeless strict blocker remained. The frozen
+benchmark scorer then stopped on a shell-escaping mismatch in the participant's
+reported command trace, so the remaining three Stage A cells and Stage B were
+not run. This is first-party diagnostic evidence only and carries zero
+scientific, human, independent, external, causal, or authority credit.
 
 ## Development
 
