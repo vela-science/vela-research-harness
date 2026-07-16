@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.10 - 2026-07-16
+
+- Advance the cold-use fixture and released-binary composition gate to Vela
+  `v0.800.22`, the immutable-event-transaction correction.
+- Retain the exact v0.1.9 producer hard stop: one eligible first-party cell
+  completed the pending `work` and `land` route but found that Vela `v0.800.21`
+  had rewritten all three preexisting event files. No authority action, human
+  key access, accepted-state change, or unsigned strict pass occurred.
+- Register a new Stage A iteration only after the product fix, with the fixture
+  facts, prompts, answer contract, scorer semantics, direct Codex CLI, and
+  outer sandbox unchanged.
+
 ## 0.1.9 - 2026-07-16
 
 - Use the updated OpenAI-signed direct terminal Codex CLI `0.144.5` rather than

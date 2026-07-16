@@ -18,9 +18,9 @@ import { promisify } from "node:util";
 
 const exec = promisify(execFile);
 const RELEASE = {
-  version: "0.800.21",
-  commit: "2bbcf8323e53643fcaacb81137645fc757789073",
-  macosSha256: "248665a9185e3ba4f0aad754f9b5b572480d5857ffe737ef6e466006d0cf83c6",
+  version: "0.800.22",
+  commit: "a5e5631d8fceb6a9a28522b7b9799adb74b9f232",
+  macosSha256: "08703dfe5193755a0a2feaafe34576f68c2769377f428e5cc7a779418b7958b9",
 };
 const NULL_HASH = "sha256:null";
 const EVENT_SCHEMA = "vela.event.v0.1";
@@ -286,7 +286,7 @@ async function main() {
   await mkdir(output, { recursive: true });
   const binary = await readFile(vela);
   if (sha256Bytes(binary) !== RELEASE.macosSha256) {
-    fail("Vela binary digest does not match the registered macOS v0.800.21 release");
+    fail("Vela binary digest does not match the registered macOS v0.800.22 release");
   }
   if ((await command([vela, "--version"])) !== `vela ${RELEASE.version}`) {
     fail("Vela binary version does not match the registered release");
@@ -625,7 +625,7 @@ async function main() {
       status: "frozen_not_executed",
       generated_by: {
         script: "scripts/build-temporal-registration-fixtures.mjs",
-        canopus_version: "0.1.5",
+        canopus_version: "0.1.10",
         model_calls: 0,
       },
       released_vela: {

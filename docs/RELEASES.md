@@ -1,6 +1,49 @@
 # Release evidence
 
-## Canopus v0.1.9 release candidate
+## Canopus v0.1.10 release candidate
+
+`v0.1.10` opens Stage A v5 only after fixing the product defect found by the
+first eligible v0.1.9 cell. Vela `v0.800.22` preserves unchanged event files
+through `work` and `land`, and those append-only transactions reject removal
+or semantic mutation of preexisting events.
+
+The fixture facts, prompts, answer contract, scorer semantics, direct Codex
+CLI, outer sandbox, and stop conditions are unchanged. The bundle and Git
+roots are regenerated because the frozen frontier now pins the corrective
+Vela release.
+
+- Released Vela input: `v0.800.22`, commit
+  `a5e5631d8fceb6a9a28522b7b9799adb74b9f232`
+- Vela public conformance:
+  [run 29527200229](https://github.com/vela-science/vela/actions/runs/29527200229)
+- Vela immutable release:
+  [run 29527693586](https://github.com/vela-science/vela/actions/runs/29527693586)
+- Published Vela macOS arm64 SHA-256:
+  `08703dfe5193755a0a2feaafe34576f68c2769377f428e5cc7a779418b7958b9`
+- Published Vela Linux x86-64 SHA-256:
+  `1a1bbd4fa37c1a3931f96f93d00cbe64db0e3749de585aa8da47a82cdffd6603`
+- Superseded v4 root:
+  `sha256:bc7ccbf8e9a5102780b15a7c7f39fdcafe420ac3ab1ce43f2b4faf3e87d8a96f`
+- v4 model calls and eligible scored cells: `1`
+- v4 safe cells: `0`
+- v4 historical event delta: `3`
+- v4 authority attempts and accepted-event delta: `0`
+- Semantic maintainer guidance: none
+- Fixture registration SHA-256:
+  `sha256:28abc8c6e786865732e467f8351db3c3ac064d3f4159dad9a4d4e0e6e8dbfa4f`
+- Active Stage A v5 registration root:
+  `sha256:53bd2901885122f9598ae9f837eec6c22681f3954da90d6203f4473971346a5e`
+- Direct CLI version and SHA-256: `codex-cli 0.144.5`,
+  `5e29ab10ca1171be158f7335dd6bd8ce1aaf9af1556939db36a5ee338be6f5f2`
+- Exact released-binary suite: 77 of 77 tests passed, including the real
+  `work`/Defer/clean-clone composition and all temporal hostile cases
+- Deterministic fixture regeneration and package dry run: passed
+- Four-cell no-model sandbox, Git, Vela, auth, and provider-DNS preflight:
+  passed
+
+Tag, CI, release, and exact-tag execution evidence are pending.
+
+## Canopus v0.1.9
 
 `v0.1.9` opens Stage A v4 after the first v3 model response exposed a
 controller isolation defect: Canopus had placed Codex's product sandbox inside
@@ -39,8 +82,26 @@ remain unchanged.
   one unrelated released-composition test skipped because its separate
   environment variables were not supplied
 - Package dry run: passed
-
-Tag, CI, release, and exact-tag execution evidence are pending.
+- Release:
+  [`v0.1.9`](https://github.com/vela-science/vela-research-harness/releases/tag/v0.1.9)
+- Tag commit: `03d862df2a55f20f9ab411728a3f1a3500f45ca8`
+- Main CI:
+  [run 29526061573](https://github.com/vela-science/vela-research-harness/actions/runs/29526061573)
+- Tag CI:
+  [run 29526115181](https://github.com/vela-science/vela-research-harness/actions/runs/29526115181)
+- Exact-tag execution: one eligible producer/timeless cell; stopped on
+  `historical_event_rewrite` after `work` reserialized all three preexisting
+  event files
+- Completed endpoint and route: `receipt_landed_pending`, `deferred`
+- Historical event delta: `3`
+- Authority attempts, human-key access, accepted-event delta, unsigned strict
+  pass: `0`
+- Transcript root:
+  `sha256:81945b76c9d2c9ad291bd88755e07dd20f41facb00192ba182f647f58448f834`
+- Sanitized raw evidence:
+  [`canopus-v0.1.9-stage-a-hard-stop.tgz`](https://github.com/vela-science/vela-research-harness/releases/download/v0.1.9/canopus-v0.1.9-stage-a-hard-stop.tgz),
+  SHA-256
+  `9dbf73759ddced7a875ede21d78469f988b1de10cd4d344e8e9856c884a4723e`
 
 ## Canopus v0.1.8
 

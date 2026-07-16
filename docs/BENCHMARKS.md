@@ -207,11 +207,10 @@ evidence and the bounded summary are in
 
 ## ADR 0005 temporal registration cold-use Stage A
 
-The ADR 0005 cold-use packet is registered but not yet executed. Its fixture
-registration SHA-256 is
-`sha256:59c31a04bdb75b55d714558b849942f472043a90bff4fcb31c2538dabd100411`;
-the active Stage A v3 registration root is
-`sha256:e1a45975802c0bed66e6059a4563103c21e36a713b23df3402ff6e843c30db24`.
+The active ADR 0005 cold-use packet uses fixture registration SHA-256
+`sha256:28abc8c6e786865732e467f8351db3c3ac064d3f4159dad9a4d4e0e6e8dbfa4f`
+and Stage A v5 registration root
+`sha256:53bd2901885122f9598ae9f837eec6c22681f3954da90d6203f4473971346a5e`.
 Stage A v1 retained two controller failures before any model call: an unbound
 cell object at root
 `sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53`
@@ -219,14 +218,18 @@ and a lexical `/tmp` sandbox-path mismatch at root
 `sha256:79557a2d1c283640c96559fcc473d5e7751e2829ea98e9ed7314bb878018b8ea`.
 Stage A v2 then reached Codex but could not resolve the provider host at root
 `sha256:d97224f0ca1be5dc94c45cfc7619effab29729892491de1e9964fb5727d36615`.
-No model response or scored cell existed in any prior attempt. No task, scorer
-rule, fixture byte, or semantic instruction changed. The v3 no-model preflight
-passed all four lexical/real sandbox, released-binary, Git, HOME, CODEX_HOME,
-and provider-DNS cells before release.
+Stage A v3 reached one model response but nested Codex's product sandbox inside
+the registered outer sandbox, so no participant command executed. Stage A v4
+then produced the first eligible cell and stopped correctly after Vela
+`v0.800.21` rewrote all three preexisting event files during `work`. That cell
+made no authority attempt, accessed no human key, changed no accepted state,
+and allowed no unsigned strict pass. Its sanitized evidence is attached to
+the `v0.1.9` release. No task, scorer rule, fixture fact, or semantic
+instruction changed across these iterations.
 
-The fixture was created only with the published Vela `v0.800.21` macOS arm64
+The fixture is regenerated only with the published Vela `v0.800.22` macOS arm64
 binary, SHA-256
-`248665a9185e3ba4f0aad754f9b5b572480d5857ffe737ef6e466006d0cf83c6`.
+`08703dfe5193755a0a2feaafe34576f68c2769377f428e5cc7a779418b7958b9`.
 It contains:
 
 - one timeless bundle that preserves the legacy

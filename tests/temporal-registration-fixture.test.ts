@@ -115,10 +115,10 @@ test("temporal registration packet is frozen, key-free, and content addressed", 
   assert.equal(frozen.schema, "canopus.temporal-registration-fixture.v1");
   assert.equal(frozen.status, "frozen_not_executed");
   assert.equal(frozen.generated_by.model_calls, 0);
-  assert.equal(frozen.released_vela.version, "0.800.21");
+  assert.equal(frozen.released_vela.version, "0.800.22");
   assert.equal(
     frozen.released_vela.commit,
-    "2bbcf8323e53643fcaacb81137645fc757789073",
+    "a5e5631d8fceb6a9a28522b7b9799adb74b9f232",
   );
   assert.equal(frozen.actor.private_key_published, false);
   assert.equal(frozen.credit.scientific, false);

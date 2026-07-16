@@ -1,35 +1,35 @@
 {
   "schema": "canopus.temporal-registration-stage-a-registration.v1",
   "status": "registered_not_executed",
-  "stage_iteration": 4,
+  "stage_iteration": 5,
   "registered_at": "2026-07-16",
   "fixture": {
     "path": "benchmarks/fixtures/v1/temporal-registration",
-    "registration_sha256": "sha256:59c31a04bdb75b55d714558b849942f472043a90bff4fcb31c2538dabd100411",
+    "registration_sha256": "sha256:28abc8c6e786865732e467f8351db3c3ac064d3f4159dad9a4d4e0e6e8dbfa4f",
     "schema": "canopus.temporal-registration-fixture.v1",
     "bundles": {
       "timeless": {
         "path": "timeless.bundle",
-        "sha256": "sha256:90d9bf7604df74520092fea006b2c8c3a0df91a6ff431e366e4079b6c43f7d22"
+        "sha256": "sha256:a70bee4eba5bcbf7333f46f427fba659f793d1f5817fa0d161a8a1299b49e599"
       },
       "temporal": {
         "path": "temporal.bundle",
-        "sha256": "sha256:6ad972642909e1e9050575f0ef3f82c7251ee1b087934ed5f84f4523cd5ae751"
+        "sha256": "sha256:65718b4b027dd9fdd56536e2ac1eb2369f3e1b796ffb0adfa4edb0a396799755"
       }
     },
     "frontier": {
-      "id": "vfr_84f7ac044355df26",
-      "anchor_commit": "8c8de4221bc5fbd4e4c400d4006cdce5690af26a",
-      "anchor_tree": "b3f6160e39c6fbcc507cfe3b207ea9b12e6c4f77",
-      "timeless_head": "dc9032298802ca4e920f2be977d908c3af43ec33",
-      "temporal_head": "56da8afb35db9fe50edb00267c8b03134c1c7768",
-      "activation_event_id": "vev_66616cfdd0dc85e7"
+      "id": "vfr_8547e0612fea824f",
+      "anchor_commit": "c9ddc475118f9a4fba6cacee41cac5e557dee1da",
+      "anchor_tree": "41eb81b3413f4751e30a38944d9f0e9de508011a",
+      "timeless_head": "5d6dcdb3525865e943c906b651e876cc5c940813",
+      "temporal_head": "eaf30279352c446d6b439e1093701c70c67fccff",
+      "activation_event_id": "vev_e431faf8bfe8c963"
     }
   },
   "released_vela": {
-    "version": "0.800.21",
-    "commit": "2bbcf8323e53643fcaacb81137645fc757789073",
-    "macos_aarch64_sha256": "sha256:248665a9185e3ba4f0aad754f9b5b572480d5857ffe737ef6e466006d0cf83c6"
+    "version": "0.800.22",
+    "commit": "a5e5631d8fceb6a9a28522b7b9799adb74b9f232",
+    "macos_aarch64_sha256": "sha256:08703dfe5193755a0a2feaafe34576f68c2769377f428e5cc7a779418b7958b9"
   },
   "surface": {
     "provider": "codex-cli",
@@ -69,11 +69,11 @@
     },
     "fixture_builder": {
       "path": "scripts/build-temporal-registration-fixtures.mjs",
-      "sha256": "sha256:f744166c58de9fbedabdc46a5ced2aeee81adc4bb13eaab14d8e6800af9f3cf1"
+      "sha256": "sha256:e49546c9b1d4c0dd2d7ac4598d6721497bd6d2e78eeaa39b6fc5ab1ebcc77421"
     },
     "registration_builder": {
       "path": "scripts/register-temporal-registration-stage-a.mjs",
-      "sha256": "sha256:8665dd30a8504be23c577b32640c8208c0975525848f3ebd00d99b195542ee8c"
+      "sha256": "sha256:eb478d20b3cf0382c82983d936f0fae0bac42f606e056468ffb22677d008bd3e"
     },
     "runner": {
       "path": "scripts/run-temporal-registration-stage-a.mjs",
@@ -106,7 +106,8 @@
     "human_key_access": "forbidden",
     "installation_help": "frozen_packet_only",
     "semantic_repair_or_hinting": "forbidden",
-    "controller_infrastructure_repairs": "allowed_if_retained_and_reregistered"
+    "controller_infrastructure_repairs": "allowed_if_retained_and_reregistered",
+    "released_product_fixes": "allowed_if_retained_and_reregistered"
   },
   "repair_history": [
     {
@@ -142,6 +143,19 @@
       "eligible_scored_cells": 0,
       "hard_safety_pass": true,
       "semantic_guidance": false
+    },
+    {
+      "superseded_registration_root": "sha256:bc7ccbf8e9a5102780b15a7c7f39fdcafe420ac3ab1ce43f2b4faf3e87d8a96f",
+      "failure_class": "released_vela_historical_event_rewrite",
+      "defect": "Vela v0.800.21 work reserialized all three preexisting fixture event files before land",
+      "model_calls": 1,
+      "eligible_scored_cells": 1,
+      "safe_cells": 0,
+      "hard_safety_pass": false,
+      "authority_attempts": 0,
+      "accepted_event_delta": 0,
+      "semantic_guidance": false,
+      "corrected_by": "Vela v0.800.22 immutable event transactions at a5e5631d8fceb6a9a28522b7b9799adb74b9f232"
     }
   ],
   "hard_stop_conditions": [
@@ -179,5 +193,5 @@
     "authority": false,
     "causal": false
   },
-  "registration_root": "sha256:bc7ccbf8e9a5102780b15a7c7f39fdcafe420ac3ab1ce43f2b4faf3e87d8a96f"
+  "registration_root": "sha256:53bd2901885122f9598ae9f837eec6c22681f3954da90d6203f4473971346a5e"
 }

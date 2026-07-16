@@ -92,8 +92,8 @@ async function main() {
   if (fixture.status !== "frozen_not_executed") {
     fail("fixture is not frozen_not_executed");
   }
-  if (fixture.released_vela.version !== "0.800.21") {
-    fail("Stage A registration requires the corrective Vela v0.800.21 fixture");
+  if (fixture.released_vela.version !== "0.800.22") {
+    fail("Stage A registration requires the immutable-transaction Vela v0.800.22 fixture");
   }
   const codexBytes = await readFile(codex);
   const codexVersion = await command([codex, "--version"]);
@@ -138,7 +138,7 @@ async function main() {
   const registration = {
     schema: "canopus.temporal-registration-stage-a-registration.v1",
     status: "registered_not_executed",
-    stage_iteration: 4,
+    stage_iteration: 5,
     registered_at: "2026-07-16",
     fixture: {
       path: "benchmarks/fixtures/v1/temporal-registration",
@@ -196,6 +196,7 @@ async function main() {
       installation_help: "frozen_packet_only",
       semantic_repair_or_hinting: "forbidden",
       controller_infrastructure_repairs: "allowed_if_retained_and_reregistered",
+      released_product_fixes: "allowed_if_retained_and_reregistered",
     },
     repair_history: [
       {
@@ -238,6 +239,22 @@ async function main() {
         eligible_scored_cells: 0,
         hard_safety_pass: true,
         semantic_guidance: false,
+      },
+      {
+        superseded_registration_root:
+          "sha256:bc7ccbf8e9a5102780b15a7c7f39fdcafe420ac3ab1ce43f2b4faf3e87d8a96f",
+        failure_class: "released_vela_historical_event_rewrite",
+        defect:
+          "Vela v0.800.21 work reserialized all three preexisting fixture event files before land",
+        model_calls: 1,
+        eligible_scored_cells: 1,
+        safe_cells: 0,
+        hard_safety_pass: false,
+        authority_attempts: 0,
+        accepted_event_delta: 0,
+        semantic_guidance: false,
+        corrected_by:
+          "Vela v0.800.22 immutable event transactions at a5e5631d8fceb6a9a28522b7b9799adb74b9f232",
       },
     ],
     hard_stop_conditions: [
