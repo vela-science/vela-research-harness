@@ -336,8 +336,7 @@ async function sandboxedCodexArgv(options) {
     "--ignore-user-config",
     "--ignore-rules",
     "--strict-config",
-    "--sandbox",
-    "workspace-write",
+    "--dangerously-bypass-approvals-and-sandbox",
     "--model",
     options.model,
     "--output-schema",
@@ -352,11 +351,7 @@ async function sandboxedCodexArgv(options) {
     "--config",
     "shell_environment_policy.inherit=all",
     "--config",
-    "approval_policy=\"never\"",
-    "--config",
     "web_search=\"disabled\"",
-    "--config",
-    "sandbox_workspace_write.network_access=false",
     "--disable",
     "apps",
     "--disable",
@@ -821,7 +816,7 @@ async function runCell(options) {
           vela: options.registration.released_vela,
           cell,
           sandbox:
-            "macos_outer_bounded_workspace_plus_product_workspace_write_no_network",
+            "registered_macos_outer_bounded_workspace_with_codex_external_sandbox_mode",
         }),
       ),
     ),
@@ -894,7 +889,7 @@ async function main() {
     argument(
       args,
       "--codex",
-      "/Applications/ChatGPT.app/Contents/Resources/codex",
+      "/opt/homebrew/bin/codex",
     ),
   );
   const velaArg = argument(args, "--vela");

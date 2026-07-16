@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.9 - 2026-07-16
+
+- Use the updated OpenAI-signed direct terminal Codex CLI `0.144.5` rather than
+  the older app-bundled `0.144.2` binary.
+- Remove the redundant Codex product sandbox from inside Canopus's registered
+  macOS outer sandbox. Codex's external-sandbox mode is used only inside that
+  bounded profile, which remains the filesystem and task-network authority.
+- Retain the v0.1.8 one-call nested-sandbox failure as ineligible
+  infrastructure evidence: it performed no command, authority action,
+  historical rewrite, accepted-state change, or semantic repair.
+
 ## 0.1.8 - 2026-07-16
 
 - Open Stage A v3 after v2 reached Codex but failed DNS resolution before any

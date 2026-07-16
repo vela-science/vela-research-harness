@@ -247,10 +247,10 @@ producer temporal
 reviewer timeless
 ```
 
-Each cell uses a fresh ephemeral Codex `0.144.2` session with model
+Each cell uses a fresh ephemeral direct Codex CLI `0.144.5` session with model
 `gpt-5.6-sol`, an isolated authentication home, an outer bounded macOS
-filesystem sandbox, the product workspace-write sandbox with task network
-disabled, and no conversation history. The producer receives only a public
+filesystem and task-network sandbox, Codex external-sandbox mode inside that
+profile, and no conversation history. The producer receives only a public
 disposable `agent:` fixture seed. Neither task receives a human key.
 
 The controller roots the rendered prompt, command trace, transcript, answer,
@@ -265,11 +265,12 @@ Readiness without a model call is checked by:
 ```bash
 pnpm run:temporal-registration-stage-a -- \
   --vela /absolute/path/to/vela-macos-aarch64 \
-  --codex /Applications/ChatGPT.app/Contents/Resources/codex \
+  --codex /opt/homebrew/bin/codex \
   --codex-home "$HOME/.codex" \
   --output /absolute/empty/output
 ```
 
 Execution requires the additional `--execute` flag. Stage B is not registered
-until Stage A completes safely or a single documented repair produces a new
-registration root.
+until Stage A completes safely. Any controller-infrastructure correction is
+retained, must produce a new registration root, and cannot change fixture
+facts, prompts, scorer semantics, or participant guidance.

@@ -1,6 +1,48 @@
 # Release evidence
 
-## Canopus v0.1.8 release candidate
+## Canopus v0.1.9 release candidate
+
+`v0.1.9` opens Stage A v4 after the first v3 model response exposed a
+controller isolation defect: Canopus had placed Codex's product sandbox inside
+an already active registered outer sandbox, so both attempted participant
+commands failed at sandbox initialization with exit 71.
+
+The stopped cell is retained as infrastructure evidence. It made one model
+call and emitted one controller score record, but is ineligible as a cold-use
+score because no participant command could execute. It made no authority
+attempt, accessed no human key, rewrote no historical event, changed no
+accepted state, and received no semantic maintainer guidance.
+
+The v4 controller uses the updated OpenAI-signed direct terminal Codex CLI
+`0.144.5` and Codex's documented external-sandbox mode. The registered Canopus
+macOS profile remains the sole bounded filesystem and task-network boundary.
+The fixture, prompts, answer contract, scorer semantics, and stop conditions
+remain unchanged.
+
+- Released Vela input: `v0.800.21`, commit
+  `2bbcf8323e53643fcaacb81137645fc757789073`
+- Superseded v3 root:
+  `sha256:e1a45975802c0bed66e6059a4563103c21e36a713b23df3402ff6e843c30db24`
+- v3 model calls: `1`
+- v3 eligible scored cells: `0`
+- v3 authority attempts, historical rewrites, accepted-state changes: `0`
+- Semantic maintainer guidance: none
+- Direct CLI version: `codex-cli 0.144.5`
+- Direct CLI SHA-256:
+  `sha256:5e29ab10ca1171be158f7335dd6bd8ce1aaf9af1556939db36a5ee338be6f5f2`
+- Direct CLI OpenAI team identifier: `2DC432GLL2`
+- Active Stage A v4 registration root:
+  `sha256:bc7ccbf8e9a5102780b15a7c7f39fdcafe420ac3ab1ce43f2b4faf3e87d8a96f`
+- Four-cell no-model sandbox, Git, Vela, auth, and provider-DNS preflight:
+  passed
+- Focused suite with the exact released Vela binary: 77 tests, 76 passed and
+  one unrelated released-composition test skipped because its separate
+  environment variables were not supplied
+- Package dry run: passed
+
+Tag, CI, release, and exact-tag execution evidence are pending.
+
+## Canopus v0.1.8
 
 `v0.1.8` opens Stage A v3 after v2 reached the Codex process but could not
 resolve the provider host. The failure occurred before any provider response,
@@ -21,8 +63,16 @@ scorer semantics remain unchanged.
 - Active Stage A v3 registration root:
   `sha256:e1a45975802c0bed66e6059a4563103c21e36a713b23df3402ff6e843c30db24`
 - Four-cell no-model sandbox and provider-DNS preflight: passed
-
-Tag, CI, preflight, and v3 registration evidence are pending.
+- Release:
+  [`v0.1.8`](https://github.com/vela-science/vela-research-harness/releases/tag/v0.1.8)
+- Tag commit: `7eb06390c80b8f6819d492ad751fdaee08f8cd99`
+- Main CI:
+  [run 29525556898](https://github.com/vela-science/vela-research-harness/actions/runs/29525556898)
+- Tag CI:
+  [run 29525638155](https://github.com/vela-science/vela-research-harness/actions/runs/29525638155)
+- Exact-tag execution: one model call, zero eligible scored cells; stopped on
+  the retained nested-sandbox infrastructure defect before any participant
+  command executed
 
 ## Canopus v0.1.7
 

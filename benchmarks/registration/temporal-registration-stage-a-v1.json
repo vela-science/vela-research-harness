@@ -1,7 +1,7 @@
 {
   "schema": "canopus.temporal-registration-stage-a-registration.v1",
   "status": "registered_not_executed",
-  "stage_iteration": 3,
+  "stage_iteration": 4,
   "registered_at": "2026-07-16",
   "fixture": {
     "path": "benchmarks/fixtures/v1/temporal-registration",
@@ -34,12 +34,13 @@
   "surface": {
     "provider": "codex-cli",
     "request": "gpt-5.6-sol",
-    "exact_cli_version": "codex-cli 0.144.2",
-    "binary_sha256": "sha256:4a9e84ad1c9622e8f6a50dafd75710eaee4af79dc5bcf8bafd4471763255fe18",
+    "exact_cli_version": "codex-cli 0.144.5",
+    "binary_sha256": "sha256:5e29ab10ca1171be158f7335dd6bd8ce1aaf9af1556939db36a5ee338be6f5f2",
     "macos_team_identifier": "2DC432GLL2",
     "session_persistence": "ephemeral",
     "conversation_history": "none",
-    "task_network": "disabled_by_product_and_outer_sandbox"
+    "task_network": "disabled_by_outer_sandbox",
+    "execution_isolation": "codex_external_sandbox_mode_inside_registered_macos_outer_profile"
   },
   "files": {
     "system": {
@@ -72,11 +73,11 @@
     },
     "registration_builder": {
       "path": "scripts/register-temporal-registration-stage-a.mjs",
-      "sha256": "sha256:c4dfa949d8fe68549f425e1e114f104e3ea42d3811487c8f9377a052091f35e1"
+      "sha256": "sha256:8665dd30a8504be23c577b32640c8208c0975525848f3ebd00d99b195542ee8c"
     },
     "runner": {
       "path": "scripts/run-temporal-registration-stage-a.mjs",
-      "sha256": "sha256:fff22dac51ad506396c02223c308acedf0b7eb2e797f3045cb27260f62c6d5a0"
+      "sha256": "sha256:6dd2df0b1463bbb39e276f2def94d8de9c15258efc8a68f95ca08996f0aa9723"
     }
   },
   "runner": {
@@ -104,8 +105,8 @@
     "artifact_edits": "forbidden",
     "human_key_access": "forbidden",
     "installation_help": "frozen_packet_only",
-    "repair_cycle_used": 1,
-    "repair_cycle_remaining": 0
+    "semantic_repair_or_hinting": "forbidden",
+    "controller_infrastructure_repairs": "allowed_if_retained_and_reregistered"
   },
   "repair_history": [
     {
@@ -130,6 +131,16 @@
       "defect": "outer sandbox omitted DNS runtime files required for the Codex provider connection",
       "model_calls": 0,
       "scored_cells": 0,
+      "semantic_guidance": false
+    },
+    {
+      "superseded_registration_root": "sha256:e1a45975802c0bed66e6059a4563103c21e36a713b23df3402ff6e843c30db24",
+      "failure_class": "controller_nested_sandbox_transport",
+      "defect": "Codex product sandbox initialization was nested inside the registered outer sandbox and rejected every participant command with sandbox_apply exit 71",
+      "model_calls": 1,
+      "controller_score_records": 1,
+      "eligible_scored_cells": 0,
+      "hard_safety_pass": true,
       "semantic_guidance": false
     }
   ],
@@ -168,5 +179,5 @@
     "authority": false,
     "causal": false
   },
-  "registration_root": "sha256:e1a45975802c0bed66e6059a4563103c21e36a713b23df3402ff6e843c30db24"
+  "registration_root": "sha256:bc7ccbf8e9a5102780b15a7c7f39fdcafe420ac3ab1ce43f2b4faf3e87d8a96f"
 }

@@ -202,7 +202,11 @@ test("Stage A registration binds four zero-credit fresh-session cells", async ()
   assert.equal(registered.status, "registered_not_executed");
   assert.equal(registered.runner.maximum_model_calls, 4);
   assert.equal(registered.runner.cell_order.length, 4);
-  assert.equal(registered.surface.exact_cli_version, "codex-cli 0.144.2");
+  assert.equal(registered.surface.exact_cli_version, "codex-cli 0.144.5");
+  assert.equal(
+    registered.surface.execution_isolation,
+    "codex_external_sandbox_mode_inside_registered_macos_outer_profile",
+  );
   assert.equal(registered.surface.request, "gpt-5.6-sol");
   assert.equal(registered.credit.scientific, false);
   assert.equal(registered.credit.independent, false);

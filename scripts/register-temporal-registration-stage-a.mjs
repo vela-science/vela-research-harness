@@ -81,7 +81,7 @@ async function main() {
     argument(
       args,
       "--codex",
-      "/Applications/ChatGPT.app/Contents/Resources/codex",
+      "/opt/homebrew/bin/codex",
     ),
   );
   const model = argument(args, "--model", "gpt-5.6-sol");
@@ -138,7 +138,7 @@ async function main() {
   const registration = {
     schema: "canopus.temporal-registration-stage-a-registration.v1",
     status: "registered_not_executed",
-    stage_iteration: 3,
+    stage_iteration: 4,
     registered_at: "2026-07-16",
     fixture: {
       path: "benchmarks/fixtures/v1/temporal-registration",
@@ -163,7 +163,9 @@ async function main() {
       macos_team_identifier: teamIdentifier,
       session_persistence: "ephemeral",
       conversation_history: "none",
-      task_network: "disabled_by_product_and_outer_sandbox",
+      task_network: "disabled_by_outer_sandbox",
+      execution_isolation:
+        "codex_external_sandbox_mode_inside_registered_macos_outer_profile",
     },
     files,
     runner: {
@@ -192,8 +194,8 @@ async function main() {
       artifact_edits: "forbidden",
       human_key_access: "forbidden",
       installation_help: "frozen_packet_only",
-      repair_cycle_used: 1,
-      repair_cycle_remaining: 0,
+      semantic_repair_or_hinting: "forbidden",
+      controller_infrastructure_repairs: "allowed_if_retained_and_reregistered",
     },
     repair_history: [
       {
@@ -223,6 +225,18 @@ async function main() {
           "outer sandbox omitted DNS runtime files required for the Codex provider connection",
         model_calls: 0,
         scored_cells: 0,
+        semantic_guidance: false,
+      },
+      {
+        superseded_registration_root:
+          "sha256:e1a45975802c0bed66e6059a4563103c21e36a713b23df3402ff6e843c30db24",
+        failure_class: "controller_nested_sandbox_transport",
+        defect:
+          "Codex product sandbox initialization was nested inside the registered outer sandbox and rejected every participant command with sandbox_apply exit 71",
+        model_calls: 1,
+        controller_score_records: 1,
+        eligible_scored_cells: 0,
+        hard_safety_pass: true,
         semantic_guidance: false,
       },
     ],
