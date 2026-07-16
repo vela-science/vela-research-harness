@@ -54,4 +54,5 @@ for the pending/accepted distinction and publication boundary.
 See [ADR 0001](docs/adr/0001-harness-boundary-and-name.md) for the boundary
 and deletion test, [mission roles](docs/MISSIONS.md) for the four bounded
 research jobs, and [benchmarks](docs/BENCHMARKS.md) for the registered two-call
-inherited-state probe.
+inherited-state probe. Exact tag, CI, released-Vela, clean-clone, and benchmark
+evidence is recorded in [release evidence](docs/RELEASES.md).
