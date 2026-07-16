@@ -9,9 +9,13 @@ them inside Canopus.
 
 - Repository: [`vela-science/vela-research-harness`](https://github.com/vela-science/vela-research-harness)
 - Release: [`v0.1.2`](https://github.com/vela-science/vela-research-harness/releases/tag/v0.1.2)
-- Tag commit: resolve the immutable `v0.1.2^{commit}` tag target; the exact
-  post-release commit and CI run identifiers are recorded on `main` after the
-  release automation completes
+- Tag commit: `e573b8d3bd79a415252f5e7a22e20aff2bf510a7`
+- Main CI:
+  [run 29493950827](https://github.com/vela-science/vela-research-harness/actions/runs/29493950827),
+  succeeded at the tag commit
+- Tag CI:
+  [run 29493951876](https://github.com/vela-science/vela-research-harness/actions/runs/29493951876),
+  succeeded at the tag commit
 - Released Vela input: `v0.800.17`, commit
   `4c963ba66026d5e699419d074db3c18a5bc12233`
 - Published Vela macOS arm64 SHA-256:
