@@ -40,6 +40,14 @@ outer sandbox can write only inside that home, and the runner removes it in a
 `finally` block. The user's real credential directory is never writable by the
 model process and credential bytes are not retained in benchmark output.
 
+The first network-enabled launch reached TLS root loading but returned no HTTP
+or model response because `rustls-native-certs` attempted the denied macOS
+keychain path. Canopus pins `SSL_CERT_FILE` to `/etc/ssl/cert.pem`, already inside
+the public system-runtime allowlist. This preserves TLS without admitting the
+user's keychains. That failed launch produced no benchmark arm; the registration
+records the amendment without changing the facts, model, rubric, or decision
+rule.
+
 Dollar pricing is unavailable on the Codex subscription surface used here, so
 the report preserves exact token counts rather than inventing a dollar value.
 The harness does not use the available Anthropic balance for this initial
