@@ -83,6 +83,10 @@ export async function sandboxedToolFreeCodexExecArgv(
     authFile: path.resolve(options.authHome, "auth.json"),
     modelCatalog: path.resolve(options.authHome, "models_cache.json"),
   };
+  const managedRequirements = [
+    "/etc/codex/requirements.toml",
+    "/private/etc/codex/requirements.toml",
+  ];
   const [binary, cwd, outputSchema, finalParent, authFile, modelCatalog] = await Promise.all([
     realpath(lexical.binary),
     realpath(lexical.cwd),
@@ -127,6 +131,7 @@ export async function sandboxedToolFreeCodexExecArgv(
     lexical.outputSchema,
     lexical.finalParent,
     lexical.authFile,
+    ...managedRequirements,
     ...(modelCatalog === undefined ? [] : [modelCatalog]),
   ]);
   const profile = [
