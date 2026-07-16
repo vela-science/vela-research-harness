@@ -1,0 +1,672 @@
+{
+  "schema": "canopus.temporal-registration-fixture.v1",
+  "status": "frozen_not_executed",
+  "generated_by": {
+    "script": "scripts/build-temporal-registration-fixtures.mjs",
+    "canopus_version": "0.1.5",
+    "model_calls": 0
+  },
+  "released_vela": {
+    "version": "0.800.21",
+    "commit": "2bbcf8323e53643fcaacb81137645fc757789073",
+    "macos_aarch64_sha256": "sha256:248665a9185e3ba4f0aad754f9b5b572480d5857ffe737ef6e466006d0cf83c6"
+  },
+  "actor": {
+    "id": "reviewer:temporal-fixture",
+    "public_key": "8d0886d1e83e24894f2c27f082d8f3423a7669794f0929564faf05cdc7c6d9ed",
+    "private_key_published": false
+  },
+  "frontier": {
+    "id": "vfr_84f7ac044355df26",
+    "anchor_commit": "8c8de4221bc5fbd4e4c400d4006cdce5690af26a",
+    "anchor_tree": "b3f6160e39c6fbcc507cfe3b207ea9b12e6c4f77",
+    "timeless_head": "dc9032298802ca4e920f2be977d908c3af43ec33",
+    "temporal_head": "56da8afb35db9fe50edb00267c8b03134c1c7768",
+    "activation_event_id": "vev_66616cfdd0dc85e7",
+    "activation_preview_root": "sha256:7173582019169b2ce3fb65e4319ae1f21b08e1a92d9fa26952db7061518cf7a1",
+    "common_event_ids": [
+      "vev_847b827e70848f41",
+      "vev_d1d116b5123ecba0",
+      "vev_d9b1ae1997a50450"
+    ],
+    "common_events": [
+      {
+        "id": "vev_847b827e70848f41",
+        "kind": "research_trace.review",
+        "byte_root": "sha256:ce2aa9008bfed4e88e3d08725953f36fb9f6d06be891ffadeb23713e69870afb",
+        "signature_present": false,
+        "anchor_member": true
+      },
+      {
+        "id": "vev_d1d116b5123ecba0",
+        "kind": "research_trace.review",
+        "byte_root": "sha256:6d6e8feac737e499bdc88f624389fee22b1ce11fd637f12d3f897a5797a38310",
+        "signature_present": true,
+        "anchor_member": true
+      },
+      {
+        "id": "vev_d9b1ae1997a50450",
+        "kind": "research_trace.review",
+        "byte_root": "sha256:195b23a47b81425ae0ee3b87d5b5e7404912dc692f9dda28c95ccb397c48541e",
+        "signature_present": true,
+        "anchor_member": false
+      }
+    ],
+    "anchored_unsigned_event_id": "vev_847b827e70848f41",
+    "anchored_signed_event_id": "vev_d1d116b5123ecba0",
+    "post_anchor_signed_event_id": "vev_d9b1ae1997a50450",
+    "actor_registry_root": "sha256:836e0315bde0d6f84f44fa25dee28b5618eba2962d5e451172a64c322f0eb1f2"
+  },
+  "bundles": {
+    "timeless": {
+      "path": "timeless.bundle",
+      "sha256": "sha256:90d9bf7604df74520092fea006b2c8c3a0df91a6ff431e366e4079b6c43f7d22"
+    },
+    "temporal": {
+      "path": "temporal.bundle",
+      "sha256": "sha256:6ad972642909e1e9050575f0ef3f82c7251ee1b087934ed5f84f4523cd5ae751"
+    }
+  },
+  "branches": {
+    "case/activation-and-actor-deleted": "acee52aab1f0269af48b58b71025d7bcb9dc7c4f",
+    "case/activation-deleted": "f4354b8381d066e6895576b6ae96214e024dcfbf",
+    "case/anchor-signature-removed": "364803ad237c17f39ba6fa59305edc8ef4723aa5",
+    "case/backdated-post-anchor": "ec731ff7548f23dbd65ca31966fa285e32232dc0",
+    "case/git-publication-only": "911fa328de94d1db9cea160111cbfc83e702564a",
+    "case/nonancestor-anchor": "262d533430533d3c07a5405e3343fd9239662faf",
+    "case/registry-key-replaced": "3c3b10b641928b39f24f800b49cebe18f2242bd4",
+    "case/unsigned-post-anchor": "db2045e56d774eb67a4524649d1077ecb3aaf4b9",
+    "case/wrong-anchor-root": "149525828fa95add76d3f5399a6a47418335af2c",
+    "fixture/nonancestor-anchor": "2f70d004d24d9d34f0638014c36e54d8451a391a",
+    "main": "56da8afb35db9fe50edb00267c8b03134c1c7768"
+  },
+  "derived_cases": {
+    "missing_anchor_object": {
+      "method": "depth_one_clone_of_temporal_main",
+      "strict": {
+        "exit_code": 1,
+        "signals": [
+          {
+            "kind": "actor_registration_anchor_unavailable",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 4,
+        "event_log_hash": "sha256:f62830cb7d3e02de8b8dd738b495661c32e7b2d0c0609902bc85ea4b098d8158"
+      },
+      "non_strict": {
+        "exit_code": 0,
+        "signals": [
+          {
+            "kind": "actor_registration_anchor_unavailable",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 4,
+        "event_log_hash": "sha256:f62830cb7d3e02de8b8dd738b495661c32e7b2d0c0609902bc85ea4b098d8158"
+      }
+    }
+  },
+  "hostile_case_checks": {
+    "case/activation-and-actor-deleted": {
+      "strict": {
+        "exit_code": 1,
+        "signals": [
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 3,
+        "event_log_hash": "sha256:110e38b5ab92edb668d6d13deafd7900e3f4b7a643b50558478a776b000fefb2"
+      },
+      "non_strict": {
+        "exit_code": 0,
+        "signals": [
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 3,
+        "event_log_hash": "sha256:110e38b5ab92edb668d6d13deafd7900e3f4b7a643b50558478a776b000fefb2"
+      }
+    },
+    "case/activation-deleted": {
+      "strict": {
+        "exit_code": 1,
+        "signals": [
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 3,
+        "event_log_hash": "sha256:110e38b5ab92edb668d6d13deafd7900e3f4b7a643b50558478a776b000fefb2"
+      },
+      "non_strict": {
+        "exit_code": 0,
+        "signals": [
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 3,
+        "event_log_hash": "sha256:110e38b5ab92edb668d6d13deafd7900e3f4b7a643b50558478a776b000fefb2"
+      }
+    },
+    "case/anchor-signature-removed": {
+      "strict": {
+        "exit_code": 1,
+        "signals": [
+          {
+            "kind": "pre_registration_signature_lost",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "pre_registration_unsigned_actor_event",
+            "severity": "info",
+            "blocks": []
+          }
+        ],
+        "event_log_count": 4,
+        "event_log_hash": "sha256:f62830cb7d3e02de8b8dd738b495661c32e7b2d0c0609902bc85ea4b098d8158"
+      },
+      "non_strict": {
+        "exit_code": 0,
+        "signals": [
+          {
+            "kind": "pre_registration_signature_lost",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "pre_registration_unsigned_actor_event",
+            "severity": "info",
+            "blocks": []
+          }
+        ],
+        "event_log_count": 4,
+        "event_log_hash": "sha256:f62830cb7d3e02de8b8dd738b495661c32e7b2d0c0609902bc85ea4b098d8158"
+      }
+    },
+    "case/backdated-post-anchor": {
+      "strict": {
+        "exit_code": 1,
+        "signals": [
+          {
+            "kind": "pre_registration_unsigned_actor_event",
+            "severity": "info",
+            "blocks": []
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 5,
+        "event_log_hash": "sha256:97ed14ec874fc29e2dfa187a57d489846bc06ac24cafe8b648503acf08ee5ee4"
+      },
+      "non_strict": {
+        "exit_code": 0,
+        "signals": [
+          {
+            "kind": "pre_registration_unsigned_actor_event",
+            "severity": "info",
+            "blocks": []
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 5,
+        "event_log_hash": "sha256:97ed14ec874fc29e2dfa187a57d489846bc06ac24cafe8b648503acf08ee5ee4"
+      }
+    },
+    "case/git-publication-only": {
+      "strict": {
+        "exit_code": 0,
+        "signals": [
+          {
+            "kind": "pre_registration_unsigned_actor_event",
+            "severity": "info",
+            "blocks": []
+          }
+        ],
+        "event_log_count": 4,
+        "event_log_hash": "sha256:f62830cb7d3e02de8b8dd738b495661c32e7b2d0c0609902bc85ea4b098d8158"
+      },
+      "non_strict": {
+        "exit_code": 0,
+        "signals": [
+          {
+            "kind": "pre_registration_unsigned_actor_event",
+            "severity": "info",
+            "blocks": []
+          }
+        ],
+        "event_log_count": 4,
+        "event_log_hash": "sha256:f62830cb7d3e02de8b8dd738b495661c32e7b2d0c0609902bc85ea4b098d8158"
+      }
+    },
+    "case/nonancestor-anchor": {
+      "strict": {
+        "exit_code": 1,
+        "signals": [
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 4,
+        "event_log_hash": "sha256:8aca832ce185114413edcd49f8a6d781c6b7e1011098adfd5d67b7107c823d76"
+      },
+      "non_strict": {
+        "exit_code": 0,
+        "signals": [
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 4,
+        "event_log_hash": "sha256:8aca832ce185114413edcd49f8a6d781c6b7e1011098adfd5d67b7107c823d76"
+      }
+    },
+    "case/registry-key-replaced": {
+      "strict": {
+        "exit_code": 1,
+        "signals": [
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 4,
+        "event_log_hash": "sha256:f62830cb7d3e02de8b8dd738b495661c32e7b2d0c0609902bc85ea4b098d8158"
+      },
+      "non_strict": {
+        "exit_code": 0,
+        "signals": [
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 4,
+        "event_log_hash": "sha256:f62830cb7d3e02de8b8dd738b495661c32e7b2d0c0609902bc85ea4b098d8158"
+      }
+    },
+    "case/unsigned-post-anchor": {
+      "strict": {
+        "exit_code": 1,
+        "signals": [
+          {
+            "kind": "pre_registration_unsigned_actor_event",
+            "severity": "info",
+            "blocks": []
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 5,
+        "event_log_hash": "sha256:cc40c4b6a769703c556dc772aed6a3b42c13657d76bb5e8240d2c7357e5306b2"
+      },
+      "non_strict": {
+        "exit_code": 0,
+        "signals": [
+          {
+            "kind": "pre_registration_unsigned_actor_event",
+            "severity": "info",
+            "blocks": []
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 5,
+        "event_log_hash": "sha256:cc40c4b6a769703c556dc772aed6a3b42c13657d76bb5e8240d2c7357e5306b2"
+      }
+    },
+    "case/wrong-anchor-root": {
+      "strict": {
+        "exit_code": 1,
+        "signals": [
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 4,
+        "event_log_hash": "sha256:2b7d2dd5de990dfa0d2fc392ac1aec3109a3a5a8770592e91d6b07207aba8b87"
+      },
+      "non_strict": {
+        "exit_code": 0,
+        "signals": [
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "actor_registration_anchor_invalid",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          },
+          {
+            "kind": "unsigned_registered_actor",
+            "severity": "error",
+            "blocks": [
+              "strict_check",
+              "proof_ready"
+            ]
+          }
+        ],
+        "event_log_count": 4,
+        "event_log_hash": "sha256:2b7d2dd5de990dfa0d2fc392ac1aec3109a3a5a8770592e91d6b07207aba8b87"
+      }
+    }
+  },
+  "expected": {
+    "timeless_strict": {
+      "exit_code": 1,
+      "signals": [
+        {
+          "kind": "unsigned_registered_actor",
+          "severity": "error",
+          "blocks": [
+            "strict_check",
+            "proof_ready"
+          ]
+        }
+      ],
+      "event_log_count": 3,
+      "event_log_hash": "sha256:110e38b5ab92edb668d6d13deafd7900e3f4b7a643b50558478a776b000fefb2"
+    },
+    "timeless_non_strict": {
+      "exit_code": 0,
+      "signals": [
+        {
+          "kind": "unsigned_registered_actor",
+          "severity": "error",
+          "blocks": [
+            "strict_check",
+            "proof_ready"
+          ]
+        }
+      ],
+      "event_log_count": 3,
+      "event_log_hash": "sha256:110e38b5ab92edb668d6d13deafd7900e3f4b7a643b50558478a776b000fefb2"
+    },
+    "temporal_strict": {
+      "exit_code": 0,
+      "signals": [
+        {
+          "kind": "pre_registration_unsigned_actor_event",
+          "severity": "info",
+          "blocks": []
+        }
+      ],
+      "event_log_count": 4,
+      "event_log_hash": "sha256:f62830cb7d3e02de8b8dd738b495661c32e7b2d0c0609902bc85ea4b098d8158"
+    },
+    "temporal_non_strict": {
+      "exit_code": 0,
+      "signals": [
+        {
+          "kind": "pre_registration_unsigned_actor_event",
+          "severity": "info",
+          "blocks": []
+        }
+      ],
+      "event_log_count": 4,
+      "event_log_hash": "sha256:f62830cb7d3e02de8b8dd738b495661c32e7b2d0c0609902bc85ea4b098d8158"
+    },
+    "anchored_unsigned_legacy_count": 1,
+    "anchored_signed_count": 1,
+    "post_anchor_unsigned_count": 0,
+    "post_anchor_signed_count": 1,
+    "accepted_event_delta": 0,
+    "common_event_byte_delta": 0,
+    "scientific_event_delta": 0,
+    "audit_event_delta": 1
+  },
+  "producer": {
+    "target": "seed:temporal-registration",
+    "witness": "training-fixture/golomb.json",
+    "actor": "agent:temporal-participant",
+    "disposable_agent_signing_seed_hex": "4242424242424242424242424242424242424242424242424242424242424242",
+    "credential_scope": "public_fixture_non_human_non_authority",
+    "expected_route": "deferred",
+    "expected_accepted_event_delta": 0
+  },
+  "credit": {
+    "scientific": false,
+    "human": false,
+    "independent": false,
+    "external": false,
+    "authority": false
+  }
+}

@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.5 - 2026-07-16
+
+- Advance the active released-binary gate to Vela `v0.800.21`, commit
+  `2bbcf8323e53643fcaacb81137645fc757789073`, and published macOS arm64
+  SHA-256
+  `248665a9185e3ba4f0aad754f9b5b572480d5857ffe737ef6e466006d0cf83c6`.
+- Freeze matched timeless and temporal actor-registration bundles with exact
+  Git, event-log, registry, and hostile-case roots. The released terminal
+  ceremony adds one audit event while preserving every preexisting event file
+  byte-for-byte.
+- Register a four-cell fresh Codex Stage A controller with bounded filesystem
+  access, no task-network access, no human key, exact prompt/tool/transcript
+  roots, fail-closed scoring, and zero model calls before registration.
+- Preserve the Vela authority boundary. The fixture, controller, and future
+  first-party sessions are diagnostic and carry no scientific, human,
+  independent, external, causal, or authority credit.
+
 ## 0.1.4 - 2026-07-16
 
 - Advance the active released-binary composition gate to public Vela

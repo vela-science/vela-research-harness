@@ -17,7 +17,7 @@ and Vela roots remain the durable identity.
 
 ## Status
 
-Canopus `v0.1.4` targets checksum-pinned Vela `v0.800.20`. A run is not, by
+Canopus `v0.1.5` targets checksum-pinned Vela `v0.800.21`. A run is not, by
 itself, scientific acceptance. `defer` is pending review with zero accepted
 event delta; `permit` means an already signed Vela policy admitted the exact
 proposal. Canopus cannot manufacture either a human decision or an external
@@ -30,6 +30,12 @@ profile preserved the same exact facts and outcomes as the standards lock while
 using roughly half the context bytes on both tasks. These n=1 internal results
 carry no causal, scientific, human, independent, external, or authority credit.
 See the raw records in `benchmarks/results/`.
+
+The ADR 0005 cold-use packet is frozen but not yet executed. It contains
+matched timeless and temporal Git bundles, exact hostile branches, a
+checksum-pinned released-binary scorer, and a four-cell fresh Codex Stage A
+registration. Its fixture and registration carry zero scientific, human,
+independent, external, causal, or authority credit.
 
 ## Development
 

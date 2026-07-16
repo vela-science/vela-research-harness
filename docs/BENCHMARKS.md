@@ -204,3 +204,61 @@ dependency object, authority rule, automatic truth propagation, scientific
 result claim, or human, independent, external, or ecosystem credit. Raw
 evidence and the bounded summary are in
 `benchmarks/results/composition-stage-a-2026-07-16/`.
+
+## ADR 0005 temporal registration cold-use Stage A
+
+The ADR 0005 cold-use packet is registered but not yet executed. Its fixture
+registration SHA-256 is
+`sha256:59c31a04bdb75b55d714558b849942f472043a90bff4fcb31c2538dabd100411`;
+the four-cell Stage A registration root is
+`sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53`.
+
+The fixture was created only with the published Vela `v0.800.21` macOS arm64
+binary, SHA-256
+`248665a9185e3ba4f0aad754f9b5b572480d5857ffe737ef6e466006d0cf83c6`.
+It contains:
+
+- one timeless bundle that preserves the legacy
+  `unsigned_registered_actor` blocker;
+- one temporal bundle whose single signed activation event preserves every
+  preexisting event file byte-for-byte;
+- exact later-unsigned, backdated, signature-stripped, wrong-root,
+  non-ancestor, registry-tamper, activation-deletion, and Git-only branches;
+- a derived depth-one missing-anchor case; and
+- exact strict and non-strict outputs for the released binary.
+
+The Stage A controller freezes two tasks across the two arms:
+
+```text
+producer timeless
+reviewer temporal
+producer temporal
+reviewer timeless
+```
+
+Each cell uses a fresh ephemeral Codex `0.144.2` session with model
+`gpt-5.6-sol`, an isolated authentication home, an outer bounded macOS
+filesystem sandbox, the product workspace-write sandbox with task network
+disabled, and no conversation history. The producer receives only a public
+disposable `agent:` fixture seed. Neither task receives a human key.
+
+The controller roots the rendered prompt, command trace, transcript, answer,
+binaries, environment, Git state, Vela classifications, timing, and token
+usage. It stops on the first custody attempt, anchored-event rewrite, false
+strict pass, accepted-event delta, or scorer mismatch. Codex Stage A remains
+first-party interface evidence even if all four cells pass. It carries no
+scientific, human, independent, external, causal, or authority credit.
+
+Readiness without a model call is checked by:
+
+```bash
+pnpm run:temporal-registration-stage-a -- \
+  --vela /absolute/path/to/vela-macos-aarch64 \
+  --codex /Applications/ChatGPT.app/Contents/Resources/codex \
+  --codex-home "$HOME/.codex" \
+  --output /absolute/empty/output
+```
+
+Execution requires the additional `--execute` flag. Stage B is not registered
+until Stage A completes safely or a single documented repair produces a new
+registration root.

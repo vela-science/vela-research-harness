@@ -1,6 +1,6 @@
 {
   "name": "@vela-science/canopus",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A bounded, replaceable research harness over released Vela interfaces",
   "type": "module",
   "private": false,
@@ -41,7 +41,10 @@
     "lint": "tsc -p tsconfig.json --noEmit",
     "test": "pnpm run build && node --test 'dist/tests/**/*.test.js'",
     "check": "pnpm run lint && pnpm run test",
-    "pack:check": "pnpm pack --dry-run"
+    "pack:check": "pnpm pack --dry-run",
+    "fixture:temporal-registration": "node scripts/build-temporal-registration-fixtures.mjs",
+    "register:temporal-registration-stage-a": "node scripts/register-temporal-registration-stage-a.mjs",
+    "run:temporal-registration-stage-a": "node scripts/run-temporal-registration-stage-a.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

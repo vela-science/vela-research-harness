@@ -1,5 +1,30 @@
 # Release evidence
 
+## Canopus v0.1.5 release candidate
+
+`v0.1.5` advances the checksum-pinned gate to byte-preserving Vela
+`v0.800.21` and freezes the ADR 0005 cold-use Stage A packet. The source,
+fixtures, and registration are complete; tag and CI evidence are pending.
+
+- Released Vela input: `v0.800.21`, commit
+  `2bbcf8323e53643fcaacb81137645fc757789073`
+- Vela public conformance:
+  [run 29523076181](https://github.com/vela-science/vela/actions/runs/29523076181)
+- Vela immutable release:
+  [run 29523648391](https://github.com/vela-science/vela/actions/runs/29523648391)
+- Published Vela macOS arm64 SHA-256:
+  `248665a9185e3ba4f0aad754f9b5b572480d5857ffe737ef6e466006d0cf83c6`
+- Published Vela Linux x86-64 SHA-256:
+  `acc0c8fc97e8ffc381b39f70177f0bd068ea6e4b6100cae46c3a40a2c4340774`
+- Fixture registration SHA-256:
+  `sha256:59c31a04bdb75b55d714558b849942f472043a90bff4fcb31c2538dabd100411`
+- Stage A registration root:
+  `sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53`
+
+No Stage A model call has run at this release-candidate point. The packet has
+no signer, policy, accepted-state store, human key, scientific verdict, or
+independent-result credit.
+
 ## Canopus v0.1.4
 
 `v0.1.4` is the active release. It advances the checksum-pinned
