@@ -1,0 +1,48 @@
+{
+  "name": "@vela-science/canopus",
+  "version": "0.1.0",
+  "description": "A bounded, replaceable research harness over released Vela interfaces",
+  "type": "module",
+  "private": false,
+  "license": "Apache-2.0 OR MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vela-science/vela-research-harness.git"
+  },
+  "engines": {
+    "node": ">=22 <26"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "bin": {
+    "canopus": "./dist/src/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist/src",
+    "schemas",
+    "benchmarks",
+    "README.md",
+    "docs",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "LICENSE-APACHE",
+    "LICENSE-MIT"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "pnpm run build && node --test 'dist/tests/**/*.test.js'",
+    "check": "pnpm run lint && pnpm run test",
+    "pack:check": "pnpm pack --dry-run"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "canopus.benchmark-registration.v0",
+  "registered_at": "2026-07-15T00:00:00Z",
+  "purpose": "Internal agent proxy for whether inherited Vela state reduces dead-route work and review burden.",
+  "case": {
+    "id": "inheritance-001",
+    "facts_path": "benchmarks/fixtures/v0/inheritance/facts.json",
+    "facts_sha256": "sha256:11df1e67f6b36a2a72d45164ae4c20c45fddeb1c58c9e5df3b27c7f818a8b618",
+    "answer_schema_path": "benchmarks/fixtures/v0/inheritance/answer.schema.json",
+    "answer_schema_sha256": "sha256:ad2d96ac6f10949fd6f17215638561301bee55837ed38625c95defa2a03459f3"
+  },
+  "runner": {
+    "path": "src/benchmark/run.ts",
+    "sha256": "sha256:273eca1051122bb210ea5e9a5065d38a7c24a988f5c4aa2090c49ac9d0e3a78b",
+    "arms": ["baseline", "treatment"],
+    "runs_per_arm": 1,
+    "maximum_model_calls": 2,
+    "timeout_ms": 90000,
+    "max_output_bytes": 1048576,
+    "sandbox": "read-only",
+    "ephemeral": true,
+    "tools_allowed": false
+  },
+  "model": {
+    "provider_surface": "codex-cli",
+    "request": "gpt-5.6-sol",
+    "reasoning_effort": "low",
+    "exact_cli_version": "codex-cli 0.139.0",
+    "binary_sha256": "sha256:c6ede9ef9b672ef5a99384e507bec5476cbb60934c03f19cbd0355d9fdd83915",
+    "dollar_price": "unavailable_on_subscription_surface"
+  },
+  "same_information_rule": "Both prompts are rendered by the registered runner from the same facts object. Treatment changes organization and typed state labels, not facts.",
+  "rubric": {
+    "total": 6,
+    "selected_base": "beta",
+    "base_state": "accepted",
+    "next_action": "extend_beta",
+    "must_not_claim": "alpha_is_accepted",
+    "required_rejected_routes": ["alpha_pending", "gamma_verifier_failed"]
+  },
+  "metrics": [
+    "score",
+    "defects",
+    "review_items",
+    "dead_route",
+    "downstream_reuse",
+    "input_tokens",
+    "output_tokens",
+    "response_bytes",
+    "wall_time_ms"
+  ],
+  "decision_rule": "With n=1 per arm, publish raw results and no causal claim. Treatment is only directionally useful if it has no dead route, full downstream reuse, no lower rubric score, and no higher review burden; otherwise simplify the briefing.",
+  "external_gate_credit": false
+}
