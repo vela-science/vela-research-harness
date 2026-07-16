@@ -6,7 +6,12 @@ import path from "node:path";
 import { promisify } from "node:util";
 import test from "node:test";
 
-import type { Mission, MissionRoots } from "../../src/contracts/mission.js";
+import {
+  ROLES,
+  type Mission,
+  type MissionRole,
+  type MissionRoots,
+} from "../../src/contracts/mission.js";
 import type { FrozenArtifact } from "../../src/contracts/candidate.js";
 import { FakeEngine } from "../../src/engines/fake.js";
 import { projectRun } from "../../src/projection/run.js";
@@ -356,6 +361,98 @@ test("bounded vertical slice lands pending and reproduces from a clean clone", a
     JSON.parse(await readFile(path.join(result.paths.root, "projection.json"), "utf8")).authority,
     "read_only_projection",
   );
+});
+
+test("all four bounded roles traverse freeze, verifier, Receipt, Defer, and reproduction", async () => {
+  const source = await sourceRepository();
+  const verifierRunner: CommandRunner = async (options) => ({
+    argv: [...options.argv],
+    exitCode: 0,
+    signal: null,
+    stdout: Buffer.from("value=42\n"),
+    stderr: Buffer.alloc(0),
+    durationMs: 1,
+  });
+
+  for (const role of ROLES) {
+    const mission: Mission = {
+      schema: "canopus.mission.v0",
+      id: `mission_role_${role}`,
+      target: "finite:42",
+      vela_version: "0.800.15",
+      vela_sha256: scientificRoot,
+      frontier: "frontier",
+      actor: `agent:canopus-${role}`,
+      role,
+      claim_type: "computational",
+      replayability: "exact",
+      objective: `Exercise the bounded ${role} mission lane.`,
+      completion_condition: "The frozen result contains value 42.",
+      roots: source.roots,
+      allowed_paths: ["result.json"],
+      budgets: {
+        max_research_wall_time_ms: 30_000,
+        max_research_processes: 4,
+        max_research_output_bytes: 1_048_576,
+        max_prompt_bytes: 1_048_576,
+        max_artifact_bytes: 1_048_576,
+        max_attempts: 1,
+        max_observed_tokens: 1000,
+      },
+      verifier: {
+        argv: ["frontier/verifier", "{artifact:result.json}"],
+        executable_sha256: source.verifierDigest,
+        cwd: "frontier",
+        timeout_ms: 1000,
+        max_output_bytes: 4096,
+        network: "deny",
+        writes: "deny",
+      },
+      scientific_chain: {
+        predicted_observable: `The ${role} lane freezes the exact JSON object with value 42.`,
+        performed_test: "verify frozen result.json",
+      },
+      landing: { expected_routes: ["defer"], max_accepted_delta: 0 },
+    };
+    const engine = new FakeEngine(async ({ mission: observed }) => {
+      assert.equal(observed.role, role as MissionRole);
+      return {
+        schema: "canopus.engine-output.v0",
+        status: "success",
+        claim: "The bounded result has value 42.",
+        artifacts: [
+          {
+            path: "result.json",
+            kind: "witness",
+            encoding: "utf8",
+            content: "{\"value\":42}\n",
+          },
+        ],
+        observations: [`The ${role} lane completed its bounded job.`],
+        caveats: [`role=${role}; internal fixture only`],
+      };
+    });
+    const vela = new FakeVela();
+    const result = await runCanopus({
+      mission,
+      sourceRepo: source.repo,
+      runRoot: path.join(source.parent, `run-${role}`),
+      vela,
+      engine,
+      verifierRunner,
+    });
+
+    assert.equal(result.record.landing.route, "defer");
+    assert.equal(result.record.landing.accepted_event_delta, 0);
+    assert.equal(result.record.reproduction.matched, true);
+    assert.equal(result.projection.accepted_state_effect, "unchanged_pending");
+    assert.equal(result.record.candidate.caveats.includes(`role=${role}; internal fixture only`), true);
+    assert.equal(vela.nextCalls, 1);
+    assert.match(
+      await readFile(path.join(result.paths.root, "activity.jsonl"), "utf8"),
+      new RegExp(`"role":"${role}"`, "u"),
+    );
+  }
 });
 
 test("post-land failure retains raw Vela effect and recovery roots", async () => {
