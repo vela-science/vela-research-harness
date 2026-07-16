@@ -24,6 +24,7 @@
   },
   "files": [
     "dist/src",
+    "src/benchmark/run.ts",
     "schemas",
     "benchmarks",
     "README.md",

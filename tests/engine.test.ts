@@ -197,6 +197,7 @@ test("Codex engine uses ephemeral isolated config and parses the final schema", 
   assert.equal(command?.argv.includes("--add-dir"), false);
   assert.equal(command?.argv[0], "/usr/bin/sandbox-exec");
   assert.match(command?.argv[2] ?? "", /deny default/u);
+  assert.match(command?.argv[2] ?? "", /allow process-fork/u);
   assert.doesNotMatch(command?.argv[2] ?? "", /\/Users\/williamblair/u);
   assert.equal(command?.env.CODEX_HOME, workspace.home);
   assert.equal(command?.env.OPENAI_API_KEY, undefined);
@@ -221,10 +222,13 @@ test("real outer Codex sandbox permits only registered inputs and denies a host 
   const finalJson = JSON.stringify(draft);
   const c = (value: string): string => JSON.stringify(value);
   await writeFile(source, `
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+
+void *thread_probe(void *unused) { return unused; }
 
 int readable(const char *path) {
   FILE *file = fopen(path, "r");
@@ -233,6 +237,9 @@ int readable(const char *path) {
 }
 
 int main(int argc, char **argv) {
+  pthread_t thread;
+  if (pthread_create(&thread, NULL, thread_probe, NULL) != 0) return 69;
+  if (pthread_join(thread, NULL) != 0) return 68;
   if (argc == 2 && strcmp(argv[1], "--version") == 0) {
     if (getenv("CODEX_HOME") != NULL) return 70;
     puts("codex-cli 0.139.0"); return 0;

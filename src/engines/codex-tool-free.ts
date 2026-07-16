@@ -134,6 +134,10 @@ export async function sandboxedToolFreeCodexExecArgv(
     "(deny default)",
     '(import "dyld-support.sb")',
     "(deny file-link file-clone)",
+    // Native Codex creates runtime threads after entering Seatbelt. macOS
+    // classifies that operation under process-fork; process-exec remains
+    // restricted to the checksum-pinned Codex binary below.
+    "(allow process-fork)",
     "(allow process-info* (target same-sandbox))",
     "(allow signal (target same-sandbox))",
     `(allow file-read-metadata ${metadata})`,
