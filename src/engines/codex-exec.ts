@@ -10,7 +10,7 @@ import {
   type CommandRunner,
 } from "../util/command.js";
 import { readBoundedRegularFile } from "../util/files.js";
-import { parseCodexEvents } from "./codex-events.js";
+import { parseCodexEvents, summarizeCodexFailure } from "./codex-events.js";
 import { prepareIsolatedCodexHome, removeIsolatedCodexHome } from "./codex-home.js";
 import {
   CODEX_TOOL_FEATURES,
@@ -120,7 +120,11 @@ export class CodexExecEngine implements Engine {
       });
       context.budget.addOutput(result.stdout.length + result.stderr.length);
       if (result.exitCode !== 0) {
-        throw new Error(`codex exec exited ${result.exitCode}: ${result.stderr.toString("utf8")}`);
+        throw new Error(
+          `codex exec exited ${result.exitCode}: ` +
+            `${summarizeCodexFailure(result.stdout.toString("utf8"))}; ` +
+            `stdout_sha256=${sha256Bytes(result.stdout)}; stderr_sha256=${sha256Bytes(result.stderr)}`,
+        );
       }
       const events = parseCodexEvents(result.stdout.toString("utf8"));
       if (events.actionTypes.length !== 0) {

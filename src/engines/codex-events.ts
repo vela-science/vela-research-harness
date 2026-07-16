@@ -12,11 +12,76 @@ const EVENT_TYPES = new Set([
 const PASSIVE_ITEMS = new Set(["agent_message", "reasoning", "todo_list"]);
 const ACTION_ITEMS = new Set(["command_execution", "file_change"]);
 const FORBIDDEN_COMMAND = /(?:^|[\s;&|])(?:vela\s+sign|git\s+push|gh\s+|curl\s+|wget\s+|ssh\s+)/iu;
+const SECRET_ASSIGNMENT = /\b(?:api[_-]?key|access[_-]?token|authorization|password|secret)\b\s*[:=]\s*[^\s,;]+/giu;
+const SECRET_TOKEN = /\b(?:sk|sess|key)-[A-Za-z0-9_-]{8,}\b/gu;
+const BEARER_TOKEN = /\bBearer\s+[A-Za-z0-9._~+\/-]+=*/giu;
+const URL_WITH_QUERY = /https?:\/\/[^\s?#]+[?#][^\s]*/giu;
+const MAX_FAILURE_LINES = 256;
+const MAX_FAILURE_MESSAGE_CHARS = 512;
 
 export interface CodexEventSummary {
   usage: EngineUsage;
   eventTypes: string[];
   actionTypes: string[];
+}
+
+function safeDiagnostic(value: string): string {
+  const normalized = value
+    .replace(/[\u0000-\u001f\u007f]+/gu, " ")
+    .replace(URL_WITH_QUERY, "[url-with-query-redacted]")
+    .replace(BEARER_TOKEN, "Bearer [redacted]")
+    .replace(SECRET_TOKEN, "[secret-redacted]")
+    .replace(SECRET_ASSIGNMENT, "[secret-assignment-redacted]")
+    .replace(/\s+/gu, " ")
+    .trim();
+  return [...normalized].slice(0, MAX_FAILURE_MESSAGE_CHARS).join("");
+}
+
+/**
+ * Extract a bounded diagnostic from Codex's documented JSONL failure events.
+ * Raw stderr and unstructured stdout are intentionally excluded because they
+ * can contain credential, host, or prompt material.
+ */
+export function summarizeCodexFailure(value: string): string {
+  const diagnostics: string[] = [];
+  const lines = value.split("\n").filter((line) => line.length > 0).slice(0, MAX_FAILURE_LINES);
+  for (const line of lines) {
+    if (Buffer.byteLength(line) > 1_048_576) continue;
+    let event: Record<string, unknown>;
+    try {
+      const parsed = JSON.parse(line) as unknown;
+      if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) continue;
+      event = parsed as Record<string, unknown>;
+    } catch {
+      continue;
+    }
+    let message: unknown;
+    if (event.type === "error") {
+      message = event.message;
+    } else if (event.type === "turn.failed") {
+      const error = event.error;
+      if (typeof error === "object" && error !== null && !Array.isArray(error)) {
+        message = (error as Record<string, unknown>).message;
+      }
+    } else if (
+      (event.type === "item.started" ||
+        event.type === "item.updated" ||
+        event.type === "item.completed") &&
+      typeof event.item === "object" &&
+      event.item !== null &&
+      !Array.isArray(event.item)
+    ) {
+      const item = event.item as Record<string, unknown>;
+      if (item.type === "error") message = item.message;
+    }
+    if (typeof message !== "string" || message.length === 0) continue;
+    const diagnostic = safeDiagnostic(message);
+    if (diagnostic.length > 0 && !diagnostics.includes(diagnostic)) diagnostics.push(diagnostic);
+    if (diagnostics.length === 3) break;
+  }
+  return diagnostics.length === 0
+    ? "no structured Codex failure event"
+    : diagnostics.join("; ");
 }
 
 function usageInteger(value: unknown, at: string): number {
@@ -100,4 +165,3 @@ export function parseCodexEvents(value: string): CodexEventSummary {
     actionTypes: [...actionTypes].sort(),
   };
 }
-

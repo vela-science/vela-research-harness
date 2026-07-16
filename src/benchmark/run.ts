@@ -1,7 +1,7 @@
-import { mkdir, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { parseCodexEvents } from "../engines/codex-events.js";
+import { parseCodexEvents, summarizeCodexFailure } from "../engines/codex-events.js";
 import {
   prepareIsolatedCodexHome,
   removeIsolatedCodexHome,
@@ -280,7 +280,11 @@ async function armRun(options: {
       stdin: prompt,
     });
     if (result.exitCode !== 0) {
-      throw new Error(`${options.arm} Codex run exited ${result.exitCode}: ${result.stderr.toString("utf8")}`);
+      throw new Error(
+        `${options.arm} Codex run exited ${result.exitCode}: ` +
+          `${summarizeCodexFailure(result.stdout.toString("utf8"))}; ` +
+          `stdout_sha256=${sha256Bytes(result.stdout)}; stderr_sha256=${sha256Bytes(result.stderr)}`,
+      );
     }
     const events = parseCodexEvents(result.stdout.toString("utf8"));
     if (events.actionTypes.length !== 0) {
@@ -360,13 +364,20 @@ export async function runPairedBenchmark(options: {
   ]) {
     if (observed !== expected) throw new Error(`registered ${label} digest mismatch`);
   }
-  const version = await (options.runner ?? runCommand)({
-    argv: [options.codexBinary, "--version"],
-    cwd: outputRoot,
-    env: isolatedEnvironment(outputRoot),
-    timeoutMs: 10_000,
-    maxOutputBytes: 4096,
-  });
+  const versionHome = path.join(outputRoot, ".version-home");
+  await mkdir(versionHome, { mode: 0o700 });
+  let version;
+  try {
+    version = await (options.runner ?? runCommand)({
+      argv: [options.codexBinary, "--version"],
+      cwd: outputRoot,
+      env: isolatedEnvironment(versionHome),
+      timeoutMs: 10_000,
+      maxOutputBytes: 4096,
+    });
+  } finally {
+    await rm(versionHome, { recursive: true, force: true });
+  }
   if (
     sha256Bytes(await readBoundedRegularFile(options.codexBinary, 268_435_456)) !==
       registration.model.binary_sha256 ||

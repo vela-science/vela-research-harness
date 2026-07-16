@@ -9,7 +9,7 @@ import test from "node:test";
 import { BudgetTracker } from "../src/budget/enforce.js";
 import type { Mission } from "../src/contracts/mission.js";
 import { CodexExecEngine } from "../src/engines/codex-exec.js";
-import { parseCodexEvents } from "../src/engines/codex-events.js";
+import { parseCodexEvents, summarizeCodexFailure } from "../src/engines/codex-events.js";
 import { FakeEngine } from "../src/engines/fake.js";
 import type { CandidateDraft } from "../src/engines/engine.js";
 import type { CommandRunner } from "../src/util/command.js";
@@ -144,6 +144,70 @@ test("Codex event parser rejects unknown, malformed, and custody actions", () =>
   assert.throws(
     () => parseCodexEvents(events("python3 verify.py").replace('"command":"python3 verify.py"', '"type":"command_execution"')),
     /no command text/u,
+  );
+});
+
+test("Codex failure diagnostics are structured, bounded, and secret-redacted", () => {
+  const stream = [
+    JSON.stringify({ type: "thread.started", thread_id: "thread-failed" }),
+    JSON.stringify({
+      type: "turn.failed",
+      error: {
+        message:
+          "Provider rejected api_key=sk-example-secret-123456789 at https://example.test/run?token=private",
+      },
+    }),
+  ].join("\n");
+  const diagnostic = summarizeCodexFailure(stream);
+  assert.match(diagnostic, /Provider rejected/u);
+  assert.match(diagnostic, /redacted/u);
+  assert.doesNotMatch(diagnostic, /sk-example/u);
+  assert.doesNotMatch(diagnostic, /token=private/u);
+  assert.equal(summarizeCodexFailure("not json\n"), "no structured Codex failure event");
+  assert.ok(diagnostic.length <= 512);
+});
+
+test("Codex engine reports only structured failure diagnostics and output digests", async () => {
+  const workspace = await paths();
+  await writeFile(path.join(workspace.home, "auth.json"), "{}\n");
+  const outputSchema = path.join(workspace.root, "engine-output.schema.json");
+  await writeFile(outputSchema, "{}\n");
+  const runner: CommandRunner = async (options) => {
+    if (options.argv[1] === "--version") {
+      return {
+        argv: [...options.argv], exitCode: 0, signal: null,
+        stdout: Buffer.from("codex-cli 0.139.0\n"), stderr: Buffer.alloc(0), durationMs: 1,
+      };
+    }
+    return {
+      argv: [...options.argv], exitCode: 1, signal: null,
+      stdout: Buffer.from('{"type":"turn.failed","error":{"message":"quota unavailable"}}\n'),
+      stderr: Buffer.from("Bearer should-never-appear"), durationMs: 1,
+    };
+  };
+  await assert.rejects(
+    new CodexExecEngine({
+      binary: process.execPath,
+      expectedSha256: sha256Bytes(await readFile(process.execPath)),
+      expectedVersion: "codex-cli 0.139.0",
+      model: "test",
+      authHome: workspace.home,
+      outputSchema,
+      runner,
+    }).run({
+      mission: mission(),
+      briefing: {},
+      paths: workspace,
+      budget: new BudgetTracker(mission().budgets),
+    }),
+    (error: unknown) => {
+      assert.ok(error instanceof Error);
+      assert.match(error.message, /quota unavailable/u);
+      assert.match(error.message, /stdout_sha256=sha256:/u);
+      assert.match(error.message, /stderr_sha256=sha256:/u);
+      assert.doesNotMatch(error.message, /should-never-appear/u);
+      return true;
+    },
   );
 });
 

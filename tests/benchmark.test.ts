@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -63,6 +63,9 @@ test("benchmark executes through the shared tool-free Codex lane", async () => {
     const argv = [...options.argv];
     calls.push(argv);
     if (argv[1] === "--version") {
+      assert.equal(options.env.HOME, path.join(outputRoot, ".version-home"));
+      await mkdir(path.join(String(options.env.HOME), ".codex"), { recursive: true });
+      await writeFile(path.join(String(options.env.HOME), ".codex", "tmp"), "discard\n");
       return {
         argv,
         exitCode: 0,
@@ -122,6 +125,7 @@ test("benchmark executes through the shared tool-free Codex lane", async () => {
   });
   assert.equal(report.arms.length, 2);
   assert.equal(calls.length, 3);
+  await assert.rejects(readFile(path.join(outputRoot, ".version-home")), /ENOENT/u);
   for (const arm of ["baseline", "treatment"]) {
     await assert.rejects(
       readFile(path.join(outputRoot, arm, "home", "codex-runtime", "auth.json")),
