@@ -208,6 +208,16 @@ test("Codex engine uses ephemeral isolated config and parses the final schema", 
   assert.match(command?.argv[2] ?? "", /socket-domain AF_UNIX/u);
   assert.match(command?.argv[2] ?? "", /\/private\/var\/run\/mDNSResponder/u);
   assert.match(command?.argv[2] ?? "", /apple\.shm\.notification_center/u);
+  assert.equal(
+    (command?.argv[2] ?? "").includes('(control-name "com.apple.netsrc")'),
+    true,
+  );
+  assert.match(command?.argv[2] ?? "", /remote tcp/u);
+  assert.match(command?.argv[2] ?? "", /remote udp/u);
+  assert.match(command?.argv[2] ?? "", /\/private\/var\/run\/resolv\.conf/u);
+  assert.match(command?.argv[2] ?? "", /net\.routetable/u);
+  assert.equal((command?.argv[2] ?? "").includes("(allow network-outbound)"), false);
+  assert.equal((command?.argv[2] ?? "").includes("remote unix-socket"), false);
   assert.match(command?.argv[2] ?? "", /\/private\/etc\/hosts/u);
   assert.match(command?.argv[2] ?? "", /com\.apple\.networkd\.plist/u);
   assert.equal((command?.argv[2] ?? "").includes('(subpath "/Library/Preferences")'), false);

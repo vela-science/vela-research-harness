@@ -100,6 +100,8 @@ export async function sandboxedToolFreeCodexExecArgv(
     "/private/etc/protocols",
     "/private/etc/resolv.conf",
     "/private/etc/services",
+    "/private/var/run/resolv.conf",
+    "/var/run/resolv.conf",
   ];
   const [binary, cwd, outputSchema, finalParent, authFile, modelCatalog] = await Promise.all([
     realpath(lexical.binary),
@@ -147,6 +149,7 @@ export async function sandboxedToolFreeCodexExecArgv(
     lexical.finalParent,
     lexical.authFile,
     ...managedRequirements,
+    ...networkRuntimeFiles,
     ...(modelCatalog === undefined ? [] : [modelCatalog]),
   ]);
   const profile = [
@@ -163,7 +166,7 @@ export async function sandboxedToolFreeCodexExecArgv(
     `(allow file-read-metadata ${metadata})`,
     `(allow process-exec (literal "${sbpl(binary)}"))`,
     `(allow file-map-executable (literal "${sbpl(binary)}"))`,
-    '(allow sysctl-read (sysctl-name "hw.activecpu") (sysctl-name "hw.logicalcpu") (sysctl-name "hw.ncpu") (sysctl-name "hw.pagesize") (sysctl-name "hw.pagesize_compat") (sysctl-name "kern.argmax") (sysctl-name "kern.osproductversion") (sysctl-name "kern.osrelease") (sysctl-name "kern.ostype") (sysctl-name "kern.usrstack64"))',
+    '(allow sysctl-read (sysctl-name "hw.activecpu") (sysctl-name "hw.logicalcpu") (sysctl-name "hw.ncpu") (sysctl-name "hw.pagesize") (sysctl-name "hw.pagesize_compat") (sysctl-name "kern.argmax") (sysctl-name "kern.osproductversion") (sysctl-name "kern.osrelease") (sysctl-name "kern.ostype") (sysctl-name "kern.usrstack64") (sysctl-name-regex #"^net.routetable"))',
     // This is the finite service set required by native Codex startup plus the
     // DNS/TLS services in Codex's own macOS network policy. No wildcard Mach
     // lookup or user application service is admitted.
@@ -171,12 +174,13 @@ export async function sandboxedToolFreeCodexExecArgv(
     '(allow ipc-posix-shm-read* (ipc-posix-name "apple.shm.notification_center") (ipc-posix-name-prefix "apple.cfprefs."))',
     '(allow system-socket (require-all (socket-domain AF_SYSTEM) (socket-protocol 2)))',
     '(allow system-socket (socket-domain AF_UNIX))',
-    // /var/run is a firmlink; Seatbelt evaluates the socket's canonical path.
-    '(allow network-outbound (remote unix-socket (subpath "/private/var/run/mDNSResponder")))',
     '(allow file-read* (subpath "/Library/Apple") (subpath "/System") (subpath "/usr/lib") (subpath "/usr/share") (subpath "/private/etc/ssl") (subpath "/private/var/db/timezone") (literal "/dev/null") (literal "/dev/urandom"))',
-    `(allow file-read* (subpath "${sbpl(cwd)}") (subpath "${sbpl(lexical.cwd)}") ${readableFiles})`,
+    `(allow file-read* file-test-existence (subpath "${sbpl(cwd)}") (subpath "${sbpl(lexical.cwd)}") ${readableFiles})`,
     `(allow file-write* (literal "${sbpl(finalPath)}") (literal "/dev/null"))`,
-    "(allow network-outbound)",
+    // Chromium's macOS network profile isolates the resolver socket from
+    // ordinary IP traffic. This keeps AF_UNIX open only for mDNSResponder,
+    // while permitting the model request over TCP/UDP.
+    '(allow network-outbound (control-name "com.apple.netsrc") (literal "/private/var/run/mDNSResponder") (remote tcp) (remote udp))',
   ].join(" ");
   return ["/usr/bin/sandbox-exec", "-p", profile, "--", ...inner];
 }
