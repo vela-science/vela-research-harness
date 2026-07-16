@@ -170,7 +170,7 @@ export async function sandboxedToolFreeCodexExecArgv(
     `(allow file-read-metadata ${metadata})`,
     `(allow process-exec (literal "${sbpl(binary)}"))`,
     `(allow file-map-executable (literal "${sbpl(binary)}"))`,
-    '(allow sysctl-read (sysctl-name "hw.activecpu") (sysctl-name "hw.logicalcpu") (sysctl-name "hw.ncpu") (sysctl-name "hw.pagesize") (sysctl-name "hw.pagesize_compat") (sysctl-name "kern.argmax") (sysctl-name "kern.osproductversion") (sysctl-name "kern.osrelease") (sysctl-name "kern.ostype") (sysctl-name "kern.usrstack64") (sysctl-name-regex #"^net.routetable"))',
+    '(allow sysctl-read (sysctl-name "hw.activecpu") (sysctl-name "hw.logicalcpu") (sysctl-name "hw.machine") (sysctl-name "hw.model") (sysctl-name "hw.ncpu") (sysctl-name "hw.pagesize") (sysctl-name "hw.pagesize_compat") (sysctl-name "kern.argmax") (sysctl-name "kern.hostname") (sysctl-name "kern.osproductversion") (sysctl-name "kern.osrelease") (sysctl-name "kern.ostype") (sysctl-name "kern.osversion") (sysctl-name "kern.usrstack64") (sysctl-name "kern.version") (sysctl-name-regex #"^net.routetable"))',
     // This is the finite service set required by native Codex startup plus the
     // DNS/TLS services in Codex's own macOS network policy. No wildcard Mach
     // lookup or user application service is admitted.

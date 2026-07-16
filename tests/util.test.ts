@@ -18,6 +18,12 @@ test("canonical JSON rejects undefined and non-finite values", () => {
   assert.throws(() => canonicalJson({ value: Number.NaN }), /non-finite/u);
 });
 
+test("isolated environment pins TLS to the system PEM bundle", () => {
+  const environment = isolatedEnvironment("/tmp/canopus-home");
+  assert.equal(environment.SSL_CERT_FILE, "/etc/ssl/cert.pem");
+  assert.equal(environment.SSL_CERT_DIR, undefined);
+});
+
 test("command runner does not use a shell", async () => {
   const cwd = await mkdtemp(path.join(os.tmpdir(), "canopus-command-"));
   const result = await runCommand({

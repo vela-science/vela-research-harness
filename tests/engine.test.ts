@@ -216,6 +216,8 @@ test("Codex engine uses ephemeral isolated config and parses the final schema", 
   assert.match(command?.argv[2] ?? "", /remote udp/u);
   assert.match(command?.argv[2] ?? "", /\/private\/var\/run\/resolv\.conf/u);
   assert.match(command?.argv[2] ?? "", /net\.routetable/u);
+  assert.match(command?.argv[2] ?? "", /kern\.version/u);
+  assert.match(command?.argv[2] ?? "", /hw\.machine/u);
   assert.equal((command?.argv[2] ?? "").includes("(allow network-outbound)"), false);
   assert.equal((command?.argv[2] ?? "").includes("remote unix-socket"), false);
   assert.match(command?.argv[2] ?? "", /\/private\/etc\/hosts/u);
@@ -226,6 +228,7 @@ test("Codex engine uses ephemeral isolated config and parses the final schema", 
   const runtimeCodexHome = path.join(workspace.home, "codex-runtime");
   assert.equal(command?.env.CODEX_HOME, runtimeCodexHome);
   assert.equal(command?.env.OPENAI_API_KEY, undefined);
+  assert.equal(command?.env.SSL_CERT_FILE, "/etc/ssl/cert.pem");
   assert.match(String(command?.stdin), /tool-free synthesis stage/u);
   assert.equal(budget.snapshot().research_processes, 2);
   await assert.rejects(readFile(runtimeCodexHome), /ENOENT/u);

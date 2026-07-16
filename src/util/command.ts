@@ -79,6 +79,9 @@ export function isolatedEnvironment(home: string): NodeJS.ProcessEnv {
     XDG_DATA_HOME: `${home}/.local/share`,
     LANG: "C.UTF-8",
     LC_ALL: "C.UTF-8",
+    // rustls-native-certs checks this before macOS keychains. Pinning the
+    // system PEM bundle keeps TLS functional without exposing user keychains.
+    SSL_CERT_FILE: "/etc/ssl/cert.pem",
     GIT_CONFIG_NOSYSTEM: "1",
     GIT_CONFIG_GLOBAL: "/dev/null",
     GIT_TERMINAL_PROMPT: "0",
