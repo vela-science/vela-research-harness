@@ -87,6 +87,20 @@ export async function sandboxedToolFreeCodexExecArgv(
     "/etc/codex/requirements.toml",
     "/private/etc/codex/requirements.toml",
   ];
+  // These are public operating-system inputs used by the macOS resolver and
+  // network stack. Keep the outer boundary file-specific: Codex does not need
+  // the user's preferences, keychain, or arbitrary /etc contents.
+  const networkRuntimeFiles = [
+    "/Library/Preferences/com.apple.networkd.plist",
+    "/etc/hosts",
+    "/etc/protocols",
+    "/etc/resolv.conf",
+    "/etc/services",
+    "/private/etc/hosts",
+    "/private/etc/protocols",
+    "/private/etc/resolv.conf",
+    "/private/etc/services",
+  ];
   const [binary, cwd, outputSchema, finalParent, authFile, modelCatalog] = await Promise.all([
     realpath(lexical.binary),
     realpath(lexical.cwd),
@@ -114,6 +128,7 @@ export async function sandboxedToolFreeCodexExecArgv(
     authFile,
     lexical.authFile,
     modelCatalog,
+    ...networkRuntimeFiles,
     ...(modelCatalog === undefined ? [] : [lexical.modelCatalog]),
   ]
     .filter((item): item is string => item !== undefined)
@@ -149,8 +164,12 @@ export async function sandboxedToolFreeCodexExecArgv(
     `(allow process-exec (literal "${sbpl(binary)}"))`,
     `(allow file-map-executable (literal "${sbpl(binary)}"))`,
     '(allow sysctl-read (sysctl-name "hw.activecpu") (sysctl-name "hw.logicalcpu") (sysctl-name "hw.ncpu") (sysctl-name "hw.pagesize") (sysctl-name "hw.pagesize_compat") (sysctl-name "kern.argmax") (sysctl-name "kern.osproductversion") (sysctl-name "kern.osrelease") (sysctl-name "kern.ostype") (sysctl-name "kern.usrstack64"))',
-    '(allow mach-lookup (global-name "com.apple.SystemConfiguration.configd") (global-name "com.apple.bsd.dirhelper") (global-name "com.apple.cfprefsd.agent") (global-name "com.apple.logd") (global-name "com.apple.system.notification_center") (global-name "com.apple.system.opendirectoryd.libinfo") (global-name "com.apple.system.opendirectoryd.membership") (global-name "com.apple.trustd") (global-name "com.apple.trustd.agent"))',
+    // This is the finite service set required by native Codex startup plus the
+    // DNS/TLS services in Codex's own macOS network policy. No wildcard Mach
+    // lookup or user application service is admitted.
+    '(allow mach-lookup (global-name "com.apple.SecurityServer") (global-name "com.apple.SystemConfiguration.DNSConfiguration") (global-name "com.apple.SystemConfiguration.configd") (global-name "com.apple.bsd.dirhelper") (global-name "com.apple.cfprefsd.agent") (local-name "com.apple.cfprefsd.agent") (global-name "com.apple.logd") (global-name "com.apple.networkd") (global-name "com.apple.ocspd") (global-name "com.apple.system.notification_center") (global-name "com.apple.system.opendirectoryd.libinfo") (global-name "com.apple.system.opendirectoryd.membership") (global-name "com.apple.trustd") (global-name "com.apple.trustd.agent"))',
     '(allow ipc-posix-shm-read* (ipc-posix-name-prefix "apple.cfprefs."))',
+    '(allow system-socket (require-all (socket-domain AF_SYSTEM) (socket-protocol 2)))',
     '(allow file-read* (subpath "/Library/Apple") (subpath "/System") (subpath "/usr/lib") (subpath "/usr/share") (subpath "/private/etc/ssl") (subpath "/private/var/db/timezone") (literal "/dev/null") (literal "/dev/urandom"))',
     `(allow file-read* (subpath "${sbpl(cwd)}") (subpath "${sbpl(lexical.cwd)}") ${readableFiles})`,
     `(allow file-write* (literal "${sbpl(finalPath)}") (literal "/dev/null"))`,
