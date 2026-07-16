@@ -20,10 +20,8 @@
     "rejected_routes": {
       "type": "array",
       "maxItems": 3,
-      "uniqueItems": true,
       "items": { "enum": ["alpha_pending", "beta_accepted", "gamma_verifier_failed"] }
     },
     "explanation": { "type": "string", "minLength": 1, "maxLength": 800 }
   }
 }
-
