@@ -223,10 +223,12 @@ test("Codex engine uses ephemeral isolated config and parses the final schema", 
   assert.equal((command?.argv[2] ?? "").includes('(subpath "/Library/Preferences")'), false);
   assert.equal((command?.argv[2] ?? "").includes('(subpath "/private/etc")'), false);
   assert.doesNotMatch(command?.argv[2] ?? "", /\/Users\/williamblair/u);
-  assert.equal(command?.env.CODEX_HOME, workspace.home);
+  const runtimeCodexHome = path.join(workspace.home, "codex-runtime");
+  assert.equal(command?.env.CODEX_HOME, runtimeCodexHome);
   assert.equal(command?.env.OPENAI_API_KEY, undefined);
   assert.match(String(command?.stdin), /tool-free synthesis stage/u);
   assert.equal(budget.snapshot().research_processes, 2);
+  await assert.rejects(readFile(runtimeCodexHome), /ENOENT/u);
 });
 
 test("real outer Codex sandbox permits only registered inputs and denies a host secret", async () => {
@@ -235,6 +237,12 @@ test("real outer Codex sandbox permits only registered inputs and denies a host 
   const authHome = path.join(workspace.root, "codex-auth");
   await mkdir(authHome);
   const authFile = path.join(authHome, "auth.json");
+  const isolatedAuthFile = path.join(workspace.home, "codex-runtime", "auth.json");
+  const isolatedInstallationId = path.join(
+    workspace.home,
+    "codex-runtime",
+    "installation_id",
+  );
   const outputSchema = path.join(workspace.root, "engine-output.schema.json");
   await writeFile(authFile, "{\"token\":\"fixture\"}\n");
   await writeFile(outputSchema, "{}\n");
@@ -280,11 +288,15 @@ int main(int argc, char **argv) {
     if (strcmp(argv[i], "--output-schema") == 0) schema_path = argv[i + 1];
   }
   if (!final_path || !schema_path) return 71;
-  if (!readable(${c(authFile)}) || !readable(schema_path)) return 72;
+  if (!readable(${c(isolatedAuthFile)}) || !readable(schema_path)) return 72;
   struct stat metadata;
-  if (stat(${c(secret)}, &metadata) == 0 || readable(${c(secret)})) return 73;
+  if (stat(${c(authFile)}, &metadata) == 0 || readable(${c(authFile)})) return 73;
+  if (stat(${c(secret)}, &metadata) == 0 || readable(${c(secret)})) return 74;
+  FILE *installation = fopen(${c(isolatedInstallationId)}, "w+");
+  if (!installation) return 75;
+  fputs("11111111-1111-4111-8111-111111111111", installation); fclose(installation);
   FILE *output = fopen(final_path, "w");
-  if (!output) return 74;
+  if (!output) return 76;
   fputs(${c(finalJson)}, output); fclose(output);
   puts("{\\\"type\\\":\\\"thread.started\\\",\\\"thread_id\\\":\\\"thread-1\\\"}");
   puts("{\\\"type\\\":\\\"turn.started\\\"}");
@@ -312,6 +324,8 @@ int main(int argc, char **argv) {
   assert.deepEqual(result.draft, draft);
   assert.equal(result.engine.binary_sha256, sha256Bytes(await readFile(binary)));
   assert.equal(await readFile(secret, "utf8"), "must remain unreadable\n");
+  assert.equal(await readFile(authFile, "utf8"), "{\"token\":\"fixture\"}\n");
+  await assert.rejects(readFile(path.dirname(isolatedAuthFile)), /ENOENT/u);
 });
 
 test("Codex engine rejects an artifact outside mission paths", async () => {

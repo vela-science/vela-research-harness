@@ -122,6 +122,12 @@ test("benchmark executes through the shared tool-free Codex lane", async () => {
   });
   assert.equal(report.arms.length, 2);
   assert.equal(calls.length, 3);
+  for (const arm of ["baseline", "treatment"]) {
+    await assert.rejects(
+      readFile(path.join(outputRoot, arm, "home", "codex-runtime", "auth.json")),
+      /ENOENT/u,
+    );
+  }
   const commands = calls.filter((argv) => argv[0] === "/usr/bin/sandbox-exec");
   assert.equal(commands.length, 2);
   for (const command of commands) {

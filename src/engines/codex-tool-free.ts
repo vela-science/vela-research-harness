@@ -80,6 +80,7 @@ export async function sandboxedToolFreeCodexExecArgv(
     cwd: path.resolve(options.cwd),
     outputSchema: path.resolve(options.outputSchema),
     finalParent: path.resolve(path.dirname(options.finalPath)),
+    authHome: path.resolve(options.authHome),
     authFile: path.resolve(options.authHome, "auth.json"),
     modelCatalog: path.resolve(options.authHome, "models_cache.json"),
   };
@@ -103,11 +104,12 @@ export async function sandboxedToolFreeCodexExecArgv(
     "/private/var/run/resolv.conf",
     "/var/run/resolv.conf",
   ];
-  const [binary, cwd, outputSchema, finalParent, authFile, modelCatalog] = await Promise.all([
+  const [binary, cwd, outputSchema, finalParent, authHome, authFile, modelCatalog] = await Promise.all([
     realpath(lexical.binary),
     realpath(lexical.cwd),
     realpath(lexical.outputSchema),
     realpath(lexical.finalParent),
+    realpath(lexical.authHome),
     optionalRealpath(lexical.authFile),
     optionalRealpath(lexical.modelCatalog),
   ]);
@@ -128,7 +130,9 @@ export async function sandboxedToolFreeCodexExecArgv(
     outputSchema,
     lexical.outputSchema,
     authFile,
+    authHome,
     lexical.authFile,
+    lexical.authHome,
     modelCatalog,
     ...networkRuntimeFiles,
     ...(modelCatalog === undefined ? [] : [lexical.modelCatalog]),
@@ -175,8 +179,8 @@ export async function sandboxedToolFreeCodexExecArgv(
     '(allow system-socket (require-all (socket-domain AF_SYSTEM) (socket-protocol 2)))',
     '(allow system-socket (socket-domain AF_UNIX))',
     '(allow file-read* (subpath "/Library/Apple") (subpath "/System") (subpath "/usr/lib") (subpath "/usr/share") (subpath "/private/etc/ssl") (subpath "/private/var/db/timezone") (literal "/dev/null") (literal "/dev/urandom"))',
-    `(allow file-read* file-test-existence (subpath "${sbpl(cwd)}") (subpath "${sbpl(lexical.cwd)}") ${readableFiles})`,
-    `(allow file-write* (literal "${sbpl(finalPath)}") (literal "/dev/null"))`,
+    `(allow file-read* file-test-existence (subpath "${sbpl(cwd)}") (subpath "${sbpl(lexical.cwd)}") (subpath "${sbpl(authHome)}") (subpath "${sbpl(lexical.authHome)}") ${readableFiles})`,
+    `(allow file-write* (subpath "${sbpl(authHome)}") (subpath "${sbpl(lexical.authHome)}") (literal "${sbpl(finalPath)}") (literal "/dev/null"))`,
     // Chromium's macOS network profile isolates the resolver socket from
     // ordinary IP traffic. This keeps AF_UNIX open only for mDNSResponder,
     // while permitting the model request over TCP/UDP.

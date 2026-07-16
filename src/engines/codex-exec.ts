@@ -11,6 +11,7 @@ import {
 } from "../util/command.js";
 import { readBoundedRegularFile } from "../util/files.js";
 import { parseCodexEvents } from "./codex-events.js";
+import { prepareIsolatedCodexHome, removeIsolatedCodexHome } from "./codex-home.js";
 import {
   CODEX_TOOL_FEATURES,
   sandboxedToolFreeCodexExecArgv,
@@ -82,80 +83,88 @@ export class CodexExecEngine implements Engine {
     }
     context.budget.beginProcess();
     const finalPath = path.join(context.paths.work, ".canopus-final.json");
-    const environment = {
-      ...isolatedEnvironment(context.paths.home),
-      CODEX_HOME: this.#options.authHome,
-      NO_COLOR: "1",
-    };
     const version = await this.#version(
       context.paths.work,
       context.paths.home,
       context.budget.remainingTimeMs(),
     );
     context.budget.beginProcess();
-    const argv = await sandboxedToolFreeCodexExecArgv({
-      binary: this.#options.binary,
-      model: this.#options.model,
-      outputSchema: this.#options.outputSchema,
-      finalPath,
-      cwd: context.paths.work,
-      authHome: this.#options.authHome,
-    });
-    const started = performance.now();
-    const workerPrompt = prompt(context.mission, context.briefing);
-    context.budget.addPrompt(Buffer.byteLength(workerPrompt));
-    const result = await this.#runner({
-      argv,
-      cwd: context.paths.work,
-      env: environment,
-      timeoutMs: context.budget.remainingTimeMs(),
-      maxOutputBytes: context.budget.remainingOutputBytes(),
-      stdin: workerPrompt,
-    });
-    context.budget.addOutput(result.stdout.length + result.stderr.length);
-    if (result.exitCode !== 0) {
-      throw new Error(`codex exec exited ${result.exitCode}: ${result.stderr.toString("utf8")}`);
-    }
-    const events = parseCodexEvents(result.stdout.toString("utf8"));
-    if (events.actionTypes.length !== 0) {
-      throw new Error(`tool-free Codex worker emitted actions: ${events.actionTypes.join(",")}`);
-    }
-    context.budget.addTokens(events.usage.input_tokens + events.usage.output_tokens);
-    const finalBytes = await readBoundedRegularFile(finalPath, 1_048_576);
-    context.budget.addOutput(finalBytes.length);
-    let raw: unknown;
+    const runtimeCodexHome = await prepareIsolatedCodexHome(
+      this.#options.authHome,
+      context.paths.home,
+    );
     try {
-      raw = JSON.parse(finalBytes.toString("utf8")) as unknown;
-    } catch (error) {
-      throw new Error(`Codex final response is not JSON: ${String(error)}`);
-    }
-    const draft = parseCandidateDraft(raw);
-    assertDraftArtifactsAllowed(draft, context.mission.allowed_paths);
-    return {
-      draft,
-      engine: {
-        name: this.name,
-        version,
-        binary_sha256: binaryDigest,
+      const environment = {
+        ...isolatedEnvironment(context.paths.home),
+        CODEX_HOME: runtimeCodexHome,
+        NO_COLOR: "1",
+      };
+      const argv = await sandboxedToolFreeCodexExecArgv({
+        binary: this.#options.binary,
         model: this.#options.model,
-        configuration_sha256: contentDigest({
+        outputSchema: this.#options.outputSchema,
+        finalPath,
+        cwd: context.paths.work,
+        authHome: runtimeCodexHome,
+      });
+      const started = performance.now();
+      const workerPrompt = prompt(context.mission, context.briefing);
+      context.budget.addPrompt(Buffer.byteLength(workerPrompt));
+      const result = await this.#runner({
+        argv,
+        cwd: context.paths.work,
+        env: environment,
+        timeoutMs: context.budget.remainingTimeMs(),
+        maxOutputBytes: context.budget.remainingOutputBytes(),
+        stdin: workerPrompt,
+      });
+      context.budget.addOutput(result.stdout.length + result.stderr.length);
+      if (result.exitCode !== 0) {
+        throw new Error(`codex exec exited ${result.exitCode}: ${result.stderr.toString("utf8")}`);
+      }
+      const events = parseCodexEvents(result.stdout.toString("utf8"));
+      if (events.actionTypes.length !== 0) {
+        throw new Error(`tool-free Codex worker emitted actions: ${events.actionTypes.join(",")}`);
+      }
+      context.budget.addTokens(events.usage.input_tokens + events.usage.output_tokens);
+      const finalBytes = await readBoundedRegularFile(finalPath, 1_048_576);
+      context.budget.addOutput(finalBytes.length);
+      let raw: unknown;
+      try {
+        raw = JSON.parse(finalBytes.toString("utf8")) as unknown;
+      } catch (error) {
+        throw new Error(`Codex final response is not JSON: ${String(error)}`);
+      }
+      const draft = parseCandidateDraft(raw);
+      assertDraftArtifactsAllowed(draft, context.mission.allowed_paths);
+      return {
+        draft,
+        engine: {
+          name: this.name,
+          version,
           binary_sha256: binaryDigest,
-          codex_version: version,
-          disabled_features: CODEX_TOOL_FEATURES,
           model: this.#options.model,
-          output_schema_sha256: sha256Bytes(
-            await readBoundedRegularFile(this.#options.outputSchema, 1_048_576),
-          ),
-          outer_sandbox: "macos_seatbelt_bounded_reads",
-          product_sandbox: "read-only",
-        }),
-      },
-      usage: events.usage,
-      wallTimeMs: Math.max(0, Math.round(performance.now() - started)),
-      eventTypes: events.eventTypes,
-      actionTypes: events.actionTypes,
-      eventsDigest: sha256Bytes(result.stdout),
-      stderrDigest: sha256Bytes(result.stderr),
-    };
+          configuration_sha256: contentDigest({
+            binary_sha256: binaryDigest,
+            codex_version: version,
+            disabled_features: CODEX_TOOL_FEATURES,
+            model: this.#options.model,
+            output_schema_sha256: sha256Bytes(
+              await readBoundedRegularFile(this.#options.outputSchema, 1_048_576),
+            ),
+            outer_sandbox: "macos_seatbelt_bounded_reads",
+            product_sandbox: "read-only",
+          }),
+        },
+        usage: events.usage,
+        wallTimeMs: Math.max(0, Math.round(performance.now() - started)),
+        eventTypes: events.eventTypes,
+        actionTypes: events.actionTypes,
+        eventsDigest: sha256Bytes(result.stdout),
+        stderrDigest: sha256Bytes(result.stderr),
+      };
+    } finally {
+      await removeIsolatedCodexHome(runtimeCodexHome);
+    }
   }
 }

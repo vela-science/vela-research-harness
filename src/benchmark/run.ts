@@ -2,6 +2,10 @@ import { mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { parseCodexEvents } from "../engines/codex-events.js";
+import {
+  prepareIsolatedCodexHome,
+  removeIsolatedCodexHome,
+} from "../engines/codex-home.js";
 import { sandboxedToolFreeCodexExecArgv } from "../engines/codex-tool-free.js";
 import { canonicalJson, contentDigest, sha256Bytes } from "../util/canonical.js";
 import { isolatedEnvironment, runCommand, type CommandRunner } from "../util/command.js";
@@ -251,58 +255,63 @@ async function armRun(options: {
   const finalPath = path.join(armRoot, "final.json");
   const schemaPath = path.join(options.repoRoot, options.registration.case.answer_schema_path);
   const prompt = promptFor(options.arm, options.facts);
-  const environment = {
-    ...isolatedEnvironment(home),
-    CODEX_HOME: options.codexHome,
-    NO_COLOR: "1",
-  };
-  const argv = await sandboxedToolFreeCodexExecArgv({
-    binary: options.codexBinary,
-    model: options.registration.model.request,
-    outputSchema: schemaPath,
-    finalPath,
-    cwd: empty,
-    reasoningEffort: options.registration.model.reasoning_effort,
-    authHome: options.codexHome,
-  });
-  const result = await options.runner({
-    argv,
-    cwd: empty,
-    env: environment,
-    timeoutMs: options.registration.runner.timeout_ms,
-    maxOutputBytes: options.registration.runner.max_output_bytes,
-    stdin: prompt,
-  });
-  if (result.exitCode !== 0) {
-    throw new Error(`${options.arm} Codex run exited ${result.exitCode}: ${result.stderr.toString("utf8")}`);
-  }
-  const events = parseCodexEvents(result.stdout.toString("utf8"));
-  if (events.actionTypes.length !== 0) {
-    throw new Error(`${options.arm} benchmark used tools: ${events.actionTypes.join(",")}`);
-  }
-  const final = await readBoundedRegularFile(finalPath, options.registration.runner.max_output_bytes);
-  const answer = asAnswer(JSON.parse(final.toString("utf8")) as unknown);
-  await Promise.all([
-    writeFile(path.join(armRoot, "prompt.txt"), prompt, { flag: "wx", mode: 0o600 }),
-    writeFile(path.join(armRoot, "events.jsonl"), result.stdout, { flag: "wx", mode: 0o600 }),
-    writeFile(path.join(armRoot, "stderr.txt"), result.stderr, { flag: "wx", mode: 0o600 }),
-  ]);
-  return {
-    arm: options.arm,
-    answer,
-    metrics: grade(
-      options.arm,
+  const runtimeCodexHome = await prepareIsolatedCodexHome(options.codexHome, home);
+  try {
+    const environment = {
+      ...isolatedEnvironment(home),
+      CODEX_HOME: runtimeCodexHome,
+      NO_COLOR: "1",
+    };
+    const argv = await sandboxedToolFreeCodexExecArgv({
+      binary: options.codexBinary,
+      model: options.registration.model.request,
+      outputSchema: schemaPath,
+      finalPath,
+      cwd: empty,
+      reasoningEffort: options.registration.model.reasoning_effort,
+      authHome: runtimeCodexHome,
+    });
+    const result = await options.runner({
+      argv,
+      cwd: empty,
+      env: environment,
+      timeoutMs: options.registration.runner.timeout_ms,
+      maxOutputBytes: options.registration.runner.max_output_bytes,
+      stdin: prompt,
+    });
+    if (result.exitCode !== 0) {
+      throw new Error(`${options.arm} Codex run exited ${result.exitCode}: ${result.stderr.toString("utf8")}`);
+    }
+    const events = parseCodexEvents(result.stdout.toString("utf8"));
+    if (events.actionTypes.length !== 0) {
+      throw new Error(`${options.arm} benchmark used tools: ${events.actionTypes.join(",")}`);
+    }
+    const final = await readBoundedRegularFile(finalPath, options.registration.runner.max_output_bytes);
+    const answer = asAnswer(JSON.parse(final.toString("utf8")) as unknown);
+    await Promise.all([
+      writeFile(path.join(armRoot, "prompt.txt"), prompt, { flag: "wx", mode: 0o600 }),
+      writeFile(path.join(armRoot, "events.jsonl"), result.stdout, { flag: "wx", mode: 0o600 }),
+      writeFile(path.join(armRoot, "stderr.txt"), result.stderr, { flag: "wx", mode: 0o600 }),
+    ]);
+    return {
+      arm: options.arm,
       answer,
-      options.registration,
-      events.usage,
-      final.length,
-      result.durationMs,
-    ),
-    prompt_sha256: sha256Bytes(prompt),
-    events_sha256: sha256Bytes(result.stdout),
-    stderr_sha256: sha256Bytes(result.stderr),
-    final_sha256: sha256Bytes(final),
-  };
+      metrics: grade(
+        options.arm,
+        answer,
+        options.registration,
+        events.usage,
+        final.length,
+        result.durationMs,
+      ),
+      prompt_sha256: sha256Bytes(prompt),
+      events_sha256: sha256Bytes(result.stdout),
+      stderr_sha256: sha256Bytes(result.stderr),
+      final_sha256: sha256Bytes(final),
+    };
+  } finally {
+    await removeIsolatedCodexHome(runtimeCodexHome);
+  }
 }
 
 export async function runPairedBenchmark(options: {
