@@ -9,5 +9,7 @@
   composition gate.
 - Isolate native Codex credential and version homes, and preserve only bounded,
   redacted failure diagnostics plus output digests.
+- Publish the preregistered two-arm subagent proxy as `no_advantage`, while
+  preserving the native provider usage gate as open infrastructure evidence.
 - Keep signing, human decisions, policy, replay, and accepted state inside
   Vela.

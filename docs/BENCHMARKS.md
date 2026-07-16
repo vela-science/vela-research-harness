@@ -88,3 +88,17 @@ an exact model identity, token usage, price, or reliable per-arm wall time, and
 tool denial is instructional rather than a process sandbox. The report must
 therefore mark all four fields unavailable, take no native-harness or external
 gate credit, and remain a directional internal proxy only.
+
+The proxy result is `no_advantage`: both arms scored 6/6, selected `beta`,
+rejected the pending and verifier-failed routes, and produced zero defects or
+review items. The treatment used 62 more input bytes and 29 more output bytes.
+Because both arms hit the ceiling, this result does not show that inherited Vela
+state improves agent work. It does show that the typed briefing preserved the
+correct trust boundary, but the raw baseline was already sufficient. A future
+benchmark must use harder, preregistered multi-step cases before Vela promotes
+additional agent-facing state machinery.
+
+Raw proxy evidence is in `benchmarks/results/subagent-v0.json`. The native CLI
+status and output-stream digests are in
+`benchmarks/results/native-v0-open.json`; that experiment has zero completed
+arms and remains `OPEN INFRASTRUCTURE`.
