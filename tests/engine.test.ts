@@ -199,6 +199,9 @@ test("Codex engine uses ephemeral isolated config and parses the final schema", 
   assert.match(command?.argv[2] ?? "", /deny default/u);
   assert.match(command?.argv[2] ?? "", /allow process-fork/u);
   assert.match(command?.argv[2] ?? "", /\/etc\/codex\/requirements\.toml/u);
+  assert.match(command?.argv[2] ?? "", /com\.apple\.SystemConfiguration\.configd/u);
+  assert.match(command?.argv[2] ?? "", /com\.apple\.bsd\.dirhelper/u);
+  assert.match(command?.argv[2] ?? "", /com\.apple\.system\.notification_center/u);
   assert.doesNotMatch(command?.argv[2] ?? "", /\/Users\/williamblair/u);
   assert.equal(command?.env.CODEX_HOME, workspace.home);
   assert.equal(command?.env.OPENAI_API_KEY, undefined);

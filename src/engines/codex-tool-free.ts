@@ -149,7 +149,7 @@ export async function sandboxedToolFreeCodexExecArgv(
     `(allow process-exec (literal "${sbpl(binary)}"))`,
     `(allow file-map-executable (literal "${sbpl(binary)}"))`,
     '(allow sysctl-read (sysctl-name "hw.activecpu") (sysctl-name "hw.logicalcpu") (sysctl-name "hw.ncpu") (sysctl-name "hw.pagesize") (sysctl-name "hw.pagesize_compat") (sysctl-name "kern.argmax") (sysctl-name "kern.osproductversion") (sysctl-name "kern.osrelease") (sysctl-name "kern.ostype") (sysctl-name "kern.usrstack64"))',
-    '(allow mach-lookup (global-name "com.apple.cfprefsd.agent") (global-name "com.apple.system.opendirectoryd.libinfo") (global-name "com.apple.trustd") (global-name "com.apple.trustd.agent"))',
+    '(allow mach-lookup (global-name "com.apple.SystemConfiguration.configd") (global-name "com.apple.bsd.dirhelper") (global-name "com.apple.cfprefsd.agent") (global-name "com.apple.logd") (global-name "com.apple.system.notification_center") (global-name "com.apple.system.opendirectoryd.libinfo") (global-name "com.apple.system.opendirectoryd.membership") (global-name "com.apple.trustd") (global-name "com.apple.trustd.agent"))',
     '(allow ipc-posix-shm-read* (ipc-posix-name-prefix "apple.cfprefs."))',
     '(allow file-read* (subpath "/Library/Apple") (subpath "/System") (subpath "/usr/lib") (subpath "/usr/share") (subpath "/private/etc/ssl") (subpath "/private/var/db/timezone") (literal "/dev/null") (literal "/dev/urandom"))',
     `(allow file-read* (subpath "${sbpl(cwd)}") (subpath "${sbpl(lexical.cwd)}") ${readableFiles})`,
