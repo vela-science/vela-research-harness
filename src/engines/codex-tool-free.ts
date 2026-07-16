@@ -168,8 +168,10 @@ export async function sandboxedToolFreeCodexExecArgv(
     // DNS/TLS services in Codex's own macOS network policy. No wildcard Mach
     // lookup or user application service is admitted.
     '(allow mach-lookup (global-name "com.apple.SecurityServer") (global-name "com.apple.SystemConfiguration.DNSConfiguration") (global-name "com.apple.SystemConfiguration.configd") (global-name "com.apple.bsd.dirhelper") (global-name "com.apple.cfprefsd.agent") (local-name "com.apple.cfprefsd.agent") (global-name "com.apple.logd") (global-name "com.apple.networkd") (global-name "com.apple.ocspd") (global-name "com.apple.system.notification_center") (global-name "com.apple.system.opendirectoryd.libinfo") (global-name "com.apple.system.opendirectoryd.membership") (global-name "com.apple.trustd") (global-name "com.apple.trustd.agent"))',
-    '(allow ipc-posix-shm-read* (ipc-posix-name-prefix "apple.cfprefs."))',
+    '(allow ipc-posix-shm-read* (ipc-posix-name "apple.shm.notification_center") (ipc-posix-name-prefix "apple.cfprefs."))',
     '(allow system-socket (require-all (socket-domain AF_SYSTEM) (socket-protocol 2)))',
+    '(allow system-socket (socket-domain AF_UNIX))',
+    '(allow network-outbound (remote unix-socket (literal "/var/run/mDNSResponder")))',
     '(allow file-read* (subpath "/Library/Apple") (subpath "/System") (subpath "/usr/lib") (subpath "/usr/share") (subpath "/private/etc/ssl") (subpath "/private/var/db/timezone") (literal "/dev/null") (literal "/dev/urandom"))',
     `(allow file-read* (subpath "${sbpl(cwd)}") (subpath "${sbpl(lexical.cwd)}") ${readableFiles})`,
     `(allow file-write* (literal "${sbpl(finalPath)}") (literal "/dev/null"))`,

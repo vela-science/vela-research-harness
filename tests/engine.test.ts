@@ -205,6 +205,9 @@ test("Codex engine uses ephemeral isolated config and parses the final schema", 
   assert.match(command?.argv[2] ?? "", /com\.apple\.SystemConfiguration\.DNSConfiguration/u);
   assert.match(command?.argv[2] ?? "", /com\.apple\.networkd/u);
   assert.match(command?.argv[2] ?? "", /socket-domain AF_SYSTEM/u);
+  assert.match(command?.argv[2] ?? "", /socket-domain AF_UNIX/u);
+  assert.match(command?.argv[2] ?? "", /\/var\/run\/mDNSResponder/u);
+  assert.match(command?.argv[2] ?? "", /apple\.shm\.notification_center/u);
   assert.match(command?.argv[2] ?? "", /\/private\/etc\/hosts/u);
   assert.match(command?.argv[2] ?? "", /com\.apple\.networkd\.plist/u);
   assert.equal((command?.argv[2] ?? "").includes('(subpath "/Library/Preferences")'), false);
