@@ -35,6 +35,7 @@ import { cleanupWorkspace, prepareWorkspace, type WorkspacePaths } from "./works
 export interface VelaPort {
   assertRoots(repoRoot: string, frontier: string, expected: MissionRoots): Promise<VelaInspection>;
   inspect(repoRoot: string, frontier: string): Promise<VelaInspection>;
+  next(mission: Mission, repoRoot: string): Promise<VelaCommandResponse>;
   work(
     mission: Mission,
     repoRoot: string,
@@ -130,6 +131,32 @@ function assertWorkBinding(
   }
 }
 
+export function validateTargetOffer(
+  target: string,
+  response: VelaCommandResponse,
+): { index: number; id: string } {
+  exactText(response.value.command, "next", "vela next.command");
+  const targets = response.value.targets;
+  if (!Array.isArray(targets)) throw new Error("vela next.targets is not an array");
+  const matches: Array<{ index: number; id: string }> = [];
+  for (const [index, entry] of targets.entries()) {
+    if (typeof entry !== "object" || entry === null || Array.isArray(entry)) {
+      throw new Error(`vela next.targets[${index}] is not an object`);
+    }
+    const id = (entry as Record<string, unknown>).id;
+    if (typeof id !== "string" || id.length === 0) {
+      throw new Error(`vela next.targets[${index}].id is not a nonempty string`);
+    }
+    if (id === target) matches.push({ index, id });
+  }
+  if (matches.length !== 1) {
+    throw new Error(
+      `registered mission target must appear exactly once in vela next; observed ${matches.length}`,
+    );
+  }
+  return matches[0] as { index: number; id: string };
+}
+
 function publicationState(land: LandResult): string {
   const value = land.publication.state;
   return typeof value === "string" ? value : "unknown";
@@ -171,6 +198,14 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
       options.vela.assertRoots(paths.landing, options.mission.frontier, options.mission.roots),
     ]);
     await activity.append("roots.verified", { roots: options.mission.roots });
+
+    const offer = await options.vela.next(options.mission, paths.input);
+    const selected = validateTargetOffer(options.mission.target, offer);
+    await activity.append("target.offered", {
+      target: selected.id,
+      rank: selected.index,
+      offer_digest: contentDigest(offer.value),
+    });
 
     const work = await options.vela.work(
       options.mission,

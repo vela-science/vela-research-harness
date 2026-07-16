@@ -10,7 +10,7 @@ import type { Mission, MissionRoots } from "../../src/contracts/mission.js";
 import type { FrozenArtifact } from "../../src/contracts/candidate.js";
 import { FakeEngine } from "../../src/engines/fake.js";
 import { projectRun } from "../../src/projection/run.js";
-import { runCanopus, type VelaPort } from "../../src/run.js";
+import { runCanopus, validateTargetOffer, type VelaPort } from "../../src/run.js";
 import type { CommandRunner } from "../../src/util/command.js";
 import { sha256Bytes } from "../../src/util/canonical.js";
 import {
@@ -62,6 +62,7 @@ async function sourceRepository(): Promise<{
 
 class FakeVela implements VelaPort {
   public authored: AuthoredReceiptInput | undefined;
+  public nextCalls = 0;
   readonly #failBinding: boolean;
 
   public constructor(failBinding = false) {
@@ -90,6 +91,24 @@ class FakeVela implements VelaPort {
     const observed = await this.inspect(repoRoot);
     assert.deepEqual(observed.roots, expected);
     return observed;
+  }
+
+  public async next(mission: Mission): Promise<VelaCommandResponse> {
+    this.nextCalls += 1;
+    return {
+      ok: true,
+      value: {
+        ok: true,
+        command: "next",
+        targets: [
+          {
+            id: mission.target,
+            lane: "attack",
+            next_command: `vela work ${mission.target}`,
+          },
+        ],
+      },
+    };
   }
 
   public async work(
@@ -223,6 +242,29 @@ class FakeVela implements VelaPort {
   }
 }
 
+test("target offer validation requires one exact released-Vela offer", () => {
+  const offered = (ids: string[]): VelaCommandResponse => ({
+    ok: true,
+    value: {
+      ok: true,
+      command: "next",
+      targets: ids.map((id) => ({ id })),
+    },
+  });
+  assert.deepEqual(validateTargetOffer("finite:42", offered(["other", "finite:42"])), {
+    index: 1,
+    id: "finite:42",
+  });
+  assert.throws(
+    () => validateTargetOffer("finite:42", offered(["other"])),
+    /appear exactly once/u,
+  );
+  assert.throws(
+    () => validateTargetOffer("finite:42", offered(["finite:42", "finite:42"])),
+    /observed 2/u,
+  );
+});
+
 test("bounded vertical slice lands pending and reproduces from a clean clone", async () => {
   const source = await sourceRepository();
   const mission: Mission = {
@@ -300,6 +342,8 @@ test("bounded vertical slice lands pending and reproduces from a clean clone", a
   assert.equal(result.record.external_gate_credit, false);
   assert.equal(result.projection.accepted_state_effect, "unchanged_pending");
   assert.equal(vela.authored?.predictedObservable, "The frozen JSON object has value 42.");
+  assert.equal(vela.nextCalls, 1);
+  assert.match(await readFile(path.join(result.paths.root, "activity.jsonl"), "utf8"), /target\.offered/u);
   assert.deepEqual(projectRun(result.record), result.projection);
   assert.equal(
     JSON.parse(await readFile(path.join(result.paths.root, "run.json"), "utf8")).authority,
