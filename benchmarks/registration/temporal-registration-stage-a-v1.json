@@ -1,6 +1,7 @@
 {
   "schema": "canopus.temporal-registration-stage-a-registration.v1",
   "status": "registered_not_executed",
+  "stage_iteration": 2,
   "registered_at": "2026-07-16",
   "fixture": {
     "path": "benchmarks/fixtures/v1/temporal-registration",
@@ -71,11 +72,11 @@
     },
     "registration_builder": {
       "path": "scripts/register-temporal-registration-stage-a.mjs",
-      "sha256": "sha256:c08b3c5af9cd12aa68a70ef3aa4e3736ccf43c63b24f4c10f513fd9273da76bc"
+      "sha256": "sha256:7b975b627b8511d13a3cfe936133e606355775489540242ae8816c43e6f493a3"
     },
     "runner": {
       "path": "scripts/run-temporal-registration-stage-a.mjs",
-      "sha256": "sha256:816f4eafbc590dc47b204e08c7c50d04a87dffeafaf008c84d161f373f2ae66d"
+      "sha256": "sha256:e4d9b335f2aa993bfc9ffa4de60c8118bdb3a5d8c4895c24f90770487cd30f29"
     }
   },
   "runner": {
@@ -111,6 +112,14 @@
       "superseded_registration_root": "sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53",
       "failure_class": "controller_transport",
       "defect": "runCell referenced cell before binding options.cell",
+      "model_calls": 0,
+      "scored_cells": 0,
+      "semantic_guidance": false
+    },
+    {
+      "superseded_registration_root": "sha256:79557a2d1c283640c96559fcc473d5e7751e2829ea98e9ed7314bb878018b8ea",
+      "failure_class": "controller_sandbox_transport",
+      "defect": "outer sandbox bound real /private/tmp paths but CODEX_HOME used lexical /tmp",
       "model_calls": 0,
       "scored_cells": 0,
       "semantic_guidance": false
@@ -151,5 +160,5 @@
     "authority": false,
     "causal": false
   },
-  "registration_root": "sha256:79557a2d1c283640c96559fcc473d5e7751e2829ea98e9ed7314bb878018b8ea"
+  "registration_root": "sha256:d97224f0ca1be5dc94c45cfc7619effab29729892491de1e9964fb5727d36615"
 }

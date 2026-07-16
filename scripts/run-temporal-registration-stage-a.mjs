@@ -242,18 +242,32 @@ async function sandboxedCodexArgv(options) {
   if (process.platform !== "darwin") {
     fail("Stage A currently requires the registered macOS outer sandbox");
   }
-  const codex = await realpath(options.codex);
-  const workspace = await realpath(options.workspace);
-  const codexHome = await realpath(options.codexHome);
-  const schema = await realpath(options.schema);
-  const finalPath = path.join(workspace, ".benchmark", "final.json");
+  const lexicalCodex = path.resolve(options.codex);
+  const lexicalWorkspace = path.resolve(options.workspace);
+  const lexicalCodexHome = path.resolve(options.codexHome);
+  const lexicalHome = path.resolve(options.home);
+  const lexicalSchema = path.resolve(options.schema);
+  const [codex, workspace, codexHome, home, schema] = await Promise.all([
+    realpath(lexicalCodex),
+    realpath(lexicalWorkspace),
+    realpath(lexicalCodexHome),
+    realpath(lexicalHome),
+    realpath(lexicalSchema),
+  ]);
+  const finalPath = path.join(lexicalWorkspace, ".benchmark", "final.json");
   const allowedExec = [
     codex,
+    lexicalCodex,
     "/bin",
     "/usr/bin",
     "/usr/sbin",
     "/usr/libexec/git-core",
+    "/Library/Developer/CommandLineTools/usr/bin",
+    "/Library/Developer/CommandLineTools/usr/libexec/git-core",
+    "/Applications/Xcode.app/Contents/Developer/usr/bin",
+    "/Applications/Xcode.app/Contents/Developer/usr/libexec/git-core",
     path.join(workspace, "bin"),
+    path.join(lexicalWorkspace, "bin"),
   ]
     .map((value) =>
       value === codex || value.endsWith("/vela")
@@ -263,9 +277,15 @@ async function sandboxedCodexArgv(options) {
     .join(" ");
   const metadata = metadataLiterals([
     codex,
+    lexicalCodex,
     workspace,
+    lexicalWorkspace,
     codexHome,
+    lexicalCodexHome,
+    home,
+    lexicalHome,
     schema,
+    lexicalSchema,
     finalPath,
     "/etc/ssl/cert.pem",
     "/private/etc/resolv.conf",
@@ -287,13 +307,13 @@ async function sandboxedCodexArgv(options) {
     '(allow ipc-posix-shm-read* (ipc-posix-name "apple.shm.notification_center") (ipc-posix-name-prefix "apple.cfprefs."))',
     '(allow system-socket (socket-domain AF_SYSTEM))',
     '(allow system-socket (socket-domain AF_UNIX))',
-    '(allow file-read* (subpath "/Library/Apple") (subpath "/System") (subpath "/usr/lib") (subpath "/usr/share") (subpath "/private/etc/ssl") (subpath "/private/var/db/timezone") (literal "/dev/null") (literal "/dev/urandom"))',
-    `(allow file-read* file-test-existence (subpath "${sbpl(workspace)}") (subpath "${sbpl(codexHome)}") (literal "${sbpl(codex)}") (literal "${sbpl(schema)}") (literal "/etc/ssl/cert.pem") (literal "/private/etc/resolv.conf"))`,
-    `(allow file-write* (subpath "${sbpl(workspace)}") (subpath "${sbpl(codexHome)}") (literal "/dev/null"))`,
+    '(allow file-read* (subpath "/Applications/Xcode.app/Contents/Developer") (subpath "/Library/Apple") (subpath "/Library/Developer") (subpath "/System") (subpath "/usr/lib") (subpath "/usr/share") (subpath "/var/select") (subpath "/private/var/select") (subpath "/private/etc/ssl") (subpath "/private/var/db/timezone") (literal "/dev/null") (literal "/dev/urandom"))',
+    `(allow file-read* file-test-existence (subpath "${sbpl(workspace)}") (subpath "${sbpl(lexicalWorkspace)}") (subpath "${sbpl(codexHome)}") (subpath "${sbpl(lexicalCodexHome)}") (subpath "${sbpl(home)}") (subpath "${sbpl(lexicalHome)}") (literal "${sbpl(codex)}") (literal "${sbpl(lexicalCodex)}") (literal "${sbpl(schema)}") (literal "${sbpl(lexicalSchema)}") (literal "/etc/ssl/cert.pem") (literal "/private/etc/resolv.conf"))`,
+    `(allow file-write* (subpath "${sbpl(workspace)}") (subpath "${sbpl(lexicalWorkspace)}") (subpath "${sbpl(codexHome)}") (subpath "${sbpl(lexicalCodexHome)}") (subpath "${sbpl(home)}") (subpath "${sbpl(lexicalHome)}") (literal "/dev/null"))`,
     '(allow network-outbound (control-name "com.apple.netsrc") (literal "/private/var/run/mDNSResponder") (remote tcp) (remote udp))',
   ].join(" ");
   const inner = [
-    codex,
+    lexicalCodex,
     "exec",
     "--ephemeral",
     "--skip-git-repo-check",
@@ -305,14 +325,14 @@ async function sandboxedCodexArgv(options) {
     "--model",
     options.model,
     "--output-schema",
-    schema,
+    lexicalSchema,
     "--output-last-message",
     finalPath,
     "--json",
     "--color",
     "never",
     "--cd",
-    workspace,
+    lexicalWorkspace,
     "--config",
     "shell_environment_policy.inherit=all",
     "--config",
@@ -342,6 +362,7 @@ async function sandboxedCodexArgv(options) {
   return {
     argv: ["/usr/bin/sandbox-exec", "-p", profile, "--", ...inner],
     finalPath,
+    profile,
   };
 }
 
@@ -630,11 +651,12 @@ async function runCell(options) {
     codex: options.codex,
     workspace,
     codexHome,
+    home,
     schema,
     model: options.registration.surface.request,
   });
   const environment = {
-    PATH: `${path.join(workspace, "bin")}:/usr/bin:/bin:/usr/sbin:/sbin`,
+    PATH: `${path.join(workspace, "bin")}:/Applications/Xcode.app/Contents/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin`,
     HOME: home,
     CODEX_HOME: codexHome,
     TMPDIR: path.join(workspace, ".tmp"),
@@ -649,6 +671,22 @@ async function runCell(options) {
     ...(cell.task === "reviewer" ? { VELA_NO_KEY_ACCESS: "1" } : {}),
   };
   await mkdir(environment.TMPDIR, { recursive: true });
+  await command(
+    [
+      "/usr/bin/sandbox-exec",
+      "-p",
+      invocation.profile,
+      "--",
+      "/bin/zsh",
+      "-c",
+      'test -r "$CODEX_HOME/auth.json" && test -w "$CODEX_HOME" && test -r "$HOME" && test -x "./bin/vela" && git -C primary rev-parse HEAD >/dev/null',
+    ],
+    {
+      cwd: workspace,
+      env: environment,
+      timeout: 30_000,
+    },
+  );
   const beforeStrict = await checkProjection(vela, primary, true, environment);
   const beforeNonStrict = await checkProjection(
     vela,
@@ -656,6 +694,14 @@ async function runCell(options) {
     false,
     environment,
   );
+  if (options.preflightOnly) {
+    return {
+      preflight: true,
+      cell_id: cell.id,
+      strict: beforeStrict,
+      non_strict: beforeNonStrict,
+    };
+  }
   const started = performance.now();
   const run = await runProcess(invocation.argv, {
     cwd: workspace,
@@ -839,7 +885,7 @@ async function main() {
   const outputRootArg = argument(args, "--output");
   if (velaArg === undefined || outputRootArg === undefined) {
     fail(
-      "usage: run-temporal-registration-stage-a.mjs --vela <released-binary> --output <empty-directory> [--codex <binary>] [--codex-home <home>] [--execute]",
+      "usage: run-temporal-registration-stage-a.mjs --vela <released-binary> --output <empty-directory> [--codex <binary>] [--codex-home <home>] [--preflight-only | --execute]",
     );
   }
   const vela = path.resolve(velaArg);
@@ -847,6 +893,7 @@ async function main() {
     argument(args, "--codex-home", path.join(os.homedir(), ".codex")),
   );
   const execute = args.includes("--execute");
+  const preflightOnly = args.includes("--preflight-only");
   const outputRoot = path.resolve(outputRootArg);
   const registration = JSON.parse(await readFile(registrationPath, "utf8"));
   const rootCandidate = structuredClone(registration);
@@ -886,7 +933,7 @@ async function main() {
   if ((await command([codex, "--version"])) !== registration.surface.exact_cli_version) {
     fail("Codex binary version mismatch");
   }
-  if (!execute) {
+  if (!execute && !preflightOnly) {
     console.log(
       JSON.stringify(
         {
@@ -924,14 +971,32 @@ async function main() {
       vela,
       codex,
       codexSourceHome,
+      preflightOnly,
     });
     results.push(result);
+    if (preflightOnly) continue;
     if (
       registration.runner.stop_on_first_safety_failure &&
       !result.score.safe_completion
     ) {
       break;
     }
+  }
+  if (preflightOnly) {
+    console.log(
+      JSON.stringify(
+        {
+          ok: true,
+          status: "sandbox_preflight_passed",
+          registration_root: registration.registration_root,
+          cells: results.map((result) => result.cell_id),
+          model_calls: 0,
+        },
+        null,
+        2,
+      ),
+    );
+    return;
   }
   const safe = results.filter((result) => result.score.safe_completion).length;
   const report = {

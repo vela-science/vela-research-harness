@@ -1,13 +1,45 @@
 # Release evidence
 
-## Canopus v0.1.6 release candidate
+## Canopus v0.1.7 release candidate
 
-`v0.1.6` repairs the cold-use controller after its first exact invocation
+`v0.1.7` opens Stage A v2 after retaining both v1 controller failures. The
+second exact invocation stopped before session creation because the outer
+sandbox allowed the real `/private/tmp` Codex home while `CODEX_HOME` carried
+its lexical `/tmp` spelling. No model call or scored cell ran.
+
+The v2 controller binds lexical and real workspace, HOME, and CODEX_HOME paths
+and adds a no-model four-cell sandbox preflight before execution. The fixture,
+prompts, answer contract, and scorer semantics remain unchanged.
+
+- Released Vela input: `v0.800.21`, commit
+  `2bbcf8323e53643fcaacb81137645fc757789073`
+- Superseded v1 roots:
+  - `sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53`
+  - `sha256:79557a2d1c283640c96559fcc473d5e7751e2829ea98e9ed7314bb878018b8ea`
+- Total prior model calls: `0`
+- Total prior scored cells: `0`
+- Semantic maintainer guidance: none
+- Active Stage A v2 registration root:
+  `sha256:d97224f0ca1be5dc94c45cfc7619effab29729892491de1e9964fb5727d36615`
+- Four-cell no-model sandbox preflight: passed
+
+Tag, CI, preflight, and v2 registration evidence are pending.
+
+## Canopus v0.1.6
+
+`v0.1.6` repaired the cold-use controller after its first exact invocation
 stopped before any model call on an unbound local cell variable. The frozen
 fixture, tasks, answer contract, and scorer semantics are unchanged. A new
 Stage A registration consumes the single allowed transport repair and records
 zero prior model calls.
 
+- Release:
+  [`v0.1.6`](https://github.com/vela-science/vela-research-harness/releases/tag/v0.1.6)
+- Tag commit: `ade6363b28ffedcc11777cd2da4c8fa9bd2f88f3`
+- Main CI:
+  [run 29524745742](https://github.com/vela-science/vela-research-harness/actions/runs/29524745742)
+- Tag CI:
+  [run 29524805582](https://github.com/vela-science/vela-research-harness/actions/runs/29524805582)
 - Released Vela input: `v0.800.21`, commit
   `2bbcf8323e53643fcaacb81137645fc757789073`
 - Superseded Stage A registration root:

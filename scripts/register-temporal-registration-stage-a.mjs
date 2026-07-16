@@ -138,6 +138,7 @@ async function main() {
   const registration = {
     schema: "canopus.temporal-registration-stage-a-registration.v1",
     status: "registered_not_executed",
+    stage_iteration: 2,
     registered_at: "2026-07-16",
     fixture: {
       path: "benchmarks/fixtures/v1/temporal-registration",
@@ -200,6 +201,16 @@ async function main() {
           "sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53",
         failure_class: "controller_transport",
         defect: "runCell referenced cell before binding options.cell",
+        model_calls: 0,
+        scored_cells: 0,
+        semantic_guidance: false,
+      },
+      {
+        superseded_registration_root:
+          "sha256:79557a2d1c283640c96559fcc473d5e7751e2829ea98e9ed7314bb878018b8ea",
+        failure_class: "controller_sandbox_transport",
+        defect:
+          "outer sandbox bound real /private/tmp paths but CODEX_HOME used lexical /tmp",
         model_calls: 0,
         scored_cells: 0,
         semantic_guidance: false,

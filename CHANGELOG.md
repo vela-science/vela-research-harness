@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.7 - 2026-07-16
+
+- Open Stage A v2 after v1 retained two zero-call controller infrastructure
+  failures: an unbound cell variable and a lexical `/tmp` versus real
+  `/private/tmp` sandbox path mismatch.
+- Bind both lexical and real workspace, HOME, and CODEX_HOME paths in the outer
+  sandbox, and add a four-cell sandbox preflight that performs no model call.
+- Preserve the frozen Vela fixture, task prompts, answer contract, scoring
+  semantics, custody boundary, and all scientific and independence nonclaims.
+
 ## 0.1.6 - 2026-07-16
 
 - Repair the Stage A controller's pre-call cell binding after the first exact
