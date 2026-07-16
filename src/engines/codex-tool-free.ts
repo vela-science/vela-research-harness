@@ -171,7 +171,8 @@ export async function sandboxedToolFreeCodexExecArgv(
     '(allow ipc-posix-shm-read* (ipc-posix-name "apple.shm.notification_center") (ipc-posix-name-prefix "apple.cfprefs."))',
     '(allow system-socket (require-all (socket-domain AF_SYSTEM) (socket-protocol 2)))',
     '(allow system-socket (socket-domain AF_UNIX))',
-    '(allow network-outbound (remote unix-socket (literal "/var/run/mDNSResponder")))',
+    // /var/run is a firmlink; Seatbelt evaluates the socket's canonical path.
+    '(allow network-outbound (remote unix-socket (subpath "/private/var/run/mDNSResponder")))',
     '(allow file-read* (subpath "/Library/Apple") (subpath "/System") (subpath "/usr/lib") (subpath "/usr/share") (subpath "/private/etc/ssl") (subpath "/private/var/db/timezone") (literal "/dev/null") (literal "/dev/urandom"))',
     `(allow file-read* (subpath "${sbpl(cwd)}") (subpath "${sbpl(lexical.cwd)}") ${readableFiles})`,
     `(allow file-write* (literal "${sbpl(finalPath)}") (literal "/dev/null"))`,
