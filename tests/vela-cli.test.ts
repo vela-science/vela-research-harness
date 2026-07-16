@@ -32,7 +32,7 @@ function mission(): Mission {
     schema: "canopus.mission.v0",
     id: "mission_vela_client",
     target: "target-1",
-    vela_version: "0.800.14",
+    vela_version: "0.800.15",
     vela_sha256: root,
     frontier: "frontier",
     actor: "agent:canopus-test",
@@ -89,7 +89,7 @@ function fakeRunner(options: { version?: string; checkRoot?: string; proofRoot?:
       return result(argv, `${argv.at(-1) === "HEAD^{tree}" ? gitTree : gitCommit}\n`);
     }
     if (argv[1] === "--version") {
-      return result(argv, `vela ${options.version ?? "0.800.14"}\n`);
+      return result(argv, `vela ${options.version ?? "0.800.15"}\n`);
     }
     if (argv[1] === "check") {
       return result(argv, {
@@ -140,7 +140,7 @@ function fakeRunner(options: { version?: string; checkRoot?: string; proofRoot?:
 function client(runner: CommandRunner): VelaClient {
   return new VelaClient({
     binary: process.execPath,
-    expectedVersion: "0.800.14",
+    expectedVersion: "0.800.15",
     expectedSha256: velaBinaryDigest,
     home: "/tmp/canopus-home",
     runner,
@@ -221,7 +221,7 @@ test("Vela client rejects a version-spoofing binary digest", async () => {
   const fake = fakeRunner();
   const spoofed = new VelaClient({
     binary: process.execPath,
-    expectedVersion: "0.800.14",
+    expectedVersion: "0.800.15",
     expectedSha256: root,
     home: "/tmp/canopus-home",
     runner: fake.runner,

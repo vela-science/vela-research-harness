@@ -199,7 +199,10 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
     ]);
     await activity.append("roots.verified", { roots: options.mission.roots });
 
-    const offer = await options.vela.next(options.mission, paths.input);
+    // Vela's task offer performs recovery-barrier bookkeeping even though it
+    // does not change scientific state. Run it in the exact-root control clone;
+    // the separate worker input clone stays sealed and read-only.
+    const offer = await options.vela.next(options.mission, paths.landing);
     const selected = validateTargetOffer(options.mission.target, offer);
     await activity.append("target.offered", {
       target: selected.id,

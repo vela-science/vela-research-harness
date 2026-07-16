@@ -9,7 +9,7 @@ const root = `sha256:${"a".repeat(64)}`;
 function mission() {
   return parseMission({
     schema: "canopus.mission.v0", id: "mission_original", target: "target-1",
-    vela_version: "0.800.14", vela_sha256: root,
+    vela_version: "0.800.15", vela_sha256: root,
     frontier: "frontier", actor: "agent:test", role: "producer",
     claim_type: "computational", replayability: "exact",
     objective: "Find one bounded result.", completion_condition: "Verifier passes.",

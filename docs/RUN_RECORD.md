@@ -3,7 +3,7 @@
 A completed run writes these local records beneath its run root:
 
 - `activity.jsonl`: append-only orchestration events linked by full SHA-256
-  digests;
+  digests, including the exact `vela next` offer digest and selected rank;
 - `candidate.json`: the frozen candidate and verifier facts;
 - `run.json`: the compact run record, exact roots, landing result, costs, and
   clean-clone reproduction result;
@@ -21,7 +21,8 @@ was captured, so recovery roots are authoritative over assumptions.
 
 These files are operational evidence, not Vela authority. The projection says
 so in its schema and can be rebuilt with `canopus inspect run.json`. Deleting
-all four files must not change Vela replay, a policy route, or accepted state.
+the run-record files must not change Vela replay, a policy route, or accepted
+state.
 
 The run root also contains isolated checkouts and content-addressed artifacts.
 The landing clone uses a disposable attached branch so Vela can publish exact

@@ -13,7 +13,7 @@ function mission(): Record<string, unknown> {
     schema: "canopus.mission.v0",
     id: "mission_contract_test",
     target: "target-1",
-    vela_version: "0.800.14",
+    vela_version: "0.800.15",
     vela_sha256: digest,
     frontier: "frontier",
     actor: "agent:canopus-test",

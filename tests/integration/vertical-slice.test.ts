@@ -63,6 +63,7 @@ async function sourceRepository(): Promise<{
 class FakeVela implements VelaPort {
   public authored: AuthoredReceiptInput | undefined;
   public nextCalls = 0;
+  public nextRoot: string | undefined;
   readonly #failBinding: boolean;
 
   public constructor(failBinding = false) {
@@ -71,7 +72,7 @@ class FakeVela implements VelaPort {
 
   public async inspect(repoRoot: string): Promise<VelaInspection> {
     return {
-      version: "0.800.14",
+      version: "0.800.15",
       roots: {
         git_commit: await git(repoRoot, "rev-parse", "HEAD^{commit}"),
         git_tree: await git(repoRoot, "rev-parse", "HEAD^{tree}"),
@@ -93,8 +94,9 @@ class FakeVela implements VelaPort {
     return observed;
   }
 
-  public async next(mission: Mission): Promise<VelaCommandResponse> {
+  public async next(mission: Mission, repoRoot: string): Promise<VelaCommandResponse> {
     this.nextCalls += 1;
+    this.nextRoot = repoRoot;
     return {
       ok: true,
       value: {
@@ -271,7 +273,7 @@ test("bounded vertical slice lands pending and reproduces from a clean clone", a
     schema: "canopus.mission.v0",
     id: "mission_vertical_slice",
     target: "finite:42",
-    vela_version: "0.800.14",
+    vela_version: "0.800.15",
     vela_sha256: scientificRoot,
     frontier: "frontier",
     actor: "agent:canopus-test",
@@ -343,6 +345,7 @@ test("bounded vertical slice lands pending and reproduces from a clean clone", a
   assert.equal(result.projection.accepted_state_effect, "unchanged_pending");
   assert.equal(vela.authored?.predictedObservable, "The frozen JSON object has value 42.");
   assert.equal(vela.nextCalls, 1);
+  assert.equal(vela.nextRoot, result.paths.landing);
   assert.match(await readFile(path.join(result.paths.root, "activity.jsonl"), "utf8"), /target\.offered/u);
   assert.deepEqual(projectRun(result.record), result.projection);
   assert.equal(
@@ -361,7 +364,7 @@ test("post-land failure retains raw Vela effect and recovery roots", async () =>
     schema: "canopus.mission.v0",
     id: "mission_landing_recovery",
     target: "finite:42",
-    vela_version: "0.800.14",
+    vela_version: "0.800.15",
     vela_sha256: scientificRoot,
     frontier: "frontier",
     actor: "agent:canopus-recovery",

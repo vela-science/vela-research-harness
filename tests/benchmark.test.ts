@@ -70,7 +70,7 @@ test("benchmark executes through the shared tool-free Codex lane", async () => {
         argv,
         exitCode: 0,
         signal: null,
-        stdout: Buffer.from("codex-cli 0.139.0\n"),
+        stdout: Buffer.from(`${registration.model.exact_cli_version}\n`),
         stderr: Buffer.alloc(0),
         durationMs: 1,
       };

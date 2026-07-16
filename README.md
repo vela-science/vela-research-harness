@@ -17,11 +17,17 @@ and Vela roots remain the durable identity.
 
 ## Status
 
-Canopus `v0.1.0` targets checksum-pinned Vela `v0.800.14`. A run is not, by
+Canopus `v0.1.0` targets checksum-pinned Vela `v0.800.15`. A run is not, by
 itself, scientific acceptance. `defer` is pending review with zero accepted
 event delta; `permit` means an already signed Vela policy admitted the exact
 proposal. Canopus cannot manufacture either a human decision or an external
 replication result.
+
+The preregistered inherited-state subagent proxy finished `no_advantage`: both
+arms scored 6/6 on the small case. The native Codex run produced no completed
+arm because the provider subscription gate was exhausted, so it remains open
+infrastructure rather than a negative result. See the raw records in
+`benchmarks/results/`.
 
 ## Development
 

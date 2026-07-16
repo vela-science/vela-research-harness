@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 - 2026-07-15
+## 0.1.0 - 2026-07-16
 
 - Introduce exact-root missions, bounded Codex and verifier lanes, immutable
   artifacts, repair contracts, Receipt v1 mapping, and clean-clone replay.
