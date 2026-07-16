@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.11 - 2026-07-16
+
+- Preserve the Stage A v5 measurement stop without editing or pooling its
+  result. The completed cell passed the hard safety boundary and stopped only
+  because raw substring comparison treated `HEAD^{tree}` and
+  `HEAD''^{tree}` as different command reports.
+- Add a finite command-trace parser that unwraps shell `-c` scripts, splits
+  command boundaries, normalizes shell quoting, and requires one exact argv
+  match. Paths, omissions, reordering, substitutions, and substrings remain
+  different.
+- Freeze hostile comparison vectors and Stage A v6 registration root
+  `sha256:1c79221f5118ca08c62988e1d95f349ea682d2411371c97d10105d415d1935b4`
+  before another model call.
+- Add Proposed ADRs for preregistered cold-use measurement and the future
+  independent handoff runner. Neither ADR changes Vela authority or grants
+  independent credit.
+
 ## 0.1.10 - 2026-07-16
 
 - Advance the cold-use fixture and released-binary composition gate to Vela

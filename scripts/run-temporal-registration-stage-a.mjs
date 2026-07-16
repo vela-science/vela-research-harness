@@ -21,6 +21,8 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 
+import { reportedCommandMatchesTrace } from "./lib/command-trace.mjs";
+
 const exec = promisify(execFile);
 const repoRoot = path.resolve(import.meta.dirname, "..");
 const fixtureRoot = path.join(
@@ -512,7 +514,7 @@ function scoreAnswer({ answer, cell, fixture, commands, historyDelta, acceptedDe
     answer.commands_executed.some(
       (reported) =>
         typeof reported !== "string" ||
-        !tracedCommands.some((actual) => actual.includes(reported)),
+        !reportedCommandMatchesTrace(reported, tracedCommands),
     )
   ) {
     defects.push("reported_command_trace");

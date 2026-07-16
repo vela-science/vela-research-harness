@@ -200,6 +200,7 @@ test("Stage A registration binds four zero-credit fresh-session cells", async ()
     sha256Bytes(canonicalJcs(rootCandidate)),
   );
   assert.equal(registered.status, "registered_not_executed");
+  assert.equal(registered.stage_iteration, 6);
   assert.equal(registered.runner.maximum_model_calls, 4);
   assert.equal(registered.runner.cell_order.length, 4);
   assert.equal(registered.surface.exact_cli_version, "codex-cli 0.144.5");
@@ -211,6 +212,20 @@ test("Stage A registration binds four zero-credit fresh-session cells", async ()
   assert.equal(registered.credit.scientific, false);
   assert.equal(registered.credit.independent, false);
   assert.equal(registered.credit.authority, false);
+  assert.equal(
+    registered.scoring.reported_command_comparison.schema,
+    "canopus.command-trace-argv-comparison.v1",
+  );
+  assert.deepEqual(
+    registered.scoring.reported_command_comparison.forbidden_normalizations,
+    [
+      "path_aliases",
+      "argument_omission",
+      "argument_reordering",
+      "command_substitution",
+      "substring_matching",
+    ],
+  );
   for (const descriptor of Object.values<any>(registered.files)) {
     assert.equal(
       sha256(await readFile(path.join(repoRoot, descriptor.path))),

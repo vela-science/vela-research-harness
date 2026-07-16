@@ -17,7 +17,7 @@ and Vela roots remain the durable identity.
 
 ## Status
 
-Canopus `v0.1.10` targets checksum-pinned Vela `v0.800.22`. A run is not, by
+Canopus `v0.1.11` targets checksum-pinned Vela `v0.800.22`. A run is not, by
 itself, scientific acceptance. `defer` is pending review with zero accepted
 event delta; `permit` means an already signed Vela policy admitted the exact
 proposal. Canopus cannot manufacture either a human decision or an external
@@ -39,6 +39,12 @@ benchmark scorer then stopped on a shell-escaping mismatch in the participant's
 reported command trace, so the remaining three Stage A cells and Stage B were
 not run. This is first-party diagnostic evidence only and carries zero
 scientific, human, independent, external, causal, or authority credit.
+
+Canopus `v0.1.11` preserves that stop and opens a new Stage A v6 registration.
+The scorer compares parsed argv vectors and normalizes shell quoting only. It
+does not repair the v5 result or change participant semantics. The v6
+registration root is
+`sha256:1c79221f5118ca08c62988e1d95f349ea682d2411371c97d10105d415d1935b4`.
 
 ## Development
 

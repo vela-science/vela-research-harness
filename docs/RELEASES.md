@@ -1,5 +1,36 @@
 # Release evidence
 
+## Canopus v0.1.11
+
+`v0.1.11` preserves the exact Stage A v5 stop and registers Stage A v6 before
+another model call. The only measurement change replaces raw substring
+matching with a finite argv-vector comparison.
+
+- Released Vela input: `v0.800.22`, commit
+  `a5e5631d8fceb6a9a28522b7b9799adb74b9f232`
+- Published Vela macOS arm64 SHA-256:
+  `08703dfe5193755a0a2feaafe34576f68c2769377f428e5cc7a779418b7958b9`
+- Direct Codex CLI: `codex-cli 0.144.5`
+- Direct Codex CLI SHA-256:
+  `5e29ab10ca1171be158f7335dd6bd8ce1aaf9af1556939db36a5ee338be6f5f2`
+- Superseded Stage A v5 root:
+  `sha256:53bd2901885122f9598ae9f837eec6c22681f3954da90d6203f4473971346a5e`
+- Active Stage A v6 root:
+  `sha256:1c79221f5118ca08c62988e1d95f349ea682d2411371c97d10105d415d1935b4`
+- v5 hard safety pass: `true`
+- v5 model calls and eligible scored cells: `1`
+- v5 historical event delta, accepted-event delta, and authority attempts: `0`
+- Semantic maintainer guidance: none
+- Registered comparison:
+  `canopus.command-trace-argv-comparison.v1`
+- Normalization: shell quoting and adjacent quoted fragments only
+- Refused normalization: paths, omissions, reordering, command substitution,
+  and substrings
+
+The release gate requires the full Canopus check, package dry run, exact
+released-Vela fixture test, and four-cell no-model preflight. Stage A execution
+occurs only after the unsigned tag and public release exist.
+
 ## Canopus v0.1.10
 
 `v0.1.10` opens Stage A v5 only after fixing the product defect found by the

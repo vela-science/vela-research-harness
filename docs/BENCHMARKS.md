@@ -209,8 +209,8 @@ evidence and the bounded summary are in
 
 The active ADR 0005 cold-use packet uses fixture registration SHA-256
 `sha256:28abc8c6e786865732e467f8351db3c3ac064d3f4159dad9a4d4e0e6e8dbfa4f`
-and Stage A v5 registration root
-`sha256:53bd2901885122f9598ae9f837eec6c22681f3954da90d6203f4473971346a5e`.
+and Stage A v6 registration root
+`sha256:1c79221f5118ca08c62988e1d95f349ea682d2411371c97d10105d415d1935b4`.
 Stage A v1 retained two controller failures before any model call: an unbound
 cell object at root
 `sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53`
@@ -242,6 +242,14 @@ or participant semantic was changed after the scored run. The remaining
 three Stage A cells and Stage B were not run. Sanitized evidence is attached
 to the `v0.1.10` release with SHA-256
 `8c0bff4baf15c08f83884dcaf5c5e5774b930d6dd981931be46b4648fa751091`.
+
+Stage A v6 preserves the v5 result and starts four fresh sessions. Its
+registered scorer parses reported and observed shell strings into argv
+vectors, unwraps shell `-c` scripts, splits command separators, and normalizes
+quoting only. The parser treats `HEAD^{tree}` and `HEAD''^{tree}` as one argv
+token. It rejects path aliases, missing or reordered arguments, command
+substitution, compound reports, and substring matches. Canopus ADR 0002 records
+the rule and conformance vectors.
 
 The fixture is regenerated only with the published Vela `v0.800.22` macOS arm64
 binary, SHA-256
