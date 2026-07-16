@@ -20,9 +20,12 @@ Zero-call preflights found and corrected release-boundary defects before
 execution: the native Codex runtime needed thread creation and the compatibility
 page-size sysctl inside the outer Seatbelt profile; startup also needed
 metadata-only visibility of the absent managed-requirements path and a finite
-set of named macOS runtime services. The package needed to include the exact
-registered runner source. The last provider-disabled diagnostic reached the
-expected network denial. The registration records the resulting implementation
+set of named macOS runtime services. Codex's own macOS network policy identified
+the exact DNS/TLS services and public resolver files needed at the outer
+boundary; no wildcard service or broad user-preference read was added. The
+package also needed to include the exact registered runner source. The last
+provider-disabled diagnostic reached the expected network denial with no other
+reported Seatbelt denial. The registration records the resulting implementation
 commit. No failed probe reached the provider, and none changed the benchmark
 information, arms, model, budgets, rubric, or decision rule.
 
