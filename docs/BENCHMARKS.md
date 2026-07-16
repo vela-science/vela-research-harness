@@ -54,9 +54,19 @@ pre-provider failure from a provider rejection. It would be an overclaim to put
 that launch on either side of the boundary. The corrected registered runner now
 extracts only bounded, secret-redacted messages from Codex's documented JSONL
 failure events, reports hashes for both output streams, and removes the
-disposable version-check home. Raw failure streams are not echoed. This is the
-last preflight amendment before the final registered attempt; it changes no
+disposable version-check home. Raw failure streams are not echoed. That
+amendment changed no
 facts, prompt arms, model, limits, rubric, or decision rule.
+
+That diagnostic then captured a provider-side rejection: the registered
+`gpt-5.6-sol` request requires a newer Codex than the initially pinned 0.139.0.
+It produced no final answer or completed arm. The final registration pins Codex
+0.144.5 from OpenAI's `rust-v0.144.5` macOS arm64 package. The downloaded
+package matched the release SHA-256
+`8d1cd2d53b2070919d12c054b57485b6e08347e2666cb20932e9e95eb2aa2901`;
+the extracted binary is pinned separately by its own digest. The requested
+model and every experimental input, limit, metric, rubric item, and decision
+rule remain unchanged.
 
 Dollar pricing is unavailable on the Codex subscription surface used here, so
 the report preserves exact token counts rather than inventing a dollar value.
