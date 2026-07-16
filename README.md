@@ -52,6 +52,12 @@ path aliases and `<branch>` placeholders in its command report, which the
 registered exact-argv rule rejects. The remaining cells and Stage B were not
 run. This is a measurement result, not a Vela safety defect.
 
+Manual worksheets for three outside producers and five outside reviewers are
+published under [independent participants](docs/participants/README.md).
+Expressions of interest do not start a run. The protocol team must freeze each
+participant ID, packet root, binary hash, case order, and intervention log
+before scoring.
+
 ## Development
 
 Requires Node 22 or newer and pnpm 10.
