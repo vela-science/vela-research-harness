@@ -11,8 +11,14 @@ forbidden. The repository now disables commit and tag signing locally, and both
 the `v0.1.1` commit and annotated tag are explicitly unsigned.
 
 - Repository: [`vela-science/vela-research-harness`](https://github.com/vela-science/vela-research-harness)
-- Release: `v0.1.1` (exact commit, tag CI, and release URL are added after the
-  immutable tag exists)
+- Release: [`v0.1.1`](https://github.com/vela-science/vela-research-harness/releases/tag/v0.1.1)
+- Tag commit: `a719ae95453a883eaf7b0093542fb9cb193285c8`
+- Main CI:
+  [run 29479896016](https://github.com/vela-science/vela-research-harness/actions/runs/29479896016),
+  succeeded at the tag commit
+- Tag CI:
+  [run 29479897094](https://github.com/vela-science/vela-research-harness/actions/runs/29479897094),
+  succeeded at the tag commit
 - Released Vela input: `v0.800.15`, commit
   `9c939cd914cc46563204b6b1d78487a53f68e8ed`
 - Published Vela macOS arm64 SHA-256:
