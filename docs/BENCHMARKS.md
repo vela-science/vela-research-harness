@@ -72,3 +72,19 @@ Dollar pricing is unavailable on the Codex subscription surface used here, so
 the report preserves exact token counts rather than inventing a dollar value.
 The harness does not use the available Anthropic balance for this initial
 probe.
+
+## Codex-subagent fallback
+
+The compatible native CLI reached the provider but the subscription surface
+returned its usage-limit gate before producing a final answer or completed arm.
+That native experiment therefore remains `OPEN INFRASTRUCTURE`; it is not a
+negative benchmark result.
+
+`benchmarks/registration/subagent-v0.json` pre-registers one smaller fallback:
+two context-free Codex collaboration subagents receive the exact baseline and
+treatment prompts generated from the same facts. They are instructed not to use
+tools and must return only the answer-schema JSON. This surface does not expose
+an exact model identity, token usage, price, or reliable per-arm wall time, and
+tool denial is instructional rather than a process sandbox. The report must
+therefore mark all four fields unavailable, take no native-harness or external
+gate credit, and remain a directional internal proxy only.
