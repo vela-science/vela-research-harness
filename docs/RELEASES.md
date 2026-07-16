@@ -9,6 +9,13 @@ benchmark.
 
 - Repository: [`vela-science/vela-research-harness`](https://github.com/vela-science/vela-research-harness)
 - Release: [`v0.1.3`](https://github.com/vela-science/vela-research-harness/releases/tag/v0.1.3)
+- Tag commit: `4302ecd507a10c1c09dd7deb2b3680791de66fde`
+- Main CI:
+  [run 29513406128](https://github.com/vela-science/vela-research-harness/actions/runs/29513406128),
+  succeeded at the tag commit
+- Tag CI:
+  [run 29513408654](https://github.com/vela-science/vela-research-harness/actions/runs/29513408654),
+  succeeded at the tag commit
 - Released Vela input: `v0.800.19`, commit
   `5a270f8b5ec038ade7c1274dc64a33dd99117851`
 - Published Vela macOS arm64 SHA-256:
