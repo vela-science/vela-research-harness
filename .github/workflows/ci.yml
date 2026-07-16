@@ -24,10 +24,10 @@ jobs:
       - run: pnpm check
       - name: Verify released Vela composition
         env:
-          VELA_SHA256: 705f56293679a6c46ae7ddee2c9d07098772069a76f8d289035335b58bc51fa3
+          VELA_SHA256: d246aa29519f9f2a5d9a6b8b40d3cbe64334fe53d0d64556d03efba99ef1ae3e
         run: |
           curl --fail --location --silent --show-error \
-            https://github.com/vela-science/vela/releases/download/v0.800.19/vela-macos-aarch64 \
+            https://github.com/vela-science/vela/releases/download/v0.800.20/vela-macos-aarch64 \
             --output "$RUNNER_TEMP/vela"
           printf '%s  %s\n' "$VELA_SHA256" "$RUNNER_TEMP/vela" | shasum -a 256 -c -
           chmod +x "$RUNNER_TEMP/vela"

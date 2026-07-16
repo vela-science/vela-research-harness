@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.4 - 2026-07-16
+
+- Advance the active released-binary composition gate to public Vela
+  `v0.800.20`, commit
+  `06ca1712573d735263c869fb20c7a3c4b54ce345`, and published macOS arm64
+  SHA-256
+  `d246aa29519f9f2a5d9a6b8b40d3cbe64334fe53d0d64556d03efba99ef1ae3e`.
+- Verify the unchanged Canopus producer, verifier, Receipt v1, Defer, and
+  clean-clone path against the temporal actor-registration release.
+- Preserve every existing authority and benchmark nonclaim. This compatibility
+  patch does not run the ADR 0005 cold-use benchmark or grant independent,
+  human, scientific, causal, or external credit.
+
 ## 0.1.3 - 2026-07-16
 
 - Advance the active released-binary composition gate to public Vela
