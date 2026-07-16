@@ -24,6 +24,9 @@ set of named macOS runtime services. Codex's own macOS network policy identified
 the exact DNS/TLS services, public resolver files, notification-center shared
 memory, and canonical `/private/var/run/mDNSResponder` socket needed at the
 outer boundary; no wildcard service or broad user-preference read was added.
+The final profile replaces broad network access with the Chromium-style shape:
+that single resolver socket plus remote TCP/UDP, leaving other host Unix sockets
+closed.
 The package also needed to include the exact registered runner source. An
 IP-denied diagnostic completed DNS through that exact socket and then stopped
 at the expected network boundary. The registration records the resulting
