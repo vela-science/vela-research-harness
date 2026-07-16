@@ -1,11 +1,20 @@
 # Release evidence
 
-## Canopus v0.1.5 release candidate
+## Canopus v0.1.5
 
-`v0.1.5` advances the checksum-pinned gate to byte-preserving Vela
-`v0.800.21` and freezes the ADR 0005 cold-use Stage A packet. The source,
-fixtures, and registration are complete; tag and CI evidence are pending.
+`v0.1.5` is the active release. It advances the checksum-pinned gate to
+byte-preserving Vela `v0.800.21` and freezes the ADR 0005 cold-use Stage A
+packet.
 
+- Release:
+  [`v0.1.5`](https://github.com/vela-science/vela-research-harness/releases/tag/v0.1.5)
+- Tag commit: `f56b326d7b464fff5643d430cc8217cff9031b8c`
+- Main CI:
+  [run 29524475737](https://github.com/vela-science/vela-research-harness/actions/runs/29524475737),
+  succeeded at the tag commit
+- Tag CI:
+  [run 29524520594](https://github.com/vela-science/vela-research-harness/actions/runs/29524520594),
+  succeeded at the tag commit
 - Released Vela input: `v0.800.21`, commit
   `2bbcf8323e53643fcaacb81137645fc757789073`
 - Vela public conformance:
@@ -21,9 +30,14 @@ fixtures, and registration are complete; tag and CI evidence are pending.
 - Stage A registration root:
   `sha256:9cca7c1061ee5b5dd5e3c4822239c65259f9b7adc7ddcd03f802bb950c28ac53`
 
-No Stage A model call has run at this release-candidate point. The packet has
+No Stage A model call had run at this release point. The packet has
 no signer, policy, accepted-state store, human key, scientific verdict, or
 independent-result credit.
+
+The default suite contains 77 tests with the two exact released-binary tests
+skipped when their binary environment variables are absent. Enabling the
+published Vela binary passes all 77 tests, including the real producer/Defer/
+clean-clone integration and every registered temporal hostile case.
 
 ## Canopus v0.1.4
 
