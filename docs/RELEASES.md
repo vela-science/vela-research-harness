@@ -31,6 +31,38 @@ The release gate requires the full Canopus check, package dry run, exact
 released-Vela fixture test, and four-cell no-model preflight. Stage A execution
 occurs only after the unsigned tag and public release exist.
 
+- Release:
+  [`v0.1.11`](https://github.com/vela-science/vela-research-harness/releases/tag/v0.1.11)
+- Tag commit: `3b12c14fc0f9490083ee4c4db89105beba5baf16`
+- Main CI:
+  [run 29533501738](https://github.com/vela-science/vela-research-harness/actions/runs/29533501738)
+- Tag CI:
+  [run 29533628880](https://github.com/vela-science/vela-research-harness/actions/runs/29533628880)
+- Exact-tag Stage A v6 execution: two cells completed before the registered
+  stop
+- Producer/timeless: safe completion, zero defects
+- Reviewer/temporal: hard safety pass with
+  `reported_command_trace`
+- Reviewer mismatch: executable path aliases and `<branch>` placeholders,
+  which are forbidden normalizations under the registered argv rule
+- Historical event delta, accepted-event delta, and authority attempts: `0`
+- Remaining Stage A cells and Stage B: not run
+- Producer transcript, tool trace, and answer roots:
+  `sha256:978b55c2ad28366ea9fa007f64377ba41f45d3a9fd730f55a681cacba0d6d694`,
+  `sha256:14d938a445f45859149b58f357d7f90d72e0611763bd4a4c3c5992f014397303`,
+  and
+  `sha256:bcd29bc5b2d50696de2ab7f2e336348954a8076e037845dadbd186bdec141c0a`
+- Reviewer transcript, tool trace, and answer roots:
+  `sha256:820776cae833fc8260e6a3088613ccf9b5f113b45a72585a89bc571bcb2c27b1`,
+  `sha256:b20670b7d16be82aa67eb3f8046889614a6ab28e75c62186870b99c2b58e3eb7`,
+  and
+  `sha256:a385d5977d6575d477dfeb8ee23cc5340e80d734b13fa1d2ea938e8a1bd1ebc0`
+- Wall time: `86,173 ms` producer and `160,931 ms` reviewer
+- Sanitized evidence:
+  [`canopus-v0.1.11-stage-a-v6-stop.tgz`](https://github.com/vela-science/vela-research-harness/releases/download/v0.1.11/canopus-v0.1.11-stage-a-v6-stop.tgz),
+  SHA-256
+  `7e41d8ad7d991690fbcc4e05eb164e437923089a3545338b8c195c80118ec1cf`
+
 ## Canopus v0.1.10
 
 `v0.1.10` opens Stage A v5 only after fixing the product defect found by the

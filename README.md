@@ -46,6 +46,12 @@ does not repair the v5 result or change participant semantics. The v6
 registration root is
 `sha256:1c79221f5118ca08c62988e1d95f349ea682d2411371c97d10105d415d1935b4`.
 
+The exact-tag v6 run completed two cells and stopped. Producer/timeless passed
+with zero defects. Reviewer/temporal retained hard safety but used executable
+path aliases and `<branch>` placeholders in its command report, which the
+registered exact-argv rule rejects. The remaining cells and Stage B were not
+run. This is a measurement result, not a Vela safety defect.
+
 ## Development
 
 Requires Node 22 or newer and pnpm 10.

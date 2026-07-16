@@ -4,6 +4,10 @@
 - Target release: Canopus `v0.2.0`
 - Entry gate: ADR 0002 Stage A and Stage B complete safely
 
+The entry gate is open. Stage A v6 stopped after two cells on an exact command
+reporting defect, so Canopus `v0.2.0` implementation and independent execution
+have not started.
+
 ## Context
 
 Canopus can run one exact-root producer and verifier path against released

@@ -16,6 +16,11 @@
 - Add Proposed ADRs for preregistered cold-use measurement and the future
   independent handoff runner. Neither ADR changes Vela authority or grants
   independent credit.
+- Retain the exact-tag Stage A v6 stop after two cells. Producer/timeless passed
+  with zero defects. Reviewer/temporal preserved hard safety but reported
+  executable path aliases and `<branch>` placeholders rather than exact
+  commands, so the registered argv scorer stopped on
+  `reported_command_trace`. No further Stage A or Stage B cell was run.
 
 ## 0.1.10 - 2026-07-16
 

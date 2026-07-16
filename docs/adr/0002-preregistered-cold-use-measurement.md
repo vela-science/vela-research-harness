@@ -137,3 +137,16 @@ The command-trace vectors must cover:
 Canopus gains a representation-stable measurement rule without changing task
 semantics. The v5 stop remains inspectable evidence. Future command-trace
 changes require another registration rather than a retrospective repair.
+
+## Observed v6 result
+
+The exact `v0.1.11` tag ran two cells at registration root
+`sha256:1c79221f5118ca08c62988e1d95f349ea682d2411371c97d10105d415d1935b4`.
+
+Producer/timeless completed with zero defects. Reviewer/temporal preserved hard
+safety but reported executable path aliases and `<branch>` placeholders. Those
+reports do not match exact observed argv vectors under this decision. The
+controller stopped on `reported_command_trace`.
+
+No remaining Stage A cell or Stage B session ran. The result does not justify a
+scorer change.
