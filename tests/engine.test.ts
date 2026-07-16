@@ -227,6 +227,8 @@ test("real outer Codex sandbox permits only registered inputs and denies a host 
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/sysctl.h>
+#include <sys/types.h>
 
 void *thread_probe(void *unused) { return unused; }
 
@@ -237,6 +239,9 @@ int readable(const char *path) {
 }
 
 int main(int argc, char **argv) {
+  unsigned long stack_top = 0;
+  size_t stack_top_size = sizeof(stack_top);
+  if (sysctlbyname("hw.pagesize_compat", &stack_top, &stack_top_size, NULL, 0) != 0) return 67;
   pthread_t thread;
   if (pthread_create(&thread, NULL, thread_probe, NULL) != 0) return 69;
   if (pthread_join(thread, NULL) != 0) return 68;
