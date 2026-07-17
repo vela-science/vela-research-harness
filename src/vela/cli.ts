@@ -725,7 +725,7 @@ export class VelaClient {
     mission: Mission,
     repoRoot: string,
     input: AuthoredReceiptInput,
-    expected: MissionRoots,
+    _expected: MissionRoots,
   ): Promise<VelaLandCommandObservation> {
     if ((input.predictedObservable === undefined) === (input.notApplicable === undefined)) {
       throw new VelaClientError(
@@ -733,12 +733,10 @@ export class VelaClient {
         "authored receipt requires exactly one prediction mode",
       );
     }
-    await this.assertRoots(
-      repoRoot,
-      mission.frontier,
-      expected,
-      mission.schema === "canopus.mission.v1" ? mission.strict_baseline : undefined,
-    );
+    // The caller performs the strict exact-root check immediately before it
+    // installs the candidate artifacts. Those files legitimately stale the
+    // derived artifacts hash until `vela land` records them atomically, so a
+    // second strict check here would make the normal porcelain path unusable.
     const args = [
       "land",
       "--frontier",

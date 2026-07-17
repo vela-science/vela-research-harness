@@ -12,6 +12,7 @@ import {
 } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import process from "node:process";
 
 import { parseMission, type MissionV1 } from "../contracts/mission.js";
 import {
@@ -31,10 +32,11 @@ export interface PrepareMissionOptions {
   sourceRepo: string;
   outputRoot: string;
   velaBinary: string;
+  codexBinary: string;
   dockerBinary: string;
-  workerImage: string;
   verifierImage: string;
   outputSchema: string;
+  permissionProfile: string;
   runner?: CommandRunner;
 }
 
@@ -74,6 +76,17 @@ export async function validateMissionBundle(
   ) {
     throw new Error("mission bundle engine output schema drifted");
   }
+  const permissionProfile = await sourceFile(
+    root,
+    mission.worker.permission_profile_path,
+    "bundled worker permission profile",
+  );
+  if (
+    sha256Bytes(await readBoundedRegularFile(permissionProfile, 8 * 1024 * 1024)) !==
+    mission.worker.permission_profile_sha256
+  ) {
+    throw new Error("mission bundle worker permission profile drifted");
+  }
   const manifestBytes = await readBoundedRegularFile(
     path.join(root, "bundle-manifest.json"),
     8 * 1024 * 1024,
@@ -109,7 +122,10 @@ async function commandText(
     maxOutputBytes: 8 * 1024 * 1024,
   });
   if (result.exitCode !== 0 || (!allowStderr && result.stderr.length !== 0)) {
-    throw new Error(`${argv[0]} ${argv.slice(1).join(" ")} failed`);
+    throw new Error(
+      `${argv[0]} ${argv.slice(1).join(" ")} failed with exit ${result.exitCode}; ` +
+      `stdout_sha256=${sha256Bytes(result.stdout)}; stderr_sha256=${sha256Bytes(result.stderr)}`,
+    );
   }
   return result.stdout.toString("utf8").trim();
 }
@@ -188,37 +204,26 @@ async function imageId(
 
 async function workerIdentity(
   runner: CommandRunner,
-  dockerBinary: string,
-  image: string,
+  binaryPath: string,
   cwd: string,
   home: string,
 ): Promise<{ codex_version: string; codex_sha256: string }> {
-  const output = await commandText(
-    runner,
-    [
-      dockerBinary,
-      "run",
-      "--rm",
-      "--read-only",
-      "--cap-drop=ALL",
-      "--security-opt=no-new-privileges",
-      image,
-      "identity",
-    ],
-    cwd,
-    home,
-    true,
-  );
-  const lines = output.split("\n");
-  if (lines.length !== 2) throw new Error("worker image returned an invalid identity record");
-  const version = stringAt(lines[0], "worker Codex version", {
+  if (process.platform !== "darwin") {
+    throw new Error("canopus.mission.v1 native workers currently require macOS");
+  }
+  const binary = await realpath(binaryPath);
+  const output = await commandText(runner, [binary, "--version"], cwd, home, true);
+  const version = stringAt(output, "worker Codex version", {
     min: 10,
     max: 64,
     pattern: /^codex-cli [0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$/u,
   });
-  const digest = /^(?<hex>[0-9a-f]{64})\s+/u.exec(lines[1] ?? "")?.groups?.hex;
-  if (digest === undefined) throw new Error("worker image returned no full Codex digest");
-  return { codex_version: version, codex_sha256: `sha256:${digest}` };
+  return {
+    codex_version: version,
+    codex_sha256: sha256Bytes(
+      await readBoundedRegularFile(binary, 268_435_456),
+    ),
+  };
 }
 
 export async function prepareMission(options: PrepareMissionOptions): Promise<PreparedMission> {
@@ -305,14 +310,26 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
     );
     const outputSchemaBytes = await readBoundedRegularFile(outputSchemaSource, 8 * 1024 * 1024);
     const outputSchemaDigest = sha256Bytes(outputSchemaBytes);
-    const [workerImage, verifierImage] = await Promise.all([
-      imageId(runner, options.dockerBinary, options.workerImage, sourceRepo, runtimeHome),
-      imageId(runner, options.dockerBinary, options.verifierImage, sourceRepo, runtimeHome),
-    ]);
-    const identity = await workerIdentity(
+    const permissionProfileSource = await sourceFile(
+      path.dirname(await realpath(options.permissionProfile)),
+      path.basename(options.permissionProfile),
+      "worker permission profile",
+    );
+    const permissionProfileBytes = await readBoundedRegularFile(
+      permissionProfileSource,
+      8 * 1024 * 1024,
+    );
+    const permissionProfileDigest = sha256Bytes(permissionProfileBytes);
+    const verifierImage = await imageId(
       runner,
       options.dockerBinary,
-      workerImage,
+      options.verifierImage,
+      sourceRepo,
+      runtimeHome,
+    );
+    const identity = await workerIdentity(
+      runner,
+      options.codexBinary,
       sourceRepo,
       runtimeHome,
     );
@@ -336,11 +353,14 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
       strict_baseline: strictBaseline,
       worker: {
         ...workerDraft,
-        kind: "codex_tools_container",
-        image: workerImage,
+        kind: "codex_tools_native",
+        platform: "darwin",
         ...identity,
+        permission_profile_path: "contract/native-worker.config.toml",
+        permission_profile_sha256: permissionProfileDigest,
+        workspace: "target_packet_only",
         output_schema_sha256: outputSchemaDigest,
-        network: "provider",
+        network: "provider_only",
         tools: ["shell", "apply_patch"],
       },
       verifier: {
@@ -362,6 +382,11 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
     const capsuleTarget = path.join(outputRoot, "capsule", "verifier");
     const packetTarget = path.join(outputRoot, "packet", "target.json");
     const outputSchemaTarget = path.join(outputRoot, "contract", "engine-output.v0.json");
+    const permissionProfileTarget = path.join(
+      outputRoot,
+      "contract",
+      "native-worker.config.toml",
+    );
     await Promise.all([
       mkdir(path.dirname(capsuleTarget), { recursive: true, mode: 0o700 }),
       mkdir(path.dirname(packetTarget), { recursive: true, mode: 0o700 }),
@@ -371,6 +396,7 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
       copyFile(sourceCapsule, capsuleTarget),
       copyFile(packetSource, packetTarget),
       copyFile(outputSchemaSource, outputSchemaTarget),
+      copyFile(permissionProfileSource, permissionProfileTarget),
     ]);
     await chmod(capsuleTarget, 0o555);
     const missionPath = path.join(outputRoot, "mission.json");
@@ -394,9 +420,12 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
         image: verifierImage,
       },
       worker: {
-        image: workerImage,
+        platform: "darwin",
         codex_version: identity.codex_version,
         codex_sha256: identity.codex_sha256,
+        permission_profile_path: "contract/native-worker.config.toml",
+        permission_profile_sha256: permissionProfileDigest,
+        workspace: "target_packet_only",
         output_schema_sha256: outputSchemaDigest,
       },
     };

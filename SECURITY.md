@@ -18,3 +18,15 @@ signatures are not Vela authority, but agents must never create another one.
 
 The v0 isolation backend is macOS Seatbelt. Other platforms fail closed; they
 do not receive a permissive fallback.
+
+Mission v1 uses the exact native Codex CLI with a bundled default-deny macOS
+permission profile. Only the target packet is writable and command-readable.
+The runtime authentication copy, sealed source checkout, Vela home, host home,
+host canary, and unrelated repositories must remain outside that boundary.
+Every run performs a deterministic custody preflight; the live hostile fixture
+also proves shell execution while denying credential reads, command network,
+outside writes, and auth-bearing process environment.
+
+The verifier is a separate pinned container with no network and no writable
+persistent mount. Canopus never places the producer, verifier, or model in the
+Vela signing path.

@@ -1,7 +1,7 @@
 # ADR 0004: Tool-using local Codex worker and frozen verifier
 
-- Status: Proposed
-- Candidate release: Canopus `v0.2.0`
+- Status: Accepted
+- Release: Canopus `v0.2.0`
 - Scope: one authority-free local research mission
 
 ## Context
@@ -40,21 +40,23 @@ Mission v1 binds:
 - Vela version, binary SHA-256, event root, and snapshot root;
 - the first ranked attack target and exact target-packet path and digest;
 - the complete strict blocker set by canonical root and per-rule counts;
-- a Docker worker image, direct Codex version and native binary SHA-256, model,
-  tool profile, bundled structured-output schema and its SHA-256, and resource
-  ceilings;
+- direct Codex version and native binary SHA-256, model, a bundled default-deny
+  permission profile and its SHA-256, the target-packet-only workspace mode,
+  bundled structured-output schema and its SHA-256, and resource ceilings;
 - a separately stored verifier capsule, capsule and executable SHA-256, Docker
   image, argv, cwd, timeout, and output limit;
 - allowed artifact paths, prompt and artifact budgets, and the exact
   scientific-chain assertion; and
 - a single allowed landing outcome: `defer` with accepted-event delta zero.
 
-`mission prepare` derives roots and identities from a clean source checkout and
-locally present images. It copies the exact packet and executable capsule into
-a fresh portable bundle. It rejects a dirty checkout, stale binary, changed
-packet, missing or non-executable capsule, unavailable image, target override,
-unbounded objective, or malformed budget. `mission validate` rechecks the
-closed contract and bundled bytes without making a model call.
+`mission prepare` derives roots and identities from a clean source checkout,
+the installed native Codex binary, and the locally present verifier image. It
+copies the exact packet, permission profile, structured-output schema, and
+executable capsule into a fresh portable bundle. It rejects a dirty checkout,
+stale binary, changed packet, missing or non-executable capsule, unavailable
+image, target override, unbounded objective, or malformed budget. `mission
+validate` rechecks the closed contract and bundled bytes without making a model
+call.
 
 ## Registered strict debt
 
@@ -73,33 +75,32 @@ Mission v0 retains the strict-clean requirement.
 
 ## Worker boundary
 
-The worker runs the direct Codex CLI in an exact Docker image with only shell
-and patch actions available. Canopus mounts:
+The worker runs the exact native Codex CLI on macOS with shell and patch actions
+available under a bundled custom permission profile. The profile defaults to
+deny, grants minimal operating-system reads, grants writes only beneath the
+fresh workspace, denies command network, disables login shells, and inherits no
+host environment. Canopus exposes only the hash-verified target packet in that
+workspace. The full source checkout, landing clone, Vela home, host home,
+authentication file, verifier capsule, and unrelated repositories remain
+outside command-readable paths.
 
-- the exact source clone read-only;
-- a disposable Codex credential copy read-only for Codex startup;
-- the final-response schema read-only;
-- one bounded output directory; and
-- a random hostile-test canary read-only.
+Codex itself retains provider transport and reads an ephemeral credential copy
+for startup. The spawned shell cannot read that copy. Codex runs `--ephemeral`
+with strict configuration and has browser, web search, MCP, apps, memories,
+computer use, multi-agent work, plugins, hooks, goals, image tools, and other
+ambient surfaces disabled. The prompt forbids signing, authority claims,
+credential paths, process inspection, and use of Vela or the verifier as an
+oracle.
 
-The entrypoint copies source bytes into a fresh writable tmpfs. Docker uses a
-read-only root, dropped capabilities, no-new-privileges, a non-root host UID,
-bounded CPU, memory, process count, output, tokens, and wall time, and no Docker
-socket, host home, Vela key directory, or unrelated repository mount.
-The image installs the distribution `bubblewrap` package required by Codex's
-Linux sandbox; failure to create the inner command namespace is a hard worker
-failure, not a reason to relax Docker seccomp or custody controls.
-
-Codex runs `--ephemeral`, ignores user configuration and exec rules, inherits
-no shell environment, uses `workspace-write`, and has browser, search, MCP,
-apps, memories, computer use, multi-agent work, plugins, hooks, goals, and image
-tools disabled. The prompt forbids signing, authority claims, credential paths,
-and use of Vela or the verifier as an oracle.
-
-Before a real mission, a hostile model fixture must attempt to read both the
-staged authentication material and host-secret canary. A readable secret,
-secret-bearing output, workspace escape, forbidden command, or unbounded
-action stops the program before a scientific run or release.
+Every run executes a deterministic sandbox preflight through the exact Codex
+binary. It must prove the runtime authentication file, sealed source checkout,
+host canary, and an outside-workspace path are respectively unreadable,
+unreadable, unreadable, and unwritable. The live hostile model fixture also
+requires a positive shell sentinel while proving source/runtime credentials,
+the canary, unrelated repositories, process-environment authentication, outside
+writes, and command network unavailable. A readable secret, secret-bearing
+output, workspace escape, forbidden command, or unbounded action stops before
+verification or landing.
 
 ## Verifier boundary
 
@@ -122,8 +123,11 @@ result is an honest failure, not a success candidate.
 
 Only a verifier-passing candidate reaches `vela land`, using an `agent:` actor.
 Mission v1 permits only `Deferred` or its exact-retry equivalent, with accepted
-event delta zero. Canopus verifies the retained Receipt and artifact bindings,
-then reproduces roots and verifier digests in a clean clone.
+event delta zero. Canopus first commits exactly the frozen artifact sources in
+one unsigned, explicitly non-authoritative Git commit. This keeps `vela.lock`
+and the Git tree self-contained without changing accepted scientific state.
+Canopus then verifies the retained Receipt and artifact bindings and reproduces
+roots and verifier digests in a clean clone.
 
 Canopus exposes no `sign` or `accept` method. It does not read or trigger a
 human scientific key. Git publication records bytes; it does not create
@@ -170,19 +174,25 @@ the current frontier usable without laundering known failures. If the
 experiment fails, Mission v0 and released Vela remain intact and the failure
 identifies an orchestration gap rather than a protocol mandate.
 
-## Current implementation evidence
+## Implementation evidence
 
-The first live implementation pass remains below the release gate. The
-separate verifier profile denied network, persistent writes, and host-home
-visibility. The first worker custody fixture reported credentials and canary
-unreadable but did not prove its shell probes executed, so that apparent pass
-is invalid. The corrected fixture requires a positive shell sentinel and fails
-at the same nested Linux sandbox boundary: Codex cannot create the Bubblewrap
-namespace inside Docker with all capabilities dropped.
+The Docker worker design was rejected. Codex could not create its nested Linux
+Bubblewrap namespace while Docker dropped all capabilities, and relaxing the
+outer seccomp boundary made credentials and the canary readable. Those failures
+remain non-authoritative evidence and caused no verifier or landing effect.
 
-Installing Debian's documented `bubblewrap` package did not change the Docker
-Desktop namespace denial. A diagnostic seccomp relaxation allowed commands but
-also made the staged credential, runtime credential, and canary readable. That
-configuration is rejected. The retained failures caused no verifier pass,
-Receipt landing, historical rewrite, accepted-state delta, or authority claim.
-ADR 0004 therefore stays Proposed and `v0.2.0` remains unreleased.
+The native default-deny profile passed the corrected live custody fixture: the
+shell executed, while source and runtime authentication, unrelated repositories,
+the host canary, outside-workspace writes, command network, and auth-bearing
+process environment remained unavailable. The separate verifier fixture denied
+network, root/input/artifact/capsule writes, and host-home visibility.
+
+The first-ranked mission `erdos:1056` then completed on Vela `v0.800.23`. The
+worker used 187,013 reported tokens and produced a 278-byte bounded-negative
+artifact for every prime in `10428008..10428200`. The independently frozen
+capsule exited zero, Vela retained Receipt root
+`sha256:be2b34b57eac8a41d689f411d9dc1c97328a7901f943bb1cc023c843adc672bf`
+as `defer`, accepted-event delta was zero, and a clean clone reproduced the
+same verifier output and final roots. This satisfies the engineering release
+gate. It does not authenticate the model, accept the scientific claim, or earn
+independent-replication credit.

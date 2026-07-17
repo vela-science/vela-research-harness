@@ -1,15 +1,12 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
 import { BudgetTracker } from "../src/budget/enforce.js";
 import type { MissionV1 } from "../src/contracts/mission.js";
-import {
-  CodexToolsContainerEngine,
-  containerWorkerArgv,
-} from "../src/engines/codex-tools-container.js";
+import { CodexToolsNativeEngine } from "../src/engines/codex-tools-native.js";
 import type { CommandRunner } from "../src/util/command.js";
 import { sha256Bytes } from "../src/util/canonical.js";
 
@@ -63,17 +60,17 @@ function mission(): MissionV1 {
       max_observed_tokens: 10_000,
     },
     worker: {
-      kind: "codex_tools_container",
-      image: digest,
+      kind: "codex_tools_native",
+      platform: "darwin",
       codex_version: "codex-cli 0.144.5",
       codex_sha256: digest,
+      permission_profile_path: "contract/native-worker.config.toml",
+      permission_profile_sha256: digest,
+      workspace: "target_packet_only",
       output_schema_sha256: digest,
       model: "gpt-test",
-      network: "provider",
+      network: "provider_only",
       tools: ["shell", "apply_patch"],
-      memory_mb: 1024,
-      cpu_count: 1,
-      pids_limit: 64,
     },
     verifier: {
       argv: ["capsule/verifier", "{artifact:result.json}"],
@@ -133,75 +130,85 @@ function events(): string {
   ].map((entry) => JSON.stringify(entry)).join("\n") + "\n";
 }
 
-test("tool worker argv exposes only bounded mounts and drops container privilege", () => {
-  const active = mission();
-  const argv = containerWorkerArgv({
-    dockerBinary: "/usr/bin/docker",
-    mission: active,
-    source: "/bounded/source",
-    credentials: "/bounded/runtime-auth",
-    outputSchema: "/bounded/schema.json",
-    output: "/bounded/output",
-    canary: "/bounded/canary",
-    uid: 501,
-    gid: 20,
-  });
-  assert.ok(argv.includes("--read-only"));
-  assert.ok(argv.includes("--interactive"));
-  assert.ok(argv.includes("--cap-drop=ALL"));
-  assert.ok(argv.includes("--security-opt=no-new-privileges"));
-  assert.ok(argv.includes("--network=bridge"));
-  assert.ok(argv.some((item) => item === "type=bind,src=/bounded/source,dst=/source,readonly"));
-  assert.ok(argv.some((item) => item === "type=bind,src=/bounded/output,dst=/out"));
-  assert.equal(argv.some((item) => item.includes("docker.sock")), false);
-  assert.equal(argv.some((item) => item.includes("/.vela/keys")), false);
-  assert.equal(argv.some((item) => item === "/Users" || item === "/home"), false);
-});
-
-test("tool worker pins image and Codex identity and parses bounded output", async () => {
+test("native tool worker pins Codex and permission-profile identities", async () => {
   const paths = await workspace();
+  await writeFile(path.join(paths.input, "packet.json"), "{}\n");
   const authHome = path.join(paths.root, "source-auth");
   await mkdir(authHome);
-  await writeFile(path.join(authHome, "auth.json"), "{}\n", { mode: 0o600 });
+  await writeFile(path.join(authHome, "auth.json"), JSON.stringify({
+    OPENAI_API_KEY: null,
+    tokens: { access_token: "access-secret-000000", id_token: "id-secret-000000000", refresh_token: "refresh-secret-0000" },
+  }), { mode: 0o600 });
+  const binary = path.join(paths.root, "codex");
+  await writeFile(binary, "native-codex\n", { mode: 0o700 });
+  const binaryLink = path.join(paths.root, "codex-link");
+  await symlink(binary, binaryLink);
   const outputSchema = path.join(paths.root, "engine-output.json");
   await writeFile(outputSchema, "{}\n");
+  const permissionProfile = path.join(paths.root, "native-worker.config.toml");
+  await writeFile(permissionProfile, [
+    'default_permissions = "canopus-worker"',
+    '[permissions.canopus-worker.filesystem]',
+    '":minimal" = "read"',
+    '[permissions.canopus-worker.filesystem.":workspace_roots"]',
+    '"." = "write"',
+    '[permissions.canopus-worker.network]',
+    'enabled = false',
+  ].join("\n") + "\n");
   const calls: string[][] = [];
   const runner: CommandRunner = async (options) => {
     calls.push([...options.argv]);
-    if (options.argv[1] === "image") {
+    if (options.argv[1] === "--version") {
       return {
         argv: [...options.argv], exitCode: 0, signal: null,
-        stdout: Buffer.from(`${digest}\n`), stderr: Buffer.alloc(0), durationMs: 1,
+        stdout: Buffer.from("codex-cli 0.144.5\n"), stderr: Buffer.alloc(0), durationMs: 1,
       };
     }
-    const outputMount = options.argv.find((item) => item.includes("dst=/out"));
-    assert.ok(outputMount);
-    const source = /(?:^|,)src=([^,]+),dst=\/out(?:,|$)/u.exec(outputMount)?.[1];
-    assert.ok(source);
-    await writeFile(path.join(source, "final.json"), JSON.stringify(draft));
+    if (options.argv[1] === "sandbox") {
+      return {
+        argv: [...options.argv], exitCode: 0, signal: null,
+        stdout: Buffer.from("false false false false\n"), stderr: Buffer.alloc(0), durationMs: 1,
+      };
+    }
+    assert.equal(options.argv[1], "exec");
+    const outputIndex = options.argv.indexOf("--output-last-message");
+    const finalPath = options.argv[outputIndex + 1];
+    assert.ok(finalPath);
+    assert.equal((await readFile(path.join(options.cwd, "packet.json"), "utf8")), "{}\n");
+    const prompt = String(options.stdin);
+    assert.match(prompt, /packet\.json/u);
+    assert.doesNotMatch(prompt, /WORK_BRIEFING_MUST_NOT_ENTER_MODEL_CONTEXT/u);
+    const runtimeConfig = await readFile(path.join(options.env.CODEX_HOME ?? "", "config.toml"));
+    assert.deepEqual(runtimeConfig, await readFile(permissionProfile));
+    await writeFile(finalPath, JSON.stringify(draft));
     return {
       argv: [...options.argv], exitCode: 0, signal: null,
       stdout: Buffer.from(events()), stderr: Buffer.alloc(0), durationMs: 2,
     };
   };
   const active = mission();
+  active.target_packet.sha256 = sha256Bytes(await readFile(path.join(paths.input, "packet.json")));
+  active.worker.codex_sha256 = sha256Bytes(await readFile(binary));
   active.worker.output_schema_sha256 = sha256Bytes(await readFile(outputSchema));
-  const result = await new CodexToolsContainerEngine({
-    dockerBinary: "/usr/bin/docker",
+  active.worker.permission_profile_sha256 = sha256Bytes(await readFile(permissionProfile));
+  const result = await new CodexToolsNativeEngine({
+    binary: binaryLink,
     authHome,
     outputSchema,
+    permissionProfile,
     runner,
   }).run({
     mission: active,
-    briefing: { ok: true, command: "work" },
+    briefing: { sentinel: "WORK_BRIEFING_MUST_NOT_ENTER_MODEL_CONTEXT" },
     paths,
     budget: new BudgetTracker(active.budgets),
   });
   assert.deepEqual(result.draft, draft);
   assert.deepEqual(result.actionTypes, ["command_execution"]);
-  assert.equal(result.engine.binary_sha256, digest);
-  const run = calls[1] ?? [];
-  assert.ok(run.includes(digest));
+  assert.equal(result.engine.binary_sha256, active.worker.codex_sha256);
+  const run = calls[2] ?? [];
+  assert.ok(run.includes("--strict-config"));
+  assert.equal(run.includes("--sandbox"), false);
+  assert.equal(run.includes("--ignore-user-config"), false);
   assert.equal(run.some((item) => item.includes(authHome)), false);
-  assert.ok(run.some((item) => item.includes("codex-runtime")));
 });

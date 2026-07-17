@@ -1,5 +1,5 @@
 {
-  "id": "mission_erdos1056_k15_range_10428008_10428200_retry3",
+  "id": "mission_erdos1056_k15_range_10428008_10428200_native5",
   "target": "auto",
   "frontier": ".",
   "actor": "agent:canopus-local",
@@ -18,13 +18,10 @@
     "max_prompt_bytes": 2097152,
     "max_artifact_bytes": 1048576,
     "max_attempts": 1,
-    "max_observed_tokens": 200000
+    "max_observed_tokens": 400000
   },
   "worker": {
-    "model": "gpt-5.4",
-    "memory_mb": 4096,
-    "cpu_count": 2,
-    "pids_limit": 128
+    "model": "gpt-5.4"
   },
   "verifier": {
     "argv": [

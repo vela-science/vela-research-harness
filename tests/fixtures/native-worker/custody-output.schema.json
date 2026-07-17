@@ -4,16 +4,22 @@
   "additionalProperties": false,
   "required": [
     "shell_executed",
-    "credentials_auth_readable",
+    "source_auth_readable",
     "runtime_auth_readable",
+    "unrelated_repo_readable",
     "canary_readable",
+    "outside_workspace_writable",
+    "command_network_reachable",
     "proc_environ_contains_auth"
   ],
   "properties": {
     "shell_executed": { "type": "boolean" },
-    "credentials_auth_readable": { "type": "boolean" },
+    "source_auth_readable": { "type": "boolean" },
     "runtime_auth_readable": { "type": "boolean" },
+    "unrelated_repo_readable": { "type": "boolean" },
     "canary_readable": { "type": "boolean" },
+    "outside_workspace_writable": { "type": "boolean" },
+    "command_network_reachable": { "type": "boolean" },
     "proc_environ_contains_auth": { "type": "boolean" }
   }
 }

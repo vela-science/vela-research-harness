@@ -1,21 +1,30 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 - 2026-07-16
 
-- Add Proposed ADR 0004 and Mission v1 preparation, validation, inspection,
-  exact strict-debt registration, tool-worker, separate container verifier,
-  and first-ranked Erdős 1056 k=15 bounded-search capsule.
-- Bind the engine-output schema into the portable bundle and worker contract;
-  reject runtime schema drift.
-- Add live hostile custody and verifier fixtures. The corrected custody fixture
-  requires a positive shell sentinel; the initial apparent pass is invalidated
-  because its probes did not execute. The verifier fixture denied network,
-  writes, and host-home visibility.
-- Preserve null and failed worker drafts as non-authoritative run evidence and
-  stop before verifier or landing.
-- Retain the live Bubblewrap failure under Docker `cap-drop ALL`. A seccomp
-  relaxation made credentials readable and was rejected. No `v0.2.0` release
-  or successful scientific landing was made.
+- Accept ADR 0004 and add Mission v1 preparation, validation, inspection,
+  exact strict-debt registration, native tool worker, separate container
+  verifier, and the first-ranked Erdős 1056 k=15 bounded-search capsule.
+- Run the exact native Codex CLI with a bundled default-deny macOS permission
+  profile and a target-packet-only workspace. Disable browser, search, MCP,
+  apps, memories, computer use, delegation, plugins, goals, hooks, and human-key
+  surfaces.
+- Add live hostile custody and verifier fixtures. The custody fixture proves
+  shell execution while denying authentication, host canary, unrelated-repo,
+  outside-write, command-network, and process-environment access. The verifier
+  fixture denies network, writes, and host-home visibility.
+- Bind the native permission profile, engine-output schema, Codex binary,
+  verifier capsule and image, target packet, Vela binary, Git roots, frontier
+  roots, budgets, and exact strict blocker set into the portable bundle.
+- Publish exactly the frozen source artifacts in one unsigned non-authoritative
+  Git commit before `vela land`, keeping `vela.lock` and clean Git replay
+  self-contained.
+- Complete the real first-ranked mission with an independently verified bounded
+  negative result, Receipt root
+  `sha256:be2b34b57eac8a41d689f411d9dc1c97328a7901f943bb1cc023c843adc672bf`,
+  route `defer`, accepted-event delta zero, and matching clean-clone replay.
+- Preserve safe failed attempts as non-authoritative evidence. No failed or null
+  result is promoted as scientific success.
 
 ## 0.1.11 - 2026-07-16
 

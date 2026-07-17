@@ -1,43 +1,81 @@
 # Release evidence
 
-## Unreleased Mission v1 gate
+## Canopus v0.2.0
 
-Proposed ADR 0004 has not satisfied the Canopus `v0.2.0` release gate.
+`v0.2.0` accepts ADR 0004 and completes one useful authority-free mission over
+released Vela `v0.800.23`. The producer uses the exact native Codex CLI under a
+default-deny macOS permission profile. The independent verifier remains in a
+separate pinned, network-denied and write-denied container.
 
-- Vela: public `v0.800.23`; source frontier commit
-  `d0a2f56dfecf7027248403e43ba133e18e56b3c6`
-- Selected target: first ranked non-review attack `erdos:1056`
-- Packet:
-  `sha256:d724686d60ffbb61e5e24eab9084b34f1a797381bfb2731a2fa81e14d7ee652e`
+- Source frontier commit and tree:
+  `d0a2f56dfecf7027248403e43ba133e18e56b3c6` and
+  `f28f356c5152bc004d76b2dc7301c9952243a9e5`
 - Starting event and snapshot roots:
   `sha256:dea8bb4583376851a63587551205be3916c19cb28a609c8d81ba8321853cc6b3`
   and
   `sha256:8877c4a27dd75ef8525566b0dd11b94ccd1ea00af95a204dc7b34a22a41d3125`
+- Selected target: first ranked non-review attack `erdos:1056`
+- Target packet:
+  `sha256:d724686d60ffbb61e5e24eab9084b34f1a797381bfb2731a2fa81e14d7ee652e`
 - Registered strict baseline: 1,592 blockers, comprising 1,511
-  `missing_conditions` and 81 `unsigned_registered_actor`
-- Codex: `0.144.5`; Linux native SHA-256
-  `8f1d33626fd268dd5a530f39b6fcf68f3655f1d1b4e87a37b3381141cf4e44bc`
+  `missing_conditions` and 81 `unsigned_registered_actor`; blocker-set root
+  `sha256:56a768a5459de27d9a416e3841845bdf90edf8c571bb9566afd6989ba43f5970`
+- Native Codex: `codex-cli 0.144.5`; SHA-256
+  `5e29ab10ca1171be158f7335dd6bd8ce1aaf9af1556939db36a5ee338be6f5f2`
+- Worker permission profile:
+  `sha256:c49c9317560c90f5c09fd6c8eacf162c58568f583ad13ef926573b9d4b5bfb60`
 - Verifier image:
-  `sha256:126e800389c1589df44c17781de23399093c0dd15a6a085c3f28612c0a4bf6b8`
+  `sha256:2c29bfc915f4e164b075c7c2772bb1ff8b3e28de3d32411e5a59137c90614962`
 - k=15 capsule:
-  `sha256:35d3e6a6a462d60bf4c7fbdceebec2baee7e60c22cb6f843395f090cfdfd9ea3`
-- The initial custody fixture reported staged auth, runtime auth, canary, and
-  auth-bearing process environment unreadable, but did not prove its shell
-  probes executed. That evidence is invalidated; the corrected fixture requires
-  a positive shell sentinel and fails at the same namespace boundary.
-- Live verifier fixture: network, root/input/artifact/capsule writes, and host
-  home all unavailable
+  `sha256:aff16eeca0ca689838ee0e0e88a5cfd85e0206ea8aa8bf3201fa1aeea566be33`
+- Mission ID and root:
+  `mission_erdos1056_k15_range_10428008_10428200_native5` and
+  `sha256:b0165ba2e02740f37afc9e21cb9478071fd045da7639208cae9aee6e1ad8ce42`
+- Result: exhaustive bounded negative over the 11 primes in
+  `10428008..10428200`; maximum multiplicity 11 at `p=10428107`, residue
+  `4234929`
+- Candidate artifact and candidate roots:
+  `sha256:2db2d5c1dcbd817384d29a1e1b8ecf6092b9a58d6bceb7dbee7d0311e2164fac`
+  and
+  `sha256:55a3f5108daec3ab057122f8904304f42cf936e49ca91c0d0c45e58c1fbfd73c`
+- Codex event-stream root:
+  `sha256:d2c5a8b7ff06c3acefe4b8dc7fbd63bd1af777bf35734b0bde5329416837c703`
+- Usage: 182,175 input, 150,528 cached input, 4,838 output, and 1,196
+  reasoning-output tokens; 187,013 budgeted input-plus-output tokens
+- Independent verifier: exit zero; stdout root
+  `sha256:02a8e6504e78b3109cf02f5d1bf092d1242a666b19b21ec84c119414470ca536`
+- Receipt root and route:
+  `sha256:be2b34b57eac8a41d689f411d9dc1c97328a7901f943bb1cc023c843adc672bf`,
+  `defer`; accepted-event delta zero
+- Final commit, event root, and snapshot root:
+  `ea92ed74aee8f11076f7387a65a17959c37e0505`,
+  `sha256:4514067708ab83313b64e0a1241ea2873d4cdbda407a9c3f029aab739bfe985e`,
+  and
+  `sha256:ae69253f93153cccb3011ca430c97601780b370e8dfe06e1d7f96b11cdc73b7e`
+- Clean-clone reproduction: matched roots and verifier digests
+- Activity log SHA-256 and terminal activity root:
+  `76b5b88d443cc1188cd105997117831b7f7c7e055babe885fda50d4ecb48d01a`
+  and
+  `sha256:ff0906fa274b7ef69db92e572ba4f00e555bbf3a8285c8447aa2661e276f089b`
+- Sanitized mission and run evidence archive:
+  `canopus-v0.2.0-erdos1056-evidence.tgz`, SHA-256
+  `5dddfb2ee48e778093c2cf44e6e7ac74dd0d5a8435905d58ce1619fcf2fa945d`
 
-Retained safe failures found, in order: an output-schema compatibility error;
-an unbound schema root, which is now fixed; a registered token-cap stop; and a
-reproduced Linux namespace failure before any shell command could run. Adding
-Debian's documented `bubblewrap` package did not overcome Docker Desktop's
-namespace denial while all capabilities remained dropped. Relaxing seccomp
-allowed shell execution but also made the credential and canary readable, so
-it was rejected.
+The corrected native custody fixture proved shell execution while denying both
+authentication copies, the host canary, unrelated repositories, outside
+writes, command network, and auth-bearing process environment. The verifier
+fixture denied network, root/input/artifact/capsule writes, and host-home
+visibility. The custody event, final-response, and stderr roots were
+`sha256:e0cc50f3bc4a0df0fdc2a207f0424ae5567e98c9b05692b47aa29975207d41cb`,
+`sha256:1b4ecccdcf11cf9c757450317e024af0b5fe27017a2796025dff57b923d5cc43`,
+and
+`sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+No human key was read or triggered.
 
-No successful candidate, verifier pass, Receipt landing, accepted-event
-change, authority claim, human-key access, or Canopus `v0.2.0` release occurred.
+Superseded Docker-worker and pre-release native runs remain local
+non-authoritative failure evidence. They exposed namespace, prompt-duplication,
+budget-calibration, lock-ordering, and artifact-publication defects; none was
+reported as a successful claim or accepted-state change.
 
 ## Canopus v0.1.11
 

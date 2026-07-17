@@ -72,17 +72,17 @@ export interface ContainerVerifierSpec extends VerifierSpec {
 }
 
 export interface WorkerSpec {
-  kind: "codex_tools_container";
-  image: string;
+  kind: "codex_tools_native";
+  platform: "darwin";
   codex_version: string;
   codex_sha256: string;
+  permission_profile_path: string;
+  permission_profile_sha256: string;
+  workspace: "target_packet_only";
   output_schema_sha256: string;
   model: string;
-  network: "provider";
+  network: "provider_only";
   tools: ["shell", "apply_patch"];
-  memory_mb: number;
-  cpu_count: number;
-  pids_limit: number;
 }
 
 export interface TargetPacketSpec {
@@ -268,8 +268,8 @@ function parseWorker(value: unknown): WorkerSpec {
   exactKeys(
     object,
     [
-      "kind", "image", "codex_version", "codex_sha256", "output_schema_sha256", "model", "network",
-      "tools", "memory_mb", "cpu_count", "pids_limit",
+      "kind", "platform", "codex_version", "codex_sha256", "permission_profile_path",
+      "permission_profile_sha256", "workspace", "output_schema_sha256", "model", "network", "tools",
     ],
     [],
     "mission.worker",
@@ -284,24 +284,34 @@ function parseWorker(value: unknown): WorkerSpec {
     throw new ContractError("mission.worker.tools must be [shell, apply_patch]");
   }
   return {
-    kind: enumAt(object.kind, "mission.worker.kind", ["codex_tools_container"] as const),
-    image: sha256At(object.image, "mission.worker.image"),
+    kind: enumAt(object.kind, "mission.worker.kind", ["codex_tools_native"] as const),
+    platform: enumAt(object.platform, "mission.worker.platform", ["darwin"] as const),
     codex_version: stringAt(object.codex_version, "mission.worker.codex_version", {
       min: 10,
       max: 64,
       pattern: /^codex-cli [0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$/u,
     }),
     codex_sha256: sha256At(object.codex_sha256, "mission.worker.codex_sha256"),
+    permission_profile_path: relativePathAt(
+      object.permission_profile_path,
+      "mission.worker.permission_profile_path",
+    ),
+    permission_profile_sha256: sha256At(
+      object.permission_profile_sha256,
+      "mission.worker.permission_profile_sha256",
+    ),
+    workspace: enumAt(
+      object.workspace,
+      "mission.worker.workspace",
+      ["target_packet_only"] as const,
+    ),
     output_schema_sha256: sha256At(
       object.output_schema_sha256,
       "mission.worker.output_schema_sha256",
     ),
     model: stringAt(object.model, "mission.worker.model", { min: 1, max: 128 }),
-    network: enumAt(object.network, "mission.worker.network", ["provider"] as const),
+    network: enumAt(object.network, "mission.worker.network", ["provider_only"] as const),
     tools: ["shell", "apply_patch"],
-    memory_mb: integerAt(object.memory_mb, "mission.worker.memory_mb", 256, 32_768),
-    cpu_count: integerAt(object.cpu_count, "mission.worker.cpu_count", 1, 16),
-    pids_limit: integerAt(object.pids_limit, "mission.worker.pids_limit", 16, 1024),
   };
 }
 

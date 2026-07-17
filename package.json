@@ -1,6 +1,6 @@
 {
   "name": "@vela-science/canopus",
-  "version": "0.1.11",
+  "version": "0.2.0",
   "description": "A bounded, replaceable research harness over released Vela interfaces",
   "type": "module",
   "private": false,
@@ -31,7 +31,7 @@
     "containers",
     "missions",
     "scripts",
-    "tests/fixtures/hostile-custody",
+    "tests/fixtures/native-worker",
     "tests/fixtures/hostile-verifier",
     "README.md",
     "docs",
@@ -48,7 +48,7 @@
     "check": "pnpm run lint && pnpm run test",
     "pack:check": "pnpm pack --dry-run",
     "fixture:temporal-registration": "node scripts/build-temporal-registration-fixtures.mjs",
-    "fixture:hostile-custody": "node scripts/run-hostile-custody-fixture.mjs",
+    "fixture:hostile-custody": "node scripts/run-hostile-native-custody-fixture.mjs",
     "fixture:hostile-verifier": "node scripts/run-hostile-verifier-fixture.mjs",
     "register:temporal-registration-stage-a": "node scripts/register-temporal-registration-stage-a.mjs",
     "run:temporal-registration-stage-a": "node scripts/run-temporal-registration-stage-a.mjs"

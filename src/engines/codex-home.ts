@@ -23,6 +23,7 @@ async function optionalBoundedFile(file: string, maxBytes: number): Promise<Buff
 export async function prepareIsolatedCodexHome(
   sourceHome: string,
   runtimeRoot: string,
+  config?: Uint8Array,
 ): Promise<string> {
   const source = path.resolve(sourceHome);
   const destination = path.join(path.resolve(runtimeRoot), "codex-runtime");
@@ -36,6 +37,12 @@ export async function prepareIsolatedCodexHome(
     await writeFile(path.join(destination, "auth.json"), auth, { flag: "wx", mode: 0o600 });
     if (modelCatalog !== undefined) {
       await writeFile(path.join(destination, "models_cache.json"), modelCatalog, {
+        flag: "wx",
+        mode: 0o600,
+      });
+    }
+    if (config !== undefined) {
+      await writeFile(path.join(destination, "config.toml"), config, {
         flag: "wx",
         mode: 0o600,
       });

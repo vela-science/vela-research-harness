@@ -29,9 +29,12 @@ The landing clone uses a disposable attached branch so Vela can publish exact
 deltas; the immutable input clone remains detached and read-only. Successful
 runs delete the isolated Vela home and its agent-only key. Failed runs may
 retain local diagnostic state until explicit cleanup. Never publish a run root
-or Codex credential directory wholesale. The durable public path is the Vela
-commit: Receipt, activity record, proposal, and
-`records/artifacts/sha256/<digest>` copies.
+or Codex credential directory wholesale. After verification, Mission v1 makes
+one unsigned non-authoritative Git commit containing exactly the frozen source
+artifacts before invoking `vela land`; `activity.jsonl` records that commit,
+tree, and path set. The terminal Vela commit then contains the Receipt, activity
+record, proposal, and `records/artifacts/sha256/<digest>` copies. This ordering
+keeps `vela.lock` and every clean Git checkout self-contained.
 
 `route: defer` with `accepted_event_delta: 0` means the Receipt v1 record is
 pending human review. It is a successful producer handoff, not scientific

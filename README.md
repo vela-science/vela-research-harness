@@ -17,57 +17,21 @@ and Vela roots remain the durable identity.
 
 ## Status
 
-The released Canopus baseline remains `v0.1.11` over checksum-pinned Vela
-`v0.800.22`. Main also verifies the proposed Mission v1 path against Vela
-`v0.800.23`; it is not a Canopus release. A run is not, by
-itself, scientific acceptance. `defer` is pending review with zero accepted
-event delta; `permit` means an already signed Vela policy admitted the exact
-proposal. Canopus cannot manufacture either a human decision or an external
-replication result.
+Canopus `v0.2.0` targets checksum-pinned Vela `v0.800.23`. Mission v1 runs the
+OpenAI-signed native Codex CLI under a default-deny macOS permission profile,
+exposes only the exact target packet, freezes the result, and invokes a
+separate network-denied and write-denied verifier container.
 
-The preregistered inherited-state native pair and subagent proxy both finished
-`no_advantage`: the raw and inherited arms scored 6/6 on the small case.
-ADR 0004 Stage A then completed four safe composition cells. The released Vela
-profile preserved the same exact facts and outcomes as the standards lock while
-using roughly half the context bytes on both tasks. These n=1 internal results
-carry no causal, scientific, human, independent, external, or authority credit.
-See the raw records in `benchmarks/results/`.
+The release gate completed on the first ranked non-review Erdős target. The
+bounded search produced a negative result for the exact prime range
+`10428008..10428200`; the frozen verifier independently reproduced it; Vela
+routed the Receipt to `defer`; accepted-event delta was zero; and a clean clone
+reproduced the same roots and verifier digests. This is useful first-party
+producer evidence, not scientific acceptance or independent replication.
 
-The ADR 0005 cold-use packet is frozen. Its first eligible v0.1.10
-producer/timeless cell completed safely at the Vela boundary: historical
-events stayed byte-identical, the proposal remained deferred, accepted state
-did not change, and the expected timeless strict blocker remained. The frozen
-benchmark scorer then stopped on a shell-escaping mismatch in the participant's
-reported command trace, so the remaining three Stage A cells and Stage B were
-not run. This is first-party diagnostic evidence only and carries zero
-scientific, human, independent, external, causal, or authority credit.
-
-Canopus `v0.1.11` preserves that stop and opens a new Stage A v6 registration.
-The scorer compares parsed argv vectors and normalizes shell quoting only. It
-does not repair the v5 result or change participant semantics. The v6
-registration root is
-`sha256:1c79221f5118ca08c62988e1d95f349ea682d2411371c97d10105d415d1935b4`.
-
-The exact-tag v6 run completed two cells and stopped. Producer/timeless passed
-with zero defects. Reviewer/temporal retained hard safety but used executable
-path aliases and `<branch>` placeholders in its command report, which the
-registered exact-argv rule rejects. The remaining cells and Stage B were not
-run. This is a measurement result, not a Vela safety defect.
-
-External recruitment is paused and the public issue is closed. Any future
-outside run requires a new frozen registration; the stopped v5 and v6 evidence
-does not carry forward as participant credit.
-
-Proposed ADR 0004 adds a portable tool-worker mission and separate frozen
-verifier without adding a signer. Its live release gate is currently closed:
-under the required Docker `cap-drop ALL` profile, Codex's Linux command sandbox
-cannot create its Bubblewrap namespace. The corrected hostile fixture requires
-a positive shell sentinel, so failed commands cannot masquerade as secret
-denials. Relaxing Docker seccomp made the shell
-able to read the staged credential and host canary, so that relaxation was
-rejected. The failed runs are retained as non-authoritative evidence; no
-verifier, Receipt landing, accepted-state change, or Canopus `v0.2.0` release
-followed.
+Mission v0 and the stopped cold-use registrations remain available for exact
+historical reproduction. Their detailed evidence lives in
+[release evidence](docs/RELEASES.md), not in the primary workflow.
 
 ## Development
 
@@ -78,13 +42,13 @@ pnpm install
 pnpm check
 ```
 
-Prepare and validate a proposed Mission v1 bundle without changing a frontier:
+Prepare and validate a Mission v1 bundle without changing a frontier:
 
 ```bash
 pnpm build
 node dist/src/cli.js mission prepare path/to/draft.json \
   --source /clean/frontier --output /new/bundle --vela /path/to/vela \
-  --worker-image canopus-worker:tag --verifier-image canopus-verifier:tag
+  --codex /path/to/codex --verifier-image canopus-verifier:tag
 node dist/src/cli.js mission validate /new/bundle/mission.json
 ```
 

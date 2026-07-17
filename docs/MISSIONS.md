@@ -20,20 +20,26 @@ This deliberately avoids a workflow DSL, agent society, or second graph. Git
 stores the bytes, Vela stores authority and accepted lineage, and Canopus is
 replaceable orchestration over those primitives.
 
-## Proposed Mission v1
+## Mission v1
 
 Mission v1 keeps the same four roles and authority boundary while adding a
 tool-enabled local worker. `mission prepare` selects the first ranked attack,
 derives the clean Git and Vela roots, registers the complete pre-existing
-strict blocker set, and copies the exact packet, structured-output schema, and
-verifier capsule into a portable bundle. The worker image, Codex binary, model,
-resource ceilings, and every copied byte are hash-pinned.
+strict blocker set, and copies the exact packet, native permission profile,
+structured-output schema, and verifier capsule into a portable bundle. The
+Codex binary, model, verifier image, resource ceilings, and every copied byte
+are hash-pinned.
+
+The producer runs through the native Codex CLI under a default-deny macOS
+permission profile. The writable workspace contains only the exact target
+packet; the full source checkout, Vela home, host home, and authentication file
+remain outside command-readable paths. Provider transport is available only to
+the Codex process. Shell commands have no network access.
 
 Only a `success` draft with the declared artifact proceeds to the separate
 network-denied verifier. `null` and `failed` drafts are preserved in
-`engine-result.json` and stop before verification or Receipt landing. A passing
-verifier may reach only Vela's `defer` route with accepted-event delta zero.
-
-Mission v1 remains proposed and unreleased while the strict Docker profile and
-Codex's nested Linux Bubblewrap sandbox cannot both execute shell tools and
-preserve credential custody on the tested Docker Desktop runtime.
+`engine-result.json` and stop before verification or Receipt landing. After a
+verifier pass, Canopus publishes exactly the frozen artifact sources in one
+unsigned non-authoritative Git commit and then calls `vela land`. Mission v1
+allows only Vela's `defer` route with accepted-event delta zero and requires a
+matching clean-clone replay.

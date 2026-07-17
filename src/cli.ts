@@ -12,7 +12,7 @@ import {
 import { runPairedBenchmark } from "./benchmark/run.js";
 import { parseMission } from "./contracts/mission.js";
 import { CodexExecEngine } from "./engines/codex-exec.js";
-import { CodexToolsContainerEngine } from "./engines/codex-tools-container.js";
+import { CodexToolsNativeEngine } from "./engines/codex-tools-native.js";
 import { prepareMission, validateMissionBundle } from "./mission/prepare.js";
 import { parseRunRecord, projectRun } from "./projection/run.js";
 import { runCanopus } from "./run.js";
@@ -24,10 +24,10 @@ function usage(): string {
 
 Primary workflow:
   canopus mission prepare <draft.json> --source <clean-repo> --output <new-bundle> \\
-    --vela <binary> --worker-image <image> --verifier-image <image> [--docker <binary>]
+    --vela <binary> --codex <binary> --verifier-image <image> [--docker <binary>]
   canopus mission validate <bundle/mission.json>
   canopus run <bundle/mission.json> --source <repo> --run-root <new-dir> \\
-    --vela <binary> [--docker <binary>] [--codex-home <dir>]
+    --vela <binary> --codex <binary> [--docker <binary>] [--codex-home <dir>]
   canopus inspect <run.json>
 
 Use 'canopus <command> --help' for command details. Frozen Mission v0 benchmark
@@ -41,20 +41,21 @@ sign, accept, or make a human scientific decision.`;
 function missionUsage(): string {
   return `Usage:
   canopus mission prepare <draft.json> --source <clean-repo> --output <new-bundle> \\
-    --vela <binary> --worker-image <image> --verifier-image <image> [--docker <binary>]
+    --vela <binary> --codex <binary> --verifier-image <image> [--docker <binary>]
   canopus mission validate <bundle/mission.json>
 
-prepare derives exact Git, Vela, packet, binary, image, Codex, capsule, and
-strict-baseline roots. validate is read-only and checks the closed contract and
-portable bundle bytes.`;
+prepare derives exact Git, Vela, packet, native permission-profile,
+verifier-image, Codex, capsule, and strict-baseline roots. validate is read-only
+and checks the closed contract and portable bundle bytes.`;
 }
 
 function runUsage(): string {
   return `Usage:
   canopus run <bundle/mission.json> --source <repo> --run-root <new-dir> \\
-    --vela <binary> [--docker <binary>] [--codex-home <dir>]
+    --vela <binary> --codex <binary> [--docker <binary>] [--codex-home <dir>]
 
-Mission v1 runs the pinned Codex worker image and separate verifier image.
+Mission v1 runs the pinned native Codex binary with a default-deny permission
+profile and a separate verifier image.
 Mission v0 additionally requires --codex, --codex-version, --codex-sha256, and
 --model for frozen tool-free reproduction.`;
 }
@@ -105,6 +106,10 @@ function packagedOutputSchema(): string {
   return fileURLToPath(new URL("../../schemas/engine-output.v0.json", import.meta.url));
 }
 
+function packagedNativeWorkerProfile(): string {
+  return fileURLToPath(new URL("../../tests/fixtures/native-worker/config.toml", import.meta.url));
+}
+
 async function missionCommand(args: string[]): Promise<void> {
   const [subcommand, file, ...rest] = args;
   if (subcommand === undefined || isHelp(subcommand)) {
@@ -133,7 +138,7 @@ async function missionCommand(args: string[]): Promise<void> {
     "--source",
     "--output",
     "--vela",
-    "--worker-image",
+    "--codex",
     "--verifier-image",
     "--docker",
   ]);
@@ -143,10 +148,11 @@ async function missionCommand(args: string[]): Promise<void> {
     sourceRepo: path.resolve(required(values, "--source")),
     outputRoot: path.resolve(required(values, "--output")),
     velaBinary: path.resolve(required(values, "--vela")),
+    codexBinary: path.resolve(required(values, "--codex")),
     dockerBinary: values.get("--docker") ?? "docker",
-    workerImage: required(values, "--worker-image"),
     verifierImage: required(values, "--verifier-image"),
     outputSchema: packagedOutputSchema(),
+    permissionProfile: packagedNativeWorkerProfile(),
   });
   process.stdout.write(
     `${JSON.stringify({
@@ -186,10 +192,14 @@ async function runMission(file: string, rest: string[]): Promise<void> {
     home: path.join(runRoot, "vela-home"),
   });
   const engine = mission.schema === "canopus.mission.v1"
-    ? new CodexToolsContainerEngine({
-        dockerBinary: values.get("--docker") ?? "docker",
+    ? new CodexToolsNativeEngine({
+        binary: path.resolve(required(values, "--codex")),
         authHome: authHome(values),
         outputSchema,
+        permissionProfile: path.join(
+          path.dirname(path.resolve(file)),
+          mission.worker.permission_profile_path,
+        ),
       })
     : new CodexExecEngine({
         binary: path.resolve(required(values, "--codex")),

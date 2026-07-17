@@ -20,8 +20,8 @@ import {
   installFrozenArtifacts,
   mapCandidateToReceipt,
 } from "./receipt/map.js";
-import { canonicalJson, contentDigest } from "./util/canonical.js";
-import type { CommandRunner } from "./util/command.js";
+import { canonicalJson, contentDigest, sha256Bytes } from "./util/canonical.js";
+import { isolatedEnvironment, runCommand, type CommandRunner } from "./util/command.js";
 import type {
   AuthoredReceiptInput,
   VelaClient,
@@ -179,6 +179,68 @@ function publicationState(land: LandResult): string {
 
 async function writeExclusive(file: string, value: unknown): Promise<void> {
   await writeFile(file, canonicalJson(value), { flag: "wx", mode: 0o600 });
+}
+
+async function publishArtifactSources(options: {
+  repoRoot: string;
+  frontier: string;
+  artifacts: readonly FrozenArtifact[];
+  home: string;
+}): Promise<{ commit: string; tree: string; paths: string[] }> {
+  const frontierRoot = path.resolve(options.repoRoot, options.frontier);
+  const paths = [...new Set(options.artifacts.map((artifact) => {
+    const absolute = path.resolve(frontierRoot, artifact.path);
+    const relative = path.relative(options.repoRoot, absolute);
+    if (
+      relative === "" ||
+      relative === ".." ||
+      relative.startsWith(`..${path.sep}`) ||
+      path.isAbsolute(relative)
+    ) {
+      throw new Error(`artifact publication path escapes the landing repository: ${artifact.path}`);
+    }
+    return relative;
+  }))].sort();
+  const environment = isolatedEnvironment(options.home);
+  const git = async (argv: string[]): Promise<Buffer> => {
+    const result = await runCommand({
+      argv: ["git", ...argv],
+      cwd: options.repoRoot,
+      env: environment,
+      timeoutMs: 30_000,
+      maxOutputBytes: 1_048_576,
+    });
+    if (result.exitCode !== 0 || result.stderr.length !== 0) {
+      throw new Error(
+        `artifact publication git command failed: exit=${result.exitCode}; ` +
+        `stdout=${sha256Bytes(result.stdout)}; stderr=${sha256Bytes(result.stderr)}`,
+      );
+    }
+    return result.stdout;
+  };
+  await git(["add", "--force", "--", ...paths]);
+  const staged = (await git(["diff", "--cached", "--name-only", "-z"]))
+    .toString("utf8").split("\0").filter((entry) => entry.length > 0).sort();
+  if (canonicalJson(staged) !== canonicalJson(paths)) {
+    throw new Error("artifact publication staged a path outside the exact frozen artifact set");
+  }
+  const status = (await git(["status", "--porcelain=v1", "-z", "--untracked-files=all"]))
+    .toString("utf8").split("\0").filter((entry) => entry.length > 0).sort();
+  const expectedStatus = paths.map((entry) => `A  ${entry}`).sort();
+  if (canonicalJson(status) !== canonicalJson(expectedStatus)) {
+    throw new Error("artifact publication observed unrelated or unstaged repository changes");
+  }
+  await git([
+    "-c", "user.name=Canopus Agent",
+    "-c", "user.email=canopus-agent@invalid.example",
+    "commit", "--no-gpg-sign", "-m", "canopus: publish verified mission artifacts",
+  ]);
+  const commit = (await git(["rev-parse", "--verify", "HEAD^{commit}"])).toString("utf8").trim();
+  const tree = (await git(["rev-parse", "--verify", "HEAD^{tree}"])).toString("utf8").trim();
+  if (!/^[0-9a-f]{40}$/u.test(commit) || !/^[0-9a-f]{40}$/u.test(tree)) {
+    throw new Error("artifact publication returned malformed Git object IDs");
+  }
+  return { commit, tree, paths };
 }
 
 export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRunResult> {
@@ -362,18 +424,32 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
       status: candidate.status,
     });
 
-    await installFrozenArtifacts({
-      landingRepo: paths.landing,
-      frontier: options.mission.frontier,
-      frozen,
-      maxBytes: options.mission.budgets.max_artifact_bytes,
-    });
     const preLand = await options.vela.assertRoots(
       paths.landing,
       options.mission.frontier,
       postWork.roots,
       strictBaseline(options.mission),
     );
+    // Verify the complete Vela state before placing candidate artifacts. The
+    // artifact files intentionally make vela.lock stale until `vela land`
+    // admits them transactionally, so a strict check between installation and
+    // the porcelain command would reject the ordinary authored-receipt flow.
+    await installFrozenArtifacts({
+      landingRepo: paths.landing,
+      frontier: options.mission.frontier,
+      frozen,
+      maxBytes: options.mission.budgets.max_artifact_bytes,
+    });
+    const artifactPublication = await publishArtifactSources({
+      repoRoot: paths.landing,
+      frontier: options.mission.frontier,
+      artifacts: candidate.artifacts,
+      home: paths.velaHome,
+    });
+    await activity.append("artifacts.published", {
+      authority: "non_authoritative_git_publication",
+      ...artifactPublication,
+    });
     const receipt = mapCandidateToReceipt(
       options.mission,
       candidate,

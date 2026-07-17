@@ -10,7 +10,12 @@ import { canonicalJson, contentDigest, sha256Bytes } from "../src/util/canonical
 
 const digest = `sha256:${"a".repeat(64)}`;
 
-function mission(capsuleDigest: string, packetDigest: string, outputSchemaDigest: string): MissionV1 {
+function mission(
+  capsuleDigest: string,
+  packetDigest: string,
+  outputSchemaDigest: string,
+  permissionProfileDigest: string,
+): MissionV1 {
   return parseMission({
     schema: "canopus.mission.v1",
     id: "mission_v1_bundle",
@@ -51,17 +56,17 @@ function mission(capsuleDigest: string, packetDigest: string, outputSchemaDigest
       max_observed_tokens: 20_000,
     },
     worker: {
-      kind: "codex_tools_container",
-      image: digest,
+      kind: "codex_tools_native",
+      platform: "darwin",
       codex_version: "codex-cli 0.144.5",
       codex_sha256: digest,
+      permission_profile_path: "contract/native-worker.config.toml",
+      permission_profile_sha256: permissionProfileDigest,
+      workspace: "target_packet_only",
       output_schema_sha256: outputSchemaDigest,
       model: "gpt-5.2-codex",
-      network: "provider",
+      network: "provider_only",
       tools: ["shell", "apply_patch"],
-      memory_mb: 4096,
-      cpu_count: 2,
-      pids_limit: 128,
     },
     verifier: {
       argv: ["capsule/verifier", "{artifact:erdos1056-k15.witness.json}"],
@@ -93,17 +98,22 @@ test("mission v1 validates one portable exact-byte bundle and detects drift", as
   const capsuleBytes = Buffer.from("#!/usr/bin/env python3\nraise SystemExit(0)\n");
   const packetBytes = Buffer.from("{\"problem\":1056}\n");
   const outputSchemaBytes = Buffer.from("{\"type\":\"object\"}\n");
+  const permissionProfileBytes = Buffer.from(
+    'default_permissions = "canopus-worker"\n[permissions.canopus-worker.filesystem]\n":minimal" = "read"\n',
+  );
   const capsule = path.join(root, "capsule", "verifier");
   await Promise.all([
     writeFile(capsule, capsuleBytes, { mode: 0o555 }),
     writeFile(path.join(root, "packet", "target.json"), packetBytes),
     writeFile(path.join(root, "contract", "engine-output.v0.json"), outputSchemaBytes),
+    writeFile(path.join(root, "contract", "native-worker.config.toml"), permissionProfileBytes),
   ]);
   await chmod(capsule, 0o555);
   const active = mission(
     sha256Bytes(capsuleBytes),
     sha256Bytes(packetBytes),
     sha256Bytes(outputSchemaBytes),
+    sha256Bytes(permissionProfileBytes),
   );
   await writeFile(path.join(root, "mission.json"), canonicalJson(active));
   await writeFile(path.join(root, "bundle-manifest.json"), canonicalJson({

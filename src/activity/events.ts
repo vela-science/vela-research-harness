@@ -9,6 +9,7 @@ export const ACTIVITY_TYPES = [
   "engine.started",
   "engine.completed",
   "artifact.frozen",
+  "artifacts.published",
   "verifier.completed",
   "candidate.finalized",
   "receipt.mapped",
