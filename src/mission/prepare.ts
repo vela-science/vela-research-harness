@@ -165,24 +165,40 @@ function boundedObjective(value: unknown): string {
   return objective;
 }
 
-function firstAttack(offer: Record<string, unknown>): Record<string, unknown> {
+function selectedAttack(
+  offer: Record<string, unknown>,
+  requested?: string,
+): Record<string, unknown> {
   if (!Array.isArray(offer.targets)) throw new Error("vela next omitted targets");
+  const attacks: Record<string, unknown>[] = [];
   for (const [index, raw] of offer.targets.entries()) {
     const target = objectAt(raw, `vela next.targets[${index}]`);
-    if (target.lane === "attack") return target;
+    if (target.lane === "attack") attacks.push(target);
   }
-  throw new Error("vela next returned no non-review attack target in the first 128 offers");
+  if (attacks.length === 0) {
+    throw new Error("vela next returned no non-review attack target in the first 128 offers");
+  }
+  if (requested === undefined) return attacks[0] as Record<string, unknown>;
+  const matches = attacks.filter((target) => (target.target_id ?? target.id) === requested);
+  if (matches.length !== 1) {
+    throw new Error(
+      `explicit mission target ${requested} must appear exactly once among the first 128 attack offers; ` +
+      `observed ${matches.length}`,
+    );
+  }
+  return matches[0] as Record<string, unknown>;
 }
 
 function packetFromTarget(target: Record<string, unknown>): { path: string; sha256: string } {
-  const task = objectAt(target.task, "vela next attack.task");
-  const packet = objectAt(task.packet_ref, "vela next attack.task.packet_ref");
+  const packet = target.packet === undefined
+    ? objectAt(objectAt(target.task, "vela next attack.task").packet_ref, "vela next attack.task.packet_ref")
+    : objectAt(target.packet, "vela next attack.packet");
   if (packet.schema !== "erdos-frontier.problem-work.v1") {
     throw new Error("selected attack target has no supported exact problem packet");
   }
   return {
-    path: relativePathAt(packet.path, "vela next attack.task.packet_ref.path"),
-    sha256: sha256At(packet.sha256, "vela next attack.task.packet_ref.sha256"),
+    path: relativePathAt(packet.path, "vela next attack.packet.path"),
+    sha256: sha256At(packet.sha256, "vela next attack.packet.sha256"),
   };
 }
 
@@ -273,11 +289,15 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
       strictBaseline,
       128,
     );
-    const target = firstAttack(offer.value);
-    const targetId = stringAt(target.id, "vela next attack.id", { min: 1, max: 256 });
-    if (raw.target !== undefined && raw.target !== "auto" && raw.target !== targetId) {
-      throw new Error(`mission target ${String(raw.target)} is not the first ranked attack ${targetId}`);
-    }
+    const requestedTarget = raw.target === undefined || raw.target === "auto"
+      ? undefined
+      : stringAt(raw.target, "mission.target", { min: 1, max: 256 });
+    const target = selectedAttack(offer.value, requestedTarget);
+    const targetId = stringAt(
+      target.target_id ?? target.id,
+      "vela next attack.target_id",
+      { min: 1, max: 256 },
+    );
     const packet = packetFromTarget(target);
     const packetSource = await sourceFile(sourceRepo, packet.path, "target packet");
     const packetBytes = await readBoundedRegularFile(packetSource, 64 * 1024 * 1024);

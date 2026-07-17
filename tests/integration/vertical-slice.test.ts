@@ -363,6 +363,84 @@ test("bounded vertical slice lands pending and reproduces from a clean clone", a
   );
 });
 
+test("no-land diagnostic verifies and reproduces without invoking Vela landing", async () => {
+  const source = await sourceRepository();
+  const mission: Mission = {
+    schema: "canopus.mission.v0",
+    id: "mission_no_land_diagnostic",
+    target: "finite:42",
+    vela_version: "0.800.19",
+    vela_sha256: scientificRoot,
+    frontier: "frontier",
+    actor: "agent:canopus-test",
+    role: "producer",
+    claim_type: "computational",
+    replayability: "exact",
+    objective: "Produce the bounded value 42 without landing it.",
+    completion_condition: "The frozen result contains value 42.",
+    roots: source.roots,
+    allowed_paths: ["result.json"],
+    budgets: {
+      max_research_wall_time_ms: 30_000,
+      max_research_processes: 4,
+      max_research_output_bytes: 1_048_576,
+      max_prompt_bytes: 1_048_576,
+      max_artifact_bytes: 1_048_576,
+      max_attempts: 1,
+      max_observed_tokens: 1000,
+    },
+    verifier: {
+      argv: ["frontier/verifier", "{artifact:result.json}"],
+      executable_sha256: source.verifierDigest,
+      cwd: "frontier",
+      timeout_ms: 1000,
+      max_output_bytes: 4096,
+      network: "deny",
+      writes: "deny",
+    },
+    scientific_chain: {
+      predicted_observable: "The frozen JSON object has value 42.",
+      performed_test: "verify frozen result.json",
+    },
+    landing: { expected_routes: ["defer"], max_accepted_delta: 0 },
+  };
+  const engine = new FakeEngine({
+    schema: "canopus.engine-output.v0",
+    status: "success",
+    claim: "The bounded result has value 42.",
+    artifacts: [
+      { path: "result.json", kind: "witness", encoding: "utf8", content: "{\"value\":42}\n" },
+    ],
+    observations: ["The finite construction completed."],
+    caveats: ["This is a bounded fixture, not a general theorem."],
+  });
+  const verifierRunner: CommandRunner = async (options) => ({
+    argv: [...options.argv],
+    exitCode: 0,
+    signal: null,
+    stdout: Buffer.from("value=42\n"),
+    stderr: Buffer.alloc(0),
+    durationMs: 1,
+  });
+  const vela = new FakeVela();
+  const result = await runCanopus({
+    mission,
+    sourceRepo: source.repo,
+    runRoot: path.join(source.parent, "run-no-land"),
+    vela,
+    engine,
+    verifierRunner,
+    noLand: true,
+  });
+
+  assert.equal(result.record.schema, "canopus.diagnostic-run.v1");
+  assert.equal(result.record.landing, null);
+  assert.equal(result.record.reproduction.matched, true);
+  assert.equal(result.projection.landed, false);
+  assert.equal(vela.authored, undefined);
+  assert.equal(await git(source.repo, "rev-parse", "HEAD^{commit}"), source.roots.git_commit);
+});
+
 test("null and failed workers retain bounded evidence without verifier or landing", async () => {
   const source = await sourceRepository();
   const mission: Mission = {

@@ -9,8 +9,16 @@
 
 namespace {
 
-constexpr std::uint32_t kRangeStart = 10428008;
-constexpr std::uint32_t kRangeEnd = 10428200;
+#ifndef CANOPUS_RANGE_START
+#define CANOPUS_RANGE_START 10428008
+#endif
+
+#ifndef CANOPUS_RANGE_END
+#define CANOPUS_RANGE_END 10428200
+#endif
+
+constexpr std::uint32_t kRangeStart = CANOPUS_RANGE_START;
+constexpr std::uint32_t kRangeEnd = CANOPUS_RANGE_END;
 constexpr std::uint8_t kRequiredCuts = 16;
 constexpr std::size_t kTableSize = 1u << 25;
 constexpr std::size_t kTableMask = kTableSize - 1;

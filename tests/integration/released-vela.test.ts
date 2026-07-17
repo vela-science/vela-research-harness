@@ -49,7 +49,12 @@ test(
     assert.equal(observedVelaDigest, registeredVelaDigest);
     await command(
       velaBinary,
-      ["init", source, "--name", "canopus-released-smoke", "--json"],
+      [
+        "init", source,
+        "--name", "canopus-released-smoke",
+        "--scope", "Verify one exact bounded JSON artifact.",
+        "--json",
+      ],
       parent,
       setupHome,
     );
@@ -84,7 +89,7 @@ test(
 
     const vela = new VelaClient({
       binary: velaBinary,
-      expectedVersion: "0.800.23",
+      expectedVersion: "0.900.0",
       expectedSha256: registeredVelaDigest,
       home: path.join(runRoot, "vela-home"),
     });
@@ -93,7 +98,7 @@ test(
       schema: "canopus.mission.v0",
       id: "mission_released_vela_smoke",
       target: "seed:canopus-smoke",
-      vela_version: "0.800.23",
+      vela_version: "0.900.0",
       vela_sha256: registeredVelaDigest,
       frontier: ".",
       actor: "agent:canopus-smoke",

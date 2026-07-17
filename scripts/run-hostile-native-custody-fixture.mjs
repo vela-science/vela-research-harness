@@ -148,6 +148,9 @@ const binary = await realpath(options.get("--codex"));
 const sourceHome = await realpath(options.get("--codex-home"));
 const unrelated = await realpath(options.get("--unrelated"));
 const fixture = fileURLToPath(new URL("../tests/fixtures/native-worker/", import.meta.url));
+const permissionProfile = fileURLToPath(
+  new URL("../runtime/native-worker/config.toml", import.meta.url),
+);
 const runtime = await mkdtemp(path.join(os.tmpdir(), "canopus-native-custody-"));
 
 try {
@@ -165,7 +168,7 @@ try {
   const runtimeAuth = path.join(codexHome, "auth.json");
   await writeFile(runtimeAuth, authBytes, { flag: "wx", mode: 0o600 });
   await optionalCopy(path.join(sourceHome, "models_cache.json"), path.join(codexHome, "models_cache.json"));
-  await copyFile(path.join(fixture, "config.toml"), path.join(codexHome, "config.toml"));
+  await copyFile(permissionProfile, path.join(codexHome, "config.toml"));
   await chmod(path.join(codexHome, "config.toml"), 0o600);
 
   const canaryBytes = Buffer.from(`canopus-host-secret-${randomBytes(32).toString("hex")}\n`);
@@ -305,7 +308,7 @@ try {
       stdin: "",
     })).stdout.toString("utf8").trim(),
     codex_sha256: digest(await readFile(binary)),
-    permission_profile_sha256: digest(await readFile(path.join(fixture, "config.toml"))),
+    permission_profile_sha256: digest(await readFile(permissionProfile)),
     model: options.get("--model"),
     verdict,
     event_stream_sha256: digest(result.stdout),

@@ -1,67 +1,78 @@
 # Canopus
 
-Canopus is the Vela Research Harness: a small, replaceable producer above
-released Vela and Git interfaces.
+Canopus is a bounded research runner over released Vela and Git interfaces. It
+selects an exact Vela work offer, gives a finite mission to a tool-enabled Codex
+worker, freezes the output, runs an independent verifier container, and may land
+a Receipt v1 through `vela land`.
 
-It checks out exact roots, gives a bounded mission to a worker, freezes the
-resulting artifacts, runs a separate verifier process, and lands a Receipt v1
-through `vela land`. It has no signing or human-decision capability. An
-already signed Vela policy may nevertheless route that exact landing to
-Permit; Canopus records the policy effect without becoming its authority.
-Deleting Canopus leaves Vela replay unchanged.
+Canopus cannot sign, accept a proposal, or make a scientific decision. A
+verifier-passing landing remains `Deferred` or `pending_review` unless an
+already-signed Vela policy says otherwise. Removing Canopus does not change Vela
+replay or accepted state.
 
-The first release deliberately has no server, dashboard, provider framework,
-graph database, or second state plane. Codex is the first engine behind a
-small interface. Run activity is local, ignored orchestration evidence; Git
-and Vela roots remain the durable identity.
+## Product workflow
 
-## Status
+Canopus 0.3 targets checksum-pinned Vela 0.900.0. Its ordinary path is:
 
-Canopus `v0.2.0` targets checksum-pinned Vela `v0.800.23`. Mission v1 runs the
-OpenAI-signed native Codex CLI under a default-deny macOS permission profile,
-exposes only the exact target packet, freezes the result, and invokes a
-separate network-denied and write-denied verifier container.
+```bash
+canopus doctor /path/to/frontier
+canopus run /path/to/frontier --first
+canopus inspect latest
+canopus replay /path/to/run.json
+```
 
-The release gate completed on the first ranked non-review Erdős target. The
-bounded search produced a negative result for the exact prime range
-`10428008..10428200`; the frozen verifier independently reproduced it; Vela
-routed the Receipt to `defer`; accepted-event delta was zero; and a clean clone
-reproduced the same roots and verifier digests. This is useful first-party
-producer evidence, not scientific acceptance or independent replication.
+`doctor` discovers and binds Vela, Codex, Git, Docker, the clean frontier roots,
+the first Vela producer offer, and a registered verifier profile. `run` uses the
+first offer unless an exact registered target is requested. It refuses dirty
+frontiers, drifted binaries or roots, missing verifier images, cloud-synced
+output paths, and unregistered targets.
+
+The native Codex worker runs under a bundled default-deny macOS profile with
+only the target workspace and required compiler files exposed. Authentication,
+human keys, unrelated repositories, browser/search/MCP/app surfaces, delegation,
+and command network access remain outside the worker boundary. The verifier
+runs separately with network and writes denied.
+
+A successful landing creates unsigned local Git commits and fast-forwards the
+source checkout only after verifier success and clean-clone reproduction. It
+does not push a remote. Use `--no-land` for a diagnostic run that leaves the
+source frontier unchanged.
+
+The packaged Erdős profiles cover these exact inclusive ranges:
+
+- `erdos1056-k15-10428008-10428200`
+- `erdos1056-k15-10428201-10428400`
+
+Both capsules are content-addressed static Linux arm64 binaries. Their source is
+retained for audit and reproducible rebuilding, but an installed product run
+does not require a cross-compiler.
+
+## Advanced and historical interfaces
+
+Mission v1 remains the portable interface for preparing and validating a frozen
+bundle:
+
+```bash
+canopus mission prepare path/to/draft.json \
+  --source /clean/frontier --output /new/bundle --vela /path/to/vela \
+  --codex /path/to/codex --verifier-image sha256:<image-root>
+canopus mission validate /new/bundle/mission.json
+```
 
 Mission v0 and the stopped cold-use registrations remain available for exact
-historical reproduction. Their detailed evidence lives in
-[release evidence](docs/RELEASES.md), not in the primary workflow.
+historical reproduction. Benchmark commands are intentionally absent from
+primary help.
 
 ## Development
 
-Requires Node 22 or newer and pnpm 10.
+Requires Node 22 or newer, pnpm 10, Vela 0.900.0, Codex CLI 0.144.5, and Docker.
 
 ```bash
 pnpm install
 pnpm check
+pnpm pack --dry-run
 ```
 
-Prepare and validate a Mission v1 bundle without changing a frontier:
-
-```bash
-pnpm build
-node dist/src/cli.js mission prepare path/to/draft.json \
-  --source /clean/frontier --output /new/bundle --vela /path/to/vela \
-  --codex /path/to/codex --verifier-image canopus-verifier:tag
-node dist/src/cli.js mission validate /new/bundle/mission.json
-```
-
-`canopus run` requires SHA-256-pinned Vela, Codex, container, schema, packet,
-and verifier identities, a clean immutable Git commit, and a separate run
-root. A null or failed worker retains `engine-result.json` and stops before the
-verifier and landing. Canopus performs no automatic push and has no signing
-command. See
-[run records](docs/RUN_RECORD.md)
-for the pending/accepted distinction and publication boundary.
-
-See [ADR 0001](docs/adr/0001-harness-boundary-and-name.md) for the boundary
-and deletion test, [mission roles](docs/MISSIONS.md) for the four bounded
-research jobs, and [benchmarks](docs/BENCHMARKS.md) for the registered two-call
-inherited-state probe. Exact tag, CI, released-Vela, clean-clone, and benchmark
-evidence is recorded in [release evidence](docs/RELEASES.md).
+See [run records](docs/RUN_RECORD.md) for evidence and publication semantics,
+[mission roles](docs/MISSIONS.md) for the bounded jobs, [ADR 0001](docs/adr/0001-harness-boundary-and-name.md)
+for the deletion test, and [release evidence](docs/RELEASES.md) for exact roots.

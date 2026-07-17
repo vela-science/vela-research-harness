@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { readdir, stat } from "node:fs/promises";
 
 import {
   loadCompositionStageA,
@@ -14,7 +15,11 @@ import { parseMission } from "./contracts/mission.js";
 import { CodexExecEngine } from "./engines/codex-exec.js";
 import { CodexToolsNativeEngine } from "./engines/codex-tools-native.js";
 import { prepareMission, validateMissionBundle } from "./mission/prepare.js";
+import { parseDiagnosticRunRecord, projectDiagnosticRun } from "./projection/diagnostic.js";
 import { parseRunRecord, projectRun } from "./projection/run.js";
+import { doctorProduct } from "./product/doctor.js";
+import { replayProduct } from "./product/replay.js";
+import { runProduct } from "./product/run.js";
 import { runCanopus } from "./run.js";
 import { readBoundedRegularFile } from "./util/files.js";
 import { VelaClient } from "./vela/cli.js";
@@ -23,16 +28,14 @@ function usage(): string {
   return `Canopus — bounded Vela research harness
 
 Primary workflow:
-  canopus mission prepare <draft.json> --source <clean-repo> --output <new-bundle> \\
-    --vela <binary> --codex <binary> --verifier-image <image> [--docker <binary>]
-  canopus mission validate <bundle/mission.json>
-  canopus run <bundle/mission.json> --source <repo> --run-root <new-dir> \\
-    --vela <binary> --codex <binary> [--docker <binary>] [--codex-home <dir>]
-  canopus inspect <run.json>
+  canopus doctor [frontier]
+  canopus run [frontier] [--first | --target <id>] [--profile <name>] \\
+    [--output <dir>] [--no-land]
+  canopus inspect [run.json | latest]
+  canopus replay <run.json>
 
-Use 'canopus <command> --help' for command details. Frozen Mission v0 benchmark
-commands remain available as 'benchmark' and 'benchmark-composition' for
-historical reproduction, but are not the primary workflow.
+Mission v1 prepare/validate and frozen benchmark reproduction remain available
+under advanced help.
 
 Canopus may land a Receipt v1 as an agent after verifier success. It cannot
 sign, accept, or make a human scientific decision.`;
@@ -51,20 +54,35 @@ and checks the closed contract and portable bundle bytes.`;
 
 function runUsage(): string {
   return `Usage:
-  canopus run <bundle/mission.json> --source <repo> --run-root <new-dir> \\
-    --vela <binary> --codex <binary> [--docker <binary>] [--codex-home <dir>]
+  canopus run [frontier] [--first | --target <id>] [--profile <name>] \\
+    [--output <dir>] [--no-land]
 
-Mission v1 runs the pinned native Codex binary with a default-deny permission
-profile and a separate verifier image.
-Mission v0 additionally requires --codex, --codex-version, --codex-sha256, and
---model for frozen tool-free reproduction.`;
+Discovers and binds Vela, Codex, Git, Docker, the exact frontier roots, and the
+registered verifier profile. --no-land runs the worker and verifier in disposable
+clones and leaves the source frontier unchanged.`;
 }
 
 function inspectUsage(): string {
   return `Usage:
-  canopus inspect <run.json>
+  canopus inspect [run.json | latest]
 
 Projects one completed non-authoritative run record without mutating Vela.`;
+}
+
+function doctorUsage(): string {
+  return `Usage:
+  canopus doctor [frontier]
+
+Checks the compact Vela contract, exact runtimes, first offer, registered
+profile, packaged capsule root, and verifier isolation prerequisites.`;
+}
+
+function replayUsage(): string {
+  return `Usage:
+  canopus replay <run.json>
+
+Re-runs the frozen verifier over the content-addressed candidate without a
+model call, Vela mutation, network, or authority action.`;
 }
 
 function isHelp(value: string | undefined): boolean {
@@ -90,6 +108,38 @@ function options(args: string[], allowed: readonly string[]): Map<string, string
   return result;
 }
 
+function productOptions(
+  args: string[],
+  valueOptions: readonly string[],
+  booleanOptions: readonly string[],
+): { positional: string[]; values: Map<string, string>; flags: Set<string> } {
+  const valueAllow = new Set(valueOptions);
+  const flagAllow = new Set(booleanOptions);
+  const positional: string[] = [];
+  const values = new Map<string, string>();
+  const flags = new Set<string>();
+  for (let index = 0; index < args.length; index += 1) {
+    const item = args[index] as string;
+    if (!item.startsWith("--")) {
+      positional.push(item);
+      continue;
+    }
+    if (flagAllow.has(item)) {
+      if (flags.has(item)) throw new Error(`duplicate option ${item}`);
+      flags.add(item);
+      continue;
+    }
+    if (!valueAllow.has(item) || values.has(item)) {
+      throw new Error(`unknown or duplicate option ${item}`);
+    }
+    const value = args[index + 1];
+    if (value === undefined || value.startsWith("--")) throw new Error(`${item} requires a value`);
+    values.set(item, value);
+    index += 1;
+  }
+  return { positional, values, flags };
+}
+
 function required(values: Map<string, string>, key: string): string {
   const value = values.get(key);
   if (value === undefined || value === "") throw new Error(`${key} is required`);
@@ -107,7 +157,7 @@ function packagedOutputSchema(): string {
 }
 
 function packagedNativeWorkerProfile(): string {
-  return fileURLToPath(new URL("../../tests/fixtures/native-worker/config.toml", import.meta.url));
+  return fileURLToPath(new URL("../../runtime/native-worker/config.toml", import.meta.url));
 }
 
 async function missionCommand(args: string[]): Promise<void> {
@@ -233,6 +283,90 @@ async function runMission(file: string, rest: string[]): Promise<void> {
   );
 }
 
+async function doctorCommand(args: string[]): Promise<void> {
+  const parsed = productOptions(args, [], []);
+  if (parsed.positional.length > 1) throw new Error("doctor accepts at most one frontier");
+  const result = await doctorProduct({ frontier: path.resolve(parsed.positional[0] ?? ".") });
+  process.stdout.write(`${JSON.stringify(result.public)}\n`);
+}
+
+async function productRunCommand(args: string[]): Promise<void> {
+  const parsed = productOptions(
+    args,
+    ["--target", "--profile", "--output", "--codex-home"],
+    ["--first", "--no-land"],
+  );
+  if (parsed.positional.length > 1) throw new Error("run accepts at most one frontier");
+  if (parsed.flags.has("--first") && parsed.values.has("--target")) {
+    throw new Error("--first and --target are mutually exclusive");
+  }
+  const frontier = path.resolve(parsed.positional[0] ?? ".");
+  const requested = parsed.values.get("--target");
+  const profileName = parsed.values.get("--profile");
+  const outputRoot = parsed.values.get("--output");
+  const codexHome = parsed.values.get("--codex-home");
+  const result = await runProduct({
+    frontier,
+    ...(profileName === undefined ? {} : { profileName }),
+    ...(requested === undefined ? {} : { requestedTarget: requested }),
+    ...(outputRoot === undefined ? {} : { outputRoot: path.resolve(outputRoot) }),
+    ...(codexHome === undefined ? {} : { codexHome: path.resolve(codexHome) }),
+    noLand: parsed.flags.has("--no-land"),
+  });
+  const landing = result.run.record.landing;
+  process.stdout.write(`${JSON.stringify({
+    ok: true,
+    command: "run",
+    mode: landing === null ? "no_land" : "land",
+    run_id: result.run.record.run_id,
+    target: result.run.record.mission.target,
+    candidate_digest: result.run.record.candidate.digest,
+    verifier_status: result.run.record.verifier.status,
+    observed_tokens: result.run.record.budget.observed_tokens,
+    receipt_root: landing?.receipt_root ?? null,
+    proposal_id: landing?.proposal_id ?? null,
+    route: landing?.route ?? null,
+    accepted_event_delta: landing?.accepted_event_delta ?? null,
+    clean_clone_reproduced: result.run.record.reproduction.matched,
+    evidence_root: result.evidence_root,
+    source_publication: result.source_publication,
+    run_file: path.join(result.run.paths.root, "run.json"),
+  })}\n`);
+}
+
+async function latestRunFile(): Promise<string> {
+  const root = path.join(os.homedir(), ".canopus", "runs");
+  const entries = await readdir(root, { recursive: true });
+  const candidates = entries
+    .filter((entry) => entry.endsWith(`${path.sep}run${path.sep}run.json`) || entry === path.join("run", "run.json"))
+    .map((entry) => path.join(root, entry));
+  if (candidates.length === 0) throw new Error("no completed Canopus product run was found");
+  const ranked = await Promise.all(candidates.map(async (file) => ({
+    file,
+    modified: (await stat(file)).mtimeMs,
+  })));
+  ranked.sort((left, right) => right.modified - left.modified || left.file.localeCompare(right.file));
+  return ranked[0]?.file ?? (() => { throw new Error("no completed Canopus product run was found"); })();
+}
+
+async function inspectCommand(value: string | undefined, rest: string[]): Promise<void> {
+  if (rest.length !== 0) throw new Error("inspect accepts at most one run file");
+  const file = value === undefined || value === "latest" ? await latestRunFile() : path.resolve(value);
+  const raw = await jsonFile(file);
+  const schema = typeof raw === "object" && raw !== null && !Array.isArray(raw)
+    ? (raw as Record<string, unknown>).schema
+    : undefined;
+  const projection = schema === "canopus.diagnostic-run.v1"
+    ? projectDiagnosticRun(parseDiagnosticRunRecord(raw))
+    : projectRun(parseRunRecord(raw));
+  process.stdout.write(`${JSON.stringify({ ok: true, command: "inspect", run_file: file, projection })}\n`);
+}
+
+async function replayCommand(file: string | undefined, rest: string[]): Promise<void> {
+  if (file === undefined || rest.length !== 0) throw new Error("replay requires exactly one run file");
+  process.stdout.write(`${JSON.stringify(await replayProduct(path.resolve(file)))}\n`);
+}
+
 async function benchmark(command: string, file: string, rest: string[]): Promise<void> {
   const values = options(rest, ["--repo", "--output-root", "--codex", "--codex-home"]);
   const repoRoot = path.resolve(required(values, "--repo"));
@@ -277,25 +411,42 @@ async function main(argv: string[]): Promise<void> {
     return;
   }
   if (isHelp(file)) {
-    process.stdout.write(`${command === "run" ? runUsage() : command === "inspect" ? inspectUsage() : usage()}\n`);
+    process.stdout.write(`${
+      command === "run" ? runUsage()
+      : command === "inspect" ? inspectUsage()
+      : command === "doctor" ? doctorUsage()
+      : command === "replay" ? replayUsage()
+      : usage()
+    }\n`);
     return;
   }
-  if (file === undefined) throw new Error(`${command} requires a JSON file`);
+  if (command === "doctor") {
+    await doctorCommand(argv.slice(1));
+    return;
+  }
+  if (command === "replay") {
+    await replayCommand(file, rest);
+    return;
+  }
   if (command === "validate") {
+    if (file === undefined) throw new Error("validate requires a mission file");
     await missionCommand(["validate", file, ...rest]);
     return;
   }
   if (command === "inspect") {
-    if (rest.length !== 0) throw new Error("inspect accepts only one run file");
-    const record = parseRunRecord(await jsonFile(file));
-    process.stdout.write(`${JSON.stringify({ ok: true, command, projection: projectRun(record) })}\n`);
+    await inspectCommand(file, rest);
     return;
   }
   if (command === "run") {
-    await runMission(file, rest);
+    if (file !== undefined && (file.endsWith(".json") || rest.includes("--source"))) {
+      await runMission(file, rest);
+    } else {
+      await productRunCommand(argv.slice(1));
+    }
     return;
   }
   if (command === "benchmark" || command === "benchmark-composition") {
+    if (file === undefined) throw new Error(`${command} requires a registration file`);
     await benchmark(command, file, rest);
     return;
   }

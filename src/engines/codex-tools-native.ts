@@ -46,6 +46,16 @@ export interface CodexToolsNativeOptions {
 }
 
 function prompt(mission: MissionV1): string {
+  const execution = mission.target === "erdos:1056"
+    ? [
+        "This registered Erdős mission already supplies the complete algorithm, range, artifact grammar, and completion test. The packet identity has already been verified by the harness.",
+        "Do not enumerate the workspace, rediscover files, re-hash the packet, inspect unrelated packet fields, or search for the verifier. Start by writing the bounded search program, then compile and run it, inspect only the small result artifact, and return.",
+        "The profile exposes the Xcode compiler and SDK directly. Compile inside the workspace with `mkdir -p artifacts tmp && TMPDIR=$PWD/tmp clang++ ...`; do not call `/usr/bin/clang++`, `xcrun`, or `xcodebuild`.",
+        "Implement the registered flat table literally: table size 1<<25; slot=(uint64_t(residue)*11400714819323198485ull)>>(64-25); linear probing with mask; uint32 key and generation arrays plus uint8 counts; increment generation once per prime; factorial starts at 1 and multiplies by cut only when cut>0 before counting that cut.",
+        "For each prime choose the greatest count and then smallest residue. Across primes replace the best only on a strictly greater count, preserving the earliest prime on ties. After choosing the best prime/residue, recompute its increasing cut list from scratch.",
+        "Use at most six shell or patch tool calls. A token-efficient correct computation is part of this mission's product contract.",
+      ]
+    : [];
   return [
     "Execute one bounded Canopus research mission inside a fresh writable workspace containing only the exact hash-verified target packet.",
     "Use shell and apply_patch only when useful. Browser, web search, MCP, apps, memories, computer use, delegation, signing, and human keys are forbidden.",
@@ -55,6 +65,7 @@ function prompt(mission: MissionV1): string {
     "Keep tool output narrow. Do not print or ingest the whole target packet.",
     "A null or failed result is valid. Never turn a bounded negative search into universal nonexistence, verifier failure into success, or Git publication into scientific acceptance.",
     "Return only the supplied engine-output JSON shape. Artifact bytes must be inline UTF-8 content at mission.allowed_paths.",
+    ...execution,
     "Mission:",
     canonicalJson(mission),
   ].join("\n");
@@ -143,6 +154,8 @@ function workerArgv(options: {
     options.cwd,
     "--config",
     'web_search="disabled"',
+    "--config",
+    'model_reasoning_effort="low"',
     ...NATIVE_WORKER_DISABLED_FEATURES.flatMap((feature) => ["--disable", feature]),
     "-",
   ];
@@ -324,6 +337,16 @@ export class CodexToolsNativeEngine implements Engine {
           `stdout_sha256=${sha256Bytes(result.stdout)}; stderr_sha256=${sha256Bytes(result.stderr)}`,
         );
       }
+      await Promise.all([
+        writeFile(path.join(context.paths.root, "worker-events.jsonl"), result.stdout, {
+          flag: "wx",
+          mode: 0o600,
+        }),
+        writeFile(path.join(context.paths.root, "worker-stderr.bin"), result.stderr, {
+          flag: "wx",
+          mode: 0o600,
+        }),
+      ]);
       const events = parseCodexEvents(result.stdout.toString("utf8"));
       try {
         context.budget.addTokens(events.usage.input_tokens + events.usage.output_tokens);
@@ -337,6 +360,10 @@ export class CodexToolsNativeEngine implements Engine {
       const finalBytes = await readBoundedRegularFile(finalPath, 1_048_576);
       context.budget.addOutput(finalBytes.length);
       assertNoSecrets([finalBytes], secrets);
+      await writeFile(path.join(context.paths.root, "worker-final.json"), finalBytes, {
+        flag: "wx",
+        mode: 0o600,
+      });
       let raw: unknown;
       try {
         raw = JSON.parse(finalBytes.toString("utf8")) as unknown;

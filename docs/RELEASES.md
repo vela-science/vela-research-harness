@@ -1,5 +1,71 @@
 # Release evidence
 
+## Canopus v0.3.0 release candidate
+
+This candidate adds the one-command product path over released Vela 0.900.0.
+The tag and public release remain gated on the user's personal decision for the
+new pending Erdős proposal and a read-only post-decision replay audit.
+
+- Vela release commit and binary SHA-256:
+  `67922a6052193a031ea9f6fc26d3beb9f30900c6` and
+  `c512ec9f0ff4639c79fa14c49a1798b4ad52ff0cbfa8834dc766fac2ea4103ff`
+- Starting Erdős commit and tree:
+  `d0a2f56dfecf7027248403e43ba133e18e56b3c6` and
+  `f28f356c5152bc004d76b2dc7301c9952243a9e5`
+- First Vela 0.9 producer offer: `erdos:1056`
+- Released-range replay run:
+  `run_efcf871c-c53a-4854-8b02-46bcb8a983d6`
+- Released-range artifact root:
+  `sha256:2db2d5c1dcbd817384d29a1e1b8ecf6092b9a58d6bceb7dbee7d0311e2164fac`
+- Released-range verifier stdout root:
+  `sha256:02a8e6504e78b3109cf02f5d1bf092d1242a666b19b21ec84c119414470ca536`
+- Released-range usage: 50,254 observed tokens, versus 187,013 in the prior
+  successful run
+- Adjacent-range run: `run_e586d21b-3105-49da-82c1-abf9ce2607db`
+- Adjacent exact range: `10428201..10428400`, nine primes
+- Adjacent result: exhaustive bounded negative; maximum multiplicity 10 at
+  `p=10428241`, residue `3789711`
+- Adjacent artifact root:
+  `sha256:c6392a4dc102375ecba33b39c2c24db4d3fdcc984f7f70d79ddc72e744060044`
+- Adjacent capsule and verifier stdout roots:
+  `sha256:6144b9d9e217b4a57651b90c157ec9cc17d2c0fdcfc80a24bc9fa694bc16f626`
+  and
+  `sha256:2e62aab4a20706103f1e73621f609d1abe4c6fad513b4d88a03c00ed4553c1bf`
+- Adjacent usage: 48,088 observed tokens
+- Receipt root and proposal:
+  `sha256:6010cf159e7ee5d7867a6553b9f44eb5a1b153f87c38f09b9505d5656a943373`
+  and `vpr_f54338a5a453c1bf`
+- Route and authority effect: `defer`; accepted-event delta zero
+- Final commit and tree:
+  `26e24bf64096cda7b0c2c85c40fa90bb3c63383a` and
+  `7cd703e75a26af0026cf3bafda52b7817a803fb3`
+- Final event, snapshot, and proposal roots:
+  `sha256:6695ff579abba6dfbeb1e20d3a40e3975257b5a322e4b18f8746839dc93780b2`,
+  `sha256:f399d1277bb2e72e6c6e72eec6b97f6e503c35e695bff23611d9e1b925050a52`,
+  and
+  `sha256:f4f0920887d00b94ebcb96ec013d19fe50b2464851c4bb3e78b65ce6fbb004ed`
+- Strict blockers after landing: 1,592, unchanged from the starting baseline
+- Clean-clone replay: 38 of 38 checks passed with matching roots
+- Run evidence root:
+  `sha256:7cf8b34ef313fb1df16c3c14d873a711befe09d82d3f873930fabeadbfa73448`
+- Current first producer offer after the landing: `erdos:124`. The canonical
+  ranking facts changed, so the default and `--first` paths refuse to reuse the
+  1056 profile or skip rank 1. An explicit registered `--target` is allowed only
+  when that target remains in the bounded current offers; pending 1056 is not.
+- Current proposal state: `vpr_f54338a5a453c1bf` is pending. Acceptance is
+  blocked by `engine_gate_blocked`; rejection remains available to the human.
+- Hostile custody profile, event-stream, final-response, and stderr roots:
+  `sha256:12b58762819481ad101e7a172a296224b6050a8a07a7431272e521a4102908da`,
+  `sha256:6adf4676ed2162a3a77cd919eb4e9c111dacbc3d348e0e95fa13601c6588aa23`,
+  `sha256:1b4ecccdcf11cf9c757450317e024af0b5fe27017a2796025dff57b923d5cc43`,
+  and
+  `sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+
+The first adjacent attempt produced an incorrect candidate and the frozen
+verifier rejected it before landing. Other infrastructure failures remain
+preserved as non-authoritative evidence. No failed run was reported as a
+scientific result. No human key was read or triggered.
+
 ## Canopus v0.2.0
 
 `v0.2.0` accepts ADR 0004 and completes one useful authority-free mission over

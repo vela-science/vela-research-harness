@@ -77,11 +77,57 @@ export interface CanopusRunOptions {
   bundleRoot?: string;
   dockerBinary?: string;
   verifierRunner?: CommandRunner;
+  noLand?: false;
+}
+
+export interface CanopusNoLandOptions extends Omit<CanopusRunOptions, "noLand"> {
+  noLand: true;
 }
 
 export interface CanopusRunResult {
   record: RunRecord;
   projection: RunProjection;
+  paths: WorkspacePaths;
+}
+
+export interface DiagnosticRunRecord {
+  schema: "canopus.diagnostic-run.v1";
+  run_id: string;
+  status: "completed";
+  mode: "no_land";
+  authority: "non_authoritative";
+  external_gate_credit: false;
+  mission: {
+    id: string;
+    target: string;
+    digest: string;
+    starting_roots: MissionRoots;
+  };
+  candidate: {
+    digest: string;
+    status: "success" | "null" | "failed";
+    claim: string;
+    artifacts: Array<{ path: string; kind: string; digest: string; bytes: number }>;
+    caveats: string[];
+  };
+  verifier: RunRecord["verifier"];
+  landing: null;
+  reproduction: RunRecord["reproduction"];
+  budget: RunRecord["budget"];
+}
+
+export interface CanopusDiagnosticRunResult {
+  record: DiagnosticRunRecord;
+  projection: {
+    schema: "canopus.diagnostic-projection.v1";
+    authority: "read_only_projection";
+    run_id: string;
+    target: string;
+    candidate_digest: string;
+    verifier_status: "passed" | "failed" | "error";
+    landed: false;
+    clean_clone_reproduced: boolean;
+  };
   paths: WorkspacePaths;
 }
 
@@ -121,6 +167,25 @@ function assertWorkBinding(
   response: VelaCommandResponse,
   postWork: VelaInspection,
 ): void {
+  if (response.value.schema === "vela.work.v1") {
+    exactText(response.value.command, "work", "vela work.command");
+    exactText(response.value.target_id, mission.target, "vela work.target_id");
+    const roots = recordField(response.value, "starting_roots", "vela work");
+    exactText(roots.event_log, mission.roots.vela_event_log, "vela work.starting_roots.event_log");
+    exactText(roots.git_commit, mission.roots.git_commit, "vela work.starting_roots.git_commit");
+    const session = recordField(response.value, "session", "vela work");
+    if (typeof session.id !== "string" || session.id.length === 0) {
+      throw new Error("vela work.session.id must be nonempty");
+    }
+    if (
+      postWork.roots.git_commit === mission.roots.git_commit ||
+      postWork.roots.git_tree === mission.roots.git_tree ||
+      postWork.roots.vela_event_log === mission.roots.vela_event_log
+    ) {
+      throw new Error("vela work did not publish an exact lease delta");
+    }
+    return;
+  }
   const claim = recordField(response.value, "claim", "vela work");
   const session = recordField(response.value, "session", "vela work");
   const publication = recordField(claim, "publication", "vela work.claim");
@@ -158,7 +223,8 @@ export function validateTargetOffer(
     if (typeof entry !== "object" || entry === null || Array.isArray(entry)) {
       throw new Error(`vela next.targets[${index}] is not an object`);
     }
-    const id = (entry as Record<string, unknown>).id;
+    const object = entry as Record<string, unknown>;
+    const id = object.target_id ?? object.id;
     if (typeof id !== "string" || id.length === 0) {
       throw new Error(`vela next.targets[${index}].id is not a nonempty string`);
     }
@@ -243,7 +309,11 @@ async function publishArtifactSources(options: {
   return { commit, tree, paths };
 }
 
-export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRunResult> {
+export function runCanopus(options: CanopusNoLandOptions): Promise<CanopusDiagnosticRunResult>;
+export function runCanopus(options: CanopusRunOptions): Promise<CanopusRunResult>;
+export async function runCanopus(
+  options: CanopusRunOptions | CanopusNoLandOptions,
+): Promise<CanopusRunResult | CanopusDiagnosticRunResult> {
   const runId = `run_${randomUUID()}`;
   const paths = await prepareWorkspace({
     sourceRepo: options.sourceRepo,
@@ -409,6 +479,10 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
       sandbox: verifier.sandbox,
       ...(verifier.error === undefined ? {} : { error: verifier.error }),
     });
+    if (verifier.status !== "passed") {
+      phase = "verifier_non_success";
+      throw new Error(`verifier returned ${verifier.status}; candidate and landing were not advanced`);
+    }
 
     const candidate = finalizeCandidate({
       mission: options.mission,
@@ -423,6 +497,96 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
       candidate_digest: candidateDigest,
       status: candidate.status,
     });
+
+    if (options.noLand === true) {
+      phase = "clean_clone_reproduction";
+      const reproductionRoot = `${paths.root}-reproduce`;
+      const reproductionPaths = await prepareWorkspace({
+        sourceRepo: options.sourceRepo,
+        runRoot: reproductionRoot,
+        gitCommit: options.mission.roots.git_commit,
+        gitTree: options.mission.roots.git_tree,
+      });
+      let reproductionVerifier;
+      try {
+        await options.vela.assertRoots(
+          reproductionPaths.input,
+          options.mission.frontier,
+          options.mission.roots,
+          strictBaseline(options.mission),
+        );
+        reproductionVerifier = await runVerifier({
+          mission: options.mission,
+          paths: reproductionPaths,
+          artifacts: frozen,
+          budget,
+          ...(options.bundleRoot === undefined ? {} : { bundleRoot: options.bundleRoot }),
+          ...(options.dockerBinary === undefined ? {} : { dockerBinary: options.dockerBinary }),
+          ...(options.verifierRunner === undefined ? {} : { runner: options.verifierRunner }),
+        });
+      } finally {
+        await cleanupWorkspace(reproductionPaths);
+      }
+      const reproduced =
+        reproductionVerifier.status === verifier.status &&
+        reproductionVerifier.record.stdout_digest === verifier.record.stdout_digest &&
+        reproductionVerifier.record.stderr_digest === verifier.record.stderr_digest;
+      if (!reproduced) throw new Error("clean-clone diagnostic verifier replay did not match");
+      const record: DiagnosticRunRecord = {
+        schema: "canopus.diagnostic-run.v1",
+        run_id: runId,
+        status: "completed",
+        mode: "no_land",
+        authority: "non_authoritative",
+        external_gate_credit: false,
+        mission: {
+          id: options.mission.id,
+          target: options.mission.target,
+          digest: contentDigest(options.mission),
+          starting_roots: options.mission.roots,
+        },
+        candidate: {
+          digest: candidateDigest,
+          status: candidate.status,
+          claim: candidate.claim,
+          artifacts: candidate.artifacts,
+          caveats: candidate.caveats,
+        },
+        verifier: {
+          status: verifier.status,
+          sandbox: verifier.sandbox,
+          record: verifier.record,
+        },
+        landing: null,
+        reproduction: {
+          matched: true,
+          roots: options.mission.roots,
+          verifier_status: reproductionVerifier.status,
+          stdout_digest: reproductionVerifier.record.stdout_digest,
+          stderr_digest: reproductionVerifier.record.stderr_digest,
+        },
+        budget: budget.snapshot(),
+      };
+      const projection = {
+        schema: "canopus.diagnostic-projection.v1" as const,
+        authority: "read_only_projection" as const,
+        run_id: runId,
+        target: options.mission.target,
+        candidate_digest: candidateDigest,
+        verifier_status: verifier.status,
+        landed: false as const,
+        clean_clone_reproduced: true,
+      };
+      await rm(paths.velaHome, { recursive: true, force: true });
+      await writeExclusive(path.join(paths.root, "candidate.json"), candidate);
+      await writeExclusive(path.join(paths.root, "projection.json"), projection);
+      await writeExclusive(path.join(paths.root, "run.json"), record);
+      await activity.append("run.completed", {
+        mode: "no_land",
+        candidate_digest: candidateDigest,
+      });
+      return { record, projection, paths };
+    }
 
     const preLand = await options.vela.assertRoots(
       paths.landing,

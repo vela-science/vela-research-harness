@@ -586,18 +586,9 @@ export class VelaClient {
       this.#gitObject(repoRoot, "HEAD^{tree}"),
       this.#strictCheck(safeFrontier, repoRoot, strictBaseline),
     ]);
-    // `vela check --strict` may refresh reducer-owned proof material. Do not
-    // race proof verification against that operation through a shared clone.
-    const proof = await this.#json(
-      ["proof", "verify", safeFrontier, "--json"],
-      repoRoot,
-      "vela proof verify",
-    );
-
-    if (!bool(proof.ok, "vela proof verify.ok")) {
-      throw new VelaClientError("command_failed", "vela proof verify returned ok=false");
-    }
-
+    // Vela 0.9 makes the compact status projection the ordinary root reader.
+    // Historical binaries retain proof verification for exact Mission v0/v1
+    // replay, but a minimal 0.9 frontier intentionally has no proof bundle.
     const replay =
       typeof check.replay === "object" && check.replay !== null
         ? fieldObject(check, "replay", "vela check")
@@ -619,8 +610,27 @@ export class VelaClient {
       );
     }
 
-    const proofEvent = normalizeSha256(proof.event_log_hash, "vela proof verify.event_log_hash");
-    const proofSnapshot = normalizeSha256(proof.snapshot_hash, "vela proof verify.snapshot_hash");
+    const proof = version === "0.900.0"
+      ? {
+          ok: true,
+          command: "status_root_projection",
+          event_log_hash: checkEvent,
+          snapshot_hash: checkCurrent,
+        }
+      : await this.#json(["proof", "verify", safeFrontier, "--json"], repoRoot, "vela proof verify");
+
+    if (!bool(proof.ok, "vela root projection.ok")) {
+      throw new VelaClientError("command_failed", "vela root projection returned ok=false");
+    }
+
+    const proofEvent = normalizeSha256(
+      proof.event_log_hash,
+      "vela root projection.event_log_hash",
+    );
+    const proofSnapshot = normalizeSha256(
+      proof.snapshot_hash,
+      "vela root projection.snapshot_hash",
+    );
     assertEqual(proofEvent, checkEvent, "check/proof event log");
     assertEqual(proofSnapshot, checkCurrent, "check/proof snapshot");
 

@@ -5,9 +5,15 @@ A completed run writes these local records beneath its run root:
 - `activity.jsonl`: append-only orchestration events linked by full SHA-256
   digests, including the exact `vela next` offer digest and selected rank;
 - `candidate.json`: the frozen candidate and verifier facts;
+- `worker-events.jsonl`: the raw Codex event stream used as the tool trace;
+- `worker-final.json`: the exact final worker response;
+- `worker-stderr.bin`: the bounded raw worker stderr stream;
+- `engine-result.json`: the parsed worker outcome and usage;
 - `run.json`: the compact run record, exact roots, landing result, costs, and
   clean-clone reproduction result;
-- `projection.json`: a read-only view for a future Hub, Atlas, or UI consumer.
+- `evidence-manifest.json`: content roots for the worker, run, candidate,
+  artifacts, verifier result, Receipt when present, and final frontier roots;
+- `projection.json`: a read-only view for another consumer;
 - `landing-command.json`: the exact argv, exit status, raw streams, and stream
   digests observed at the potentially effectful `vela land` boundary;
 - `landing-observation.json`: the parsed raw Vela result, retained before any
@@ -35,6 +41,17 @@ artifacts before invoking `vela land`; `activity.jsonl` records that commit,
 tree, and path set. The terminal Vela commit then contains the Receipt, activity
 record, proposal, and `records/artifacts/sha256/<digest>` copies. This ordering
 keeps `vela.lock` and every clean Git checkout self-contained.
+
+A `--no-land` run writes `canopus.diagnostic-run.v1`, invokes the same frozen
+worker and verifier path, and leaves the source frontier at its starting commit
+and tree. It has no Receipt or proposal. A landed product run performs all work
+in isolated clones, verifies the clean clone, then fast-forwards the clean local
+source checkout to the exact verified landing commit. It never pushes a remote.
+
+Product output must live outside the source frontier and outside known
+cloud-synced Desktop or cloud-storage roots. Docker bind mounts over cloud-backed
+paths can stall without producing a verifier verdict, so Canopus refuses that
+placement rather than weakening the verification timeout.
 
 `route: defer` with `accepted_event_delta: 0` means the Receipt v1 record is
 pending human review. It is a successful producer handoff, not scientific

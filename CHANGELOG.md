@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.3.0 - Unreleased
+
+- Add the compact `doctor`, `run`, `inspect`, and `replay` product workflow over
+  Vela 0.900.0 while retaining Mission v1 as the advanced portable interface.
+- Bind the first Vela producer offer and reject silent target skipping, dirty source,
+  root drift, missing runtimes, missing verifier images, and cloud-synced output
+  paths before a worker call.
+- Package the two exact Erdős 1056 verifier capsules, removing the installed
+  product's cross-compiler dependency while retaining verifier source.
+- Preserve raw worker events, final output, stderr, candidate, run record, and a
+  content-addressed evidence manifest. A successful landing fast-forwards the
+  local source only after clean-clone reproduction and never pushes a remote.
+- Replay the released range `10428008..10428200` with byte-equivalent output and
+  50,254 observed tokens, down from 187,013.
+- Complete the adjacent range `10428201..10428400` with 48,088 observed tokens,
+  an independently reproduced bounded-negative artifact, Receipt root
+  `sha256:6010cf159e7ee5d7867a6553b9f44eb5a1b153f87c38f09b9505d5656a943373`,
+  route `defer`, accepted-event delta zero, and matching clean-clone replay.
+- Keep proposal `vpr_f54338a5a453c1bf` pending for a personal human decision.
+  The release tag remains gated on post-decision verification.
+
 ## 0.2.0 - 2026-07-16
 
 - Accept ADR 0004 and add Mission v1 preparation, validation, inspection,
