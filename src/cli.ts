@@ -20,9 +20,11 @@ import { parseRunRecord, projectRun } from "./projection/run.js";
 import { doctorProduct } from "./product/doctor.js";
 import { replayProduct } from "./product/replay.js";
 import { runProduct } from "./product/run.js";
+import { withdrawProduct } from "./product/withdraw.js";
 import { runCanopus } from "./run.js";
 import { readBoundedRegularFile } from "./util/files.js";
 import { VelaClient } from "./vela/cli.js";
+import { withdrawalCapabilityStatus } from "./capability/withdrawal.js";
 
 function usage(): string {
   return `Canopus — bounded Vela research harness
@@ -33,6 +35,7 @@ Primary workflow:
     [--output <dir>] [--no-land]
   canopus inspect [run.json | latest]
   canopus replay <run.json>
+  canopus withdraw [frontier] [--run <run.json|latest>] --reason <text>
 
 Mission v1 prepare/validate and frozen benchmark reproduction remain available
 under advanced help.
@@ -83,6 +86,15 @@ function replayUsage(): string {
 
 Re-runs the frozen verifier over the content-addressed candidate without a
 model call, Vela mutation, network, or authority action.`;
+}
+
+function withdrawUsage(): string {
+  return `Usage:
+  canopus withdraw [frontier] [--run <run.json|latest>] --reason <text>
+
+Uses only the retained proposal-scoped producer capability. The operation runs
+in a disposable exact-head clone, verifies strict and clean-clone replay, then
+fast-forwards the clean source. It never mounts a worker or human key.`;
 }
 
 function isHelp(value: string | undefined): boolean {
@@ -359,12 +371,30 @@ async function inspectCommand(value: string | undefined, rest: string[]): Promis
   const projection = schema === "canopus.diagnostic-run.v1"
     ? projectDiagnosticRun(parseDiagnosticRunRecord(raw))
     : projectRun(parseRunRecord(raw));
-  process.stdout.write(`${JSON.stringify({ ok: true, command: "inspect", run_file: file, projection })}\n`);
+  const withdrawal = "proposal_id" in projection
+    ? await withdrawalCapabilityStatus(projection.proposal_id)
+    : { state: "not_applicable", available: false };
+  process.stdout.write(`${JSON.stringify({ ok: true, command: "inspect", run_file: file, projection, withdrawal })}\n`);
 }
 
 async function replayCommand(file: string | undefined, rest: string[]): Promise<void> {
   if (file === undefined || rest.length !== 0) throw new Error("replay requires exactly one run file");
   process.stdout.write(`${JSON.stringify(await replayProduct(path.resolve(file)))}\n`);
+}
+
+async function withdrawCommand(args: string[]): Promise<void> {
+  const parsed = productOptions(args, ["--run", "--reason"], []);
+  if (parsed.positional.length > 1) throw new Error("withdraw accepts at most one frontier");
+  const reason = parsed.values.get("--reason");
+  if (reason === undefined || reason.trim().length === 0) throw new Error("withdraw requires --reason");
+  const runValue = parsed.values.get("--run") ?? "latest";
+  const runFile = runValue === "latest" ? await latestRunFile() : path.resolve(runValue);
+  const result = await withdrawProduct({
+    frontier: path.resolve(parsed.positional[0] ?? "."),
+    runFile,
+    reason,
+  });
+  process.stdout.write(`${JSON.stringify(result)}\n`);
 }
 
 async function benchmark(command: string, file: string, rest: string[]): Promise<void> {
@@ -416,6 +446,7 @@ async function main(argv: string[]): Promise<void> {
       : command === "inspect" ? inspectUsage()
       : command === "doctor" ? doctorUsage()
       : command === "replay" ? replayUsage()
+      : command === "withdraw" ? withdrawUsage()
       : usage()
     }\n`);
     return;
@@ -426,6 +457,10 @@ async function main(argv: string[]): Promise<void> {
   }
   if (command === "replay") {
     await replayCommand(file, rest);
+    return;
+  }
+  if (command === "withdraw") {
+    await withdrawCommand(argv.slice(1));
     return;
   }
   if (command === "validate") {

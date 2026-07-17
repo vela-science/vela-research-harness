@@ -2,13 +2,22 @@
 
 ## Canopus v0.3.0 release candidate
 
-This candidate adds the one-command product path over released Vela 0.900.2.
-The tag and public release remain gated on the user's personal decision for the
-new pending Erdős proposal and a read-only post-decision replay audit.
+This candidate adds the one-command product path and proposal-scoped producer
+withdrawal over the Vela 0.901 release candidate. The targeted Erdős proposal
+was rejected by the human and its signed terminal event now passes the
+read-only replay audit. The tag and public release remain gated on the exact
+released Vela binary pin and final release checks.
 
-- Candidate Vela release commit and binary SHA-256:
-  `8fc734bea3a7e75e0ffc96c7252b41842e694350` and
-  `9947d398c1190b94c8f1ae8ba7b525d71ce7efc3ed4dad9cdb969e8a8c6ce54b`
+ADR 0005 remains Proposed. After a successful Deferred land and clean-clone
+reproduction, Canopus retains only the exact producer seed capable of signing
+that proposal's `proposal.withdrawn` event. It never mounts the capability in a
+worker or verifier, never auto-withdraws pending work, and consumes the secret
+after explicit withdrawal or an observed, strictly verified human terminal
+decision. The manifest also binds the successful run's exact strict-signal
+baseline so later invalid events cannot be normalized into trusted state.
+
+- Candidate Vela release commit and binary SHA-256: recorded after the
+  `v0.901.0` release gate; no pre-release value is treated as published.
 - The frozen dogfood runs below remain bound to Vela `0.900.0`, commit
   `67922a6052193a031ea9f6fc26d3beb9f30900c6`, and binary SHA-256
   `c512ec9f0ff4639c79fa14c49a1798b4ad52ff0cbfa8834dc766fac2ea4103ff`.

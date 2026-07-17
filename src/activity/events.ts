@@ -16,6 +16,7 @@ export const ACTIVITY_TYPES = [
   "landing.observed",
   "landing.bound",
   "landing.completed",
+  "withdrawal_capability.retained",
   "reproduction.completed",
   "projection.written",
   "run.completed",

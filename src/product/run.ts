@@ -16,6 +16,7 @@ import { readBoundedRegularFile } from "../util/files.js";
 import { VelaClient } from "../vela/cli.js";
 import { doctorProduct, type ProductDoctorResult } from "./doctor.js";
 import { loadProfileDraft, stageProfileCapsule } from "./profile.js";
+import { retainWithdrawalCapability } from "../capability/withdrawal.js";
 
 export interface ProductRunResult {
   run: CanopusRunResult | CanopusDiagnosticRunResult;
@@ -238,6 +239,18 @@ export async function runProduct(options: {
       bundleRoot,
       dockerBinary: diagnosis.public.runtimes.docker.binary,
       verifierRunner: runner,
+      retainWithdrawalCapability: async (context: {
+        velaHome: string;
+        landingRepo: string;
+        mission: import("../contracts/mission.js").Mission;
+        landing: import("../vela/types.js").LandResult;
+        finalRoots: import("../contracts/mission.js").MissionRoots;
+      }) => {
+        await retainWithdrawalCapability({
+          ...context,
+          velaBinary: diagnosis.public.runtimes.vela.binary,
+        });
+      },
     };
     const run = options.noLand === true
       ? await runCanopus({ ...commonRun, noLand: true })

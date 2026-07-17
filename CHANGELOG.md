@@ -2,10 +2,11 @@
 
 ## 0.3.0 - Unreleased
 
-- Add the compact `doctor`, `run`, `inspect`, and `replay` product workflow over
-  Vela 0.900.2 while retaining Mission v1 as the advanced portable interface.
-- Advance the exact product and hosted-integration pin to Vela 0.900.2, the
-  compatible write-free projection and agent-guidance repair. Historical
+- Add the compact `doctor`, `run`, `inspect`, `replay`, and explicit `withdraw`
+  product workflow over Vela 0.901.0 while retaining Mission v1 as the advanced
+  portable interface.
+- Advance the exact product and hosted-integration pin to Vela 0.901.0.
+  Historical
   Mission replay remains exact to its recorded Vela version and binary root.
 - Bind the first Vela producer offer and reject silent target skipping, dirty source,
   root drift, missing runtimes, missing verifier images, and cloud-synced output
@@ -21,8 +22,20 @@
   an independently reproduced bounded-negative artifact, Receipt root
   `sha256:6010cf159e7ee5d7867a6553b9f44eb5a1b153f87c38f09b9505d5656a943373`,
   route `defer`, accepted-event delta zero, and matching clean-clone replay.
-- Keep proposal `vpr_f54338a5a453c1bf` pending for a personal human decision.
-  The release tag remains gated on post-decision verification.
+- Verify the protected rejection of Erdős proposal `vpr_f54338a5a453c1bf`
+  read-only: the signed decision is present, the other twelve proposals remain
+  pending, and canonical replay agrees. The release tag remains gated on the
+  final Vela binary pin and release audit.
+- Add ADR 0005 and proposal-scoped withdrawal capabilities. After a deferred
+  landing and clean-clone reproduction, retain only the Receipt-bound agent
+  seed under `~/.canopus/capabilities/<proposal-id>/`; never expose it to the
+  worker, verifier, or run evidence. `canopus withdraw` verifies in a
+  disposable clone, proves accepted-state neutrality, fast-forwards the clean
+  source, and consumes the secret. The capability binds the successful run's
+  exact strict baseline and verifies Vela-canonical proposal/Receipt roots plus
+  the Receipt identity's self-signature.
+- Target Vela 0.901.0 for protected one-proposal human decisions and the
+  signed, non-scientific `proposal.withdrawn` lifecycle event.
 - Complete four custody-isolated first-party cold-use diagnostics on the exact
   released product and rendered site: operator, producer, reviewer, and reader
   all pass without authority attempts, workspace escape, target substitution,

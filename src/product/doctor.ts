@@ -118,8 +118,8 @@ export async function doctorProduct(options: {
       runtimeIdentity({ name: "git", cwd: frontier, home: runtime, runner }),
       runtimeIdentity({ name: "docker", cwd: frontier, home: runtime, runner }),
     ]);
-    if (vela.version !== "vela 0.900.2") {
-      throw new Error(`Canopus v0.3.0 requires vela 0.900.2, observed ${vela.version}`);
+    if (vela.version !== "vela 0.901.0") {
+      throw new Error(`Canopus v0.3.0 requires vela 0.901.0, observed ${vela.version}`);
     }
     if (codex.version !== "codex-cli 0.144.5") {
       throw new Error(`registered worker requires codex-cli 0.144.5, observed ${codex.version}`);

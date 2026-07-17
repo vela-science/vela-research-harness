@@ -12,13 +12,14 @@ replay or accepted state.
 
 ## Product workflow
 
-Canopus 0.3 targets checksum-pinned Vela 0.900.2. Its ordinary path is:
+Canopus 0.3 targets checksum-pinned Vela 0.901.0. Its ordinary path is:
 
 ```bash
 canopus doctor /path/to/frontier
 canopus run /path/to/frontier --first
 canopus inspect latest
 canopus replay /path/to/run.json
+canopus withdraw /path/to/frontier --run latest --reason "superseded"
 ```
 
 `doctor` discovers and binds Vela, Codex, Git, Docker, the clean frontier roots,
@@ -37,6 +38,13 @@ A successful landing creates unsigned local Git commits and fast-forwards the
 source checkout only after verifier success and clean-clone reproduction. It
 does not push a remote. Use `--no-land` for a diagnostic run that leaves the
 source frontier unchanged.
+
+After a deferred landing reproduces, Canopus retains only the exact
+Receipt-bound producer seed needed to withdraw that one proposal. The
+capability never enters worker, verifier, or run evidence. Withdrawal is
+explicit, runs in a disposable exact-head clone, proves the accepted scientific
+projection unchanged, fast-forwards the clean source, and then deletes the
+secret. A later human decision also consumes the now-useless secret.
 
 The packaged Erdős profiles cover these exact inclusive ranges:
 
@@ -65,7 +73,7 @@ primary help.
 
 ## Development
 
-Requires Node 22 or newer, pnpm 10, Vela 0.900.2, Codex CLI 0.144.5, and Docker.
+Requires Node 22 or newer, pnpm 10, Vela 0.901.0, Codex CLI 0.144.5, and Docker.
 
 ```bash
 pnpm install

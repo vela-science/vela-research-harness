@@ -1,13 +1,18 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { chmod, lstat, mkdir, mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
+import { chmod, lstat, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import test from "node:test";
 
+import {
+  retainWithdrawalCapability,
+  withdrawalCapabilityStatus,
+} from "../../src/capability/withdrawal.js";
 import type { Mission } from "../../src/contracts/mission.js";
 import { FakeEngine } from "../../src/engines/fake.js";
+import { withdrawProduct } from "../../src/product/withdraw.js";
 import { runCanopus } from "../../src/run.js";
 import { isolatedEnvironment } from "../../src/util/command.js";
 import { sha256Bytes } from "../../src/util/canonical.js";
@@ -34,13 +39,46 @@ async function command(
   return result.stdout.trim();
 }
 
+async function removeSealedTree(root: string): Promise<void> {
+  try {
+    const metadata = await lstat(root);
+    if (metadata.isDirectory()) {
+      await chmod(root, 0o700);
+      for (const child of await readdir(root)) await removeSealedTree(path.join(root, child));
+    } else if (!metadata.isSymbolicLink()) {
+      await chmod(root, 0o600);
+    }
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
+  await rm(root, { recursive: true, force: true });
+}
+
+async function assertTreeOmitsBytes(root: string, forbidden: Buffer, base = root): Promise<void> {
+  const metadata = await lstat(root);
+  if (metadata.isDirectory()) {
+    for (const child of await readdir(root)) {
+      await assertTreeOmitsBytes(path.join(root, child), forbidden, base);
+    }
+    return;
+  }
+  if (metadata.isFile()) {
+    assert.equal(
+      (await readFile(root)).includes(forbidden),
+      false,
+      `run evidence leaked proposal-scoped secret bytes at ${path.relative(base, root)}`,
+    );
+  }
+}
+
 test(
   "released Vela work, Defer landing, record binding, and clean-clone verifier compose",
   { skip: enabled ? false : "set CANOPUS_VELA_BIN and CANOPUS_VELA_SHA256" },
-  async () => {
+  async (context) => {
     assert.ok(velaBinary !== undefined);
     assert.ok(registeredVelaDigest !== undefined);
     const parent = await mkdtemp(path.join(os.tmpdir(), "canopus-released-vela-"));
+    context.after(async () => await removeSealedTree(parent));
     const source = path.join(parent, "source");
     const setupHome = path.join(parent, "setup-home");
     const runRoot = path.join(parent, "run");
@@ -89,7 +127,7 @@ test(
 
     const vela = new VelaClient({
       binary: velaBinary,
-      expectedVersion: "0.900.2",
+      expectedVersion: "0.901.0",
       expectedSha256: registeredVelaDigest,
       home: path.join(runRoot, "vela-home"),
     });
@@ -98,7 +136,7 @@ test(
       schema: "canopus.mission.v0",
       id: "mission_released_vela_smoke",
       target: "seed:canopus-smoke",
-      vela_version: "0.900.2",
+      vela_version: "0.901.0",
       vela_sha256: registeredVelaDigest,
       frontier: ".",
       actor: "agent:canopus-smoke",
@@ -133,6 +171,7 @@ test(
       },
       landing: { expected_routes: ["defer"], max_accepted_delta: 0 },
     };
+    const capabilityStore = path.join(parent, "capabilities");
     const result = await runCanopus({
       mission,
       sourceRepo: source,
@@ -153,6 +192,13 @@ test(
         observations: ["The deterministic fixture emitted one bounded result."],
         caveats: ["This smoke establishes interface composition, not a scientific claim."],
       }),
+      retainWithdrawalCapability: async (context) => {
+        await retainWithdrawalCapability({
+          ...context,
+          velaBinary,
+          storeRoot: capabilityStore,
+        });
+      },
     });
     assert.equal(result.record.landing.route, "defer");
     assert.equal(result.record.landing.accepted_event_delta, 0);
@@ -171,6 +217,33 @@ test(
       "{\"value\":42}\n",
     );
     await assert.rejects(lstat(result.paths.velaHome), /ENOENT/u);
+    assert.equal(
+      (await withdrawalCapabilityStatus(result.record.landing.proposal_id, capabilityStore)).available,
+      true,
+    );
+    const retainedSecret = await readFile(
+      path.join(capabilityStore, result.record.landing.proposal_id, "private.key"),
+    );
+    assert.equal(path.resolve(capabilityStore).startsWith(`${path.resolve(result.paths.root)}${path.sep}`), false);
+    await assertTreeOmitsBytes(result.paths.root, retainedSecret);
+    retainedSecret.fill(0);
+    const withdrawal = await withdrawProduct({
+      frontier: result.paths.landing,
+      runFile: path.join(result.paths.root, "run.json"),
+      reason: "released integration fixture completed",
+      storeRoot: capabilityStore,
+    });
+    assert.equal(withdrawal.accepted_state_changed, false);
+    assert.equal(withdrawal.clean_clone_reproduced, true);
+    assert.equal(withdrawal.capability_consumed, true);
+    assert.equal(
+      withdrawal.scientific_state_root_before,
+      withdrawal.scientific_state_root_after,
+    );
+    assert.equal(
+      (await withdrawalCapabilityStatus(result.record.landing.proposal_id, capabilityStore)).available,
+      false,
+    );
     const sourcePrivateEntries = await readdir(path.join(source, ".vela"), {
       recursive: true,
     });

@@ -53,3 +53,9 @@ export function sha256Bytes(value: Uint8Array | string): string {
 export function contentDigest(value: unknown): string {
   return sha256Bytes(canonicalJson(value));
 }
+
+// Vela protocol objects use compact canonical JSON bytes, without the record
+// newline used by Canopus-owned manifests and activity records.
+export function protocolDigest(value: unknown): string {
+  return sha256Bytes(canonicalJcs(value));
+}
