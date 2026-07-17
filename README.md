@@ -17,7 +17,9 @@ and Vela roots remain the durable identity.
 
 ## Status
 
-Canopus `v0.1.11` targets checksum-pinned Vela `v0.800.22`. A run is not, by
+The released Canopus baseline remains `v0.1.11` over checksum-pinned Vela
+`v0.800.22`. Main also verifies the proposed Mission v1 path against Vela
+`v0.800.23`; it is not a Canopus release. A run is not, by
 itself, scientific acceptance. `defer` is pending review with zero accepted
 event delta; `permit` means an already signed Vela policy admitted the exact
 proposal. Canopus cannot manufacture either a human decision or an external
@@ -56,6 +58,17 @@ External recruitment is paused and the public issue is closed. Any future
 outside run requires a new frozen registration; the stopped v5 and v6 evidence
 does not carry forward as participant credit.
 
+Proposed ADR 0004 adds a portable tool-worker mission and separate frozen
+verifier without adding a signer. Its live release gate is currently closed:
+under the required Docker `cap-drop ALL` profile, Codex's Linux command sandbox
+cannot create its Bubblewrap namespace. The corrected hostile fixture requires
+a positive shell sentinel, so failed commands cannot masquerade as secret
+denials. Relaxing Docker seccomp made the shell
+able to read the staged credential and host canary, so that relaxation was
+rejected. The failed runs are retained as non-authoritative evidence; no
+verifier, Receipt landing, accepted-state change, or Canopus `v0.2.0` release
+followed.
+
 ## Development
 
 Requires Node 22 or newer and pnpm 10.
@@ -65,16 +78,21 @@ pnpm install
 pnpm check
 ```
 
-Validate a mission without running a model or changing a frontier:
+Prepare and validate a proposed Mission v1 bundle without changing a frontier:
 
 ```bash
 pnpm build
-node dist/src/cli.js validate path/to/mission.json
+node dist/src/cli.js mission prepare path/to/draft.json \
+  --source /clean/frontier --output /new/bundle --vela /path/to/vela \
+  --worker-image canopus-worker:tag --verifier-image canopus-verifier:tag
+node dist/src/cli.js mission validate /new/bundle/mission.json
 ```
 
-`canopus run` requires SHA-256-pinned Vela and Codex binaries, a clean
-immutable Git commit named by the mission, and a separate run root. It
-performs no automatic push and has no signing command. See
+`canopus run` requires SHA-256-pinned Vela, Codex, container, schema, packet,
+and verifier identities, a clean immutable Git commit, and a separate run
+root. A null or failed worker retains `engine-result.json` and stops before the
+verifier and landing. Canopus performs no automatic push and has no signing
+command. See
 [run records](docs/RUN_RECORD.md)
 for the pending/accepted distinction and publication boundary.
 

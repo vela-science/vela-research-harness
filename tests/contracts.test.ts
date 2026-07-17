@@ -100,8 +100,68 @@ function candidate(): Record<string, unknown> {
   };
 }
 
+function missionV1(): Record<string, unknown> {
+  return {
+    ...mission(),
+    schema: "canopus.mission.v1",
+    target_packet: { path: "packets/target.json", sha256: digest },
+    strict_baseline: {
+      status: "fail",
+      blocker_count: 3,
+      blockers_root: digest,
+      rule_counts: [
+        { rule: "missing_conditions", count: 2 },
+        { rule: "unsigned_registered_actor", count: 1 },
+      ],
+    },
+    worker: {
+      kind: "codex_tools_container",
+      image: digest,
+      codex_version: "codex-cli 0.144.5",
+      codex_sha256: digest,
+      output_schema_sha256: digest,
+      model: "gpt-5.2-codex",
+      network: "provider",
+      tools: ["shell", "apply_patch"],
+      memory_mb: 4096,
+      cpu_count: 2,
+      pids_limit: 128,
+    },
+    verifier: {
+      ...(mission().verifier as object),
+      capsule_path: "capsules/verifier",
+      capsule_sha256: digest,
+      image: digest,
+    },
+  };
+}
+
 test("mission v0 round-trips a bounded exact-root contract", () => {
   assert.deepEqual(parseMission(mission()), mission());
+});
+
+test("mission v1 round-trips a zero-delta tool-worker contract", () => {
+  assert.deepEqual(parseMission(missionV1()), missionV1());
+});
+
+test("mission v1 rejects unregistered strict debt and authority-bearing routes", () => {
+  const debt = missionV1();
+  (debt.strict_baseline as { blocker_count: number }).blocker_count = 4;
+  assert.throws(() => parseMission(debt), /must sum to blocker_count/u);
+
+  const permit = missionV1();
+  permit.landing = { expected_routes: ["permit"], max_accepted_delta: 1 };
+  assert.throws(() => parseMission(permit), /only register zero-delta defer/u);
+});
+
+test("mission v1 rejects missing capsules and widened worker tools", () => {
+  const missing = missionV1();
+  delete (missing.verifier as { capsule_path?: string }).capsule_path;
+  assert.throws(() => parseMission(missing), /capsule_path must be a string/u);
+
+  const tools = missionV1();
+  (tools.worker as { tools: string[] }).tools = ["shell", "apply_patch", "browser"];
+  assert.throws(() => parseMission(tools), /tools length must be 2\.\.2/u);
 });
 
 test("mission rejects unknown fields", () => {

@@ -8,7 +8,7 @@ import test from "node:test";
 
 import { freezeArtifact, sealArtifactStore } from "../src/artifact/freeze.js";
 import { BudgetTracker } from "../src/budget/enforce.js";
-import type { Mission } from "../src/contracts/mission.js";
+import type { Mission, MissionV1 } from "../src/contracts/mission.js";
 import { runCommand, type CommandRunner } from "../src/util/command.js";
 import { sha256Bytes } from "../src/util/canonical.js";
 import { runVerifier } from "../src/verifier/run.js";
@@ -309,5 +309,108 @@ test("verifier rejects an executable absent from the exact input", async () => {
       budget: new BudgetTracker(data.mission.budgets),
     }),
     /executable is unavailable/u,
+  );
+});
+
+test("mission v1 verifier uses an exact capsule in a network/write-denied container", async () => {
+  const data = await fixture();
+  const bundleRoot = path.join(data.paths.root, "bundle");
+  await mkdir(bundleRoot);
+  const capsule = path.join(bundleRoot, "verifier.py");
+  await writeFile(capsule, "#!/usr/bin/env python3\nraise SystemExit(0)\n", { mode: 0o555 });
+  const capsuleDigest = sha256Bytes(await readFile(capsule));
+  await writeFile(path.join(data.paths.output, "witness"), "proof\n");
+  const artifact = await freezeArtifact({
+    sourceRoot: data.paths.output,
+    artifactRoot: data.paths.artifacts,
+    path: "witness",
+    kind: "proof",
+    maxBytes: 4096,
+  });
+  await sealArtifactStore(data.paths.artifacts);
+  const base = data.mission;
+  const active: MissionV1 = {
+    ...base,
+    schema: "canopus.mission.v1",
+    target_packet: { path: "packet.json", sha256: rootDigest },
+    strict_baseline: {
+      status: "pass",
+      blocker_count: 0,
+      blockers_root: sha256Bytes("[]"),
+      rule_counts: [],
+    },
+    worker: {
+      kind: "codex_tools_container",
+      image: rootDigest,
+      codex_version: "codex-cli 0.144.5",
+      codex_sha256: rootDigest,
+      output_schema_sha256: rootDigest,
+      model: "gpt-test",
+      network: "provider",
+      tools: ["shell", "apply_patch"],
+      memory_mb: 1024,
+      cpu_count: 1,
+      pids_limit: 64,
+    },
+    verifier: {
+      argv: ["capsule/verifier", "{artifact:witness}"],
+      executable_sha256: capsuleDigest,
+      cwd: "frontier",
+      timeout_ms: 1000,
+      max_output_bytes: 1024,
+      network: "deny",
+      writes: "deny",
+      capsule_path: "verifier.py",
+      capsule_sha256: capsuleDigest,
+      image: rootDigest,
+    },
+  };
+  const calls: string[][] = [];
+  const runner: CommandRunner = async (options) => {
+    calls.push([...options.argv]);
+    if (options.argv[1] === "image") {
+      return {
+        argv: [...options.argv], exitCode: 0, signal: null,
+        stdout: Buffer.from(`${rootDigest}\n`), stderr: Buffer.alloc(0), durationMs: 1,
+      };
+    }
+    return {
+      argv: [...options.argv], exitCode: 0, signal: null,
+      stdout: Buffer.from("verified\n"), stderr: Buffer.alloc(0), durationMs: 2,
+    };
+  };
+  const outcome = await runVerifier({
+    mission: active,
+    paths: data.paths,
+    artifacts: [artifact],
+    budget: new BudgetTracker(active.budgets),
+    bundleRoot,
+    dockerBinary: "/usr/bin/docker",
+    runner,
+  });
+  assert.equal(outcome.status, "passed");
+  assert.equal(outcome.sandbox, "container_network_denied");
+  const docker = calls[1] ?? [];
+  assert.ok(docker.includes("--network=none"));
+  assert.ok(docker.includes("--read-only"));
+  assert.ok(docker.includes("--cap-drop=ALL"));
+  assert.ok(docker.includes("--security-opt=no-new-privileges"));
+  assert.equal(docker.some((item) => item.includes("dst=/input") && !item.endsWith("readonly")), false);
+  assert.equal(docker.some((item) => item.includes("docker.sock")), false);
+  assert.deepEqual(outcome.record.argv, ["/capsule/verifier", "/artifacts/0"]);
+
+  await chmod(capsule, 0o755);
+  await writeFile(capsule, "#!/usr/bin/env python3\nraise SystemExit(1)\n", { mode: 0o555 });
+  await assert.rejects(
+    runVerifier({
+      mission: active,
+      paths: data.paths,
+      artifacts: [artifact],
+      budget: new BudgetTracker(active.budgets),
+      bundleRoot,
+      dockerBinary: "/usr/bin/docker",
+      runner,
+    }),
+    /capsule digest does not match/u,
   );
 });

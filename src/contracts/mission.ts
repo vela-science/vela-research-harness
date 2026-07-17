@@ -14,6 +14,7 @@ import {
 } from "./validation.js";
 
 export const MISSION_SCHEMA = "canopus.mission.v0" as const;
+export const MISSION_V1_SCHEMA = "canopus.mission.v1" as const;
 export const ROLES = ["producer", "adversary", "verifier", "fidelity"] as const;
 // Vela Deny is deliberately error-shaped and therefore cannot be a successful
 // Canopus landing outcome. Missions register only success-shaped routes.
@@ -64,6 +65,43 @@ export interface VerifierSpec {
   writes: "deny";
 }
 
+export interface ContainerVerifierSpec extends VerifierSpec {
+  capsule_path: string;
+  capsule_sha256: string;
+  image: string;
+}
+
+export interface WorkerSpec {
+  kind: "codex_tools_container";
+  image: string;
+  codex_version: string;
+  codex_sha256: string;
+  output_schema_sha256: string;
+  model: string;
+  network: "provider";
+  tools: ["shell", "apply_patch"];
+  memory_mb: number;
+  cpu_count: number;
+  pids_limit: number;
+}
+
+export interface TargetPacketSpec {
+  path: string;
+  sha256: string;
+}
+
+export interface StrictRuleCount {
+  rule: string;
+  count: number;
+}
+
+export interface StrictBaseline {
+  status: "pass" | "fail";
+  blocker_count: number;
+  blockers_root: string;
+  rule_counts: StrictRuleCount[];
+}
+
 export interface LandingSpec {
   expected_routes: LandRoute[];
   max_accepted_delta: number;
@@ -73,8 +111,7 @@ export type ScientificChainSpec =
   | { predicted_observable: string; performed_test: string }
   | { not_applicable: true; performed_test: string };
 
-export interface Mission {
-  schema: typeof MISSION_SCHEMA;
+interface MissionBase {
   id: string;
   target: string;
   vela_version: string;
@@ -89,12 +126,26 @@ export interface Mission {
   roots: MissionRoots;
   allowed_paths: string[];
   budgets: MissionBudgets;
-  verifier: VerifierSpec;
   scientific_chain: ScientificChainSpec;
   landing: LandingSpec;
   parent_candidate?: string;
   repair_reason?: string;
 }
+
+export interface MissionV0 extends MissionBase {
+  schema: typeof MISSION_SCHEMA;
+  verifier: VerifierSpec;
+}
+
+export interface MissionV1 extends MissionBase {
+  schema: typeof MISSION_V1_SCHEMA;
+  target_packet: TargetPacketSpec;
+  strict_baseline: StrictBaseline;
+  worker: WorkerSpec;
+  verifier: ContainerVerifierSpec;
+}
+
+export type Mission = MissionV0 | MissionV1;
 
 function parseRoots(value: unknown): MissionRoots {
   const object = objectAt(value, "mission.roots");
@@ -173,15 +224,15 @@ function parseBudgets(value: unknown): MissionBudgets {
   };
 }
 
-function parseVerifier(value: unknown): VerifierSpec {
+function parseVerifier(value: unknown, container: boolean): VerifierSpec | ContainerVerifierSpec {
   const object = objectAt(value, "mission.verifier");
   exactKeys(
     object,
     ["argv", "executable_sha256", "cwd", "timeout_ms", "max_output_bytes", "network", "writes"],
-    [],
+    container ? ["capsule_path", "capsule_sha256", "image"] : [],
     "mission.verifier",
   );
-  return {
+  const base: VerifierSpec = {
     argv: arrayAt(
       object.argv,
       "mission.verifier.argv",
@@ -202,6 +253,115 @@ function parseVerifier(value: unknown): VerifierSpec {
     ),
     network: enumAt(object.network, "mission.verifier.network", ["deny"] as const),
     writes: enumAt(object.writes, "mission.verifier.writes", ["deny"] as const),
+  };
+  if (!container) return base;
+  return {
+    ...base,
+    capsule_path: relativePathAt(object.capsule_path, "mission.verifier.capsule_path"),
+    capsule_sha256: sha256At(object.capsule_sha256, "mission.verifier.capsule_sha256"),
+    image: sha256At(object.image, "mission.verifier.image"),
+  };
+}
+
+function parseWorker(value: unknown): WorkerSpec {
+  const object = objectAt(value, "mission.worker");
+  exactKeys(
+    object,
+    [
+      "kind", "image", "codex_version", "codex_sha256", "output_schema_sha256", "model", "network",
+      "tools", "memory_mb", "cpu_count", "pids_limit",
+    ],
+    [],
+    "mission.worker",
+  );
+  const tools = arrayAt(
+    object.tools,
+    "mission.worker.tools",
+    { min: 2, max: 2, unique: true },
+    (item, at) => enumAt(item, at, ["shell", "apply_patch"] as const),
+  );
+  if (tools[0] !== "shell" || tools[1] !== "apply_patch") {
+    throw new ContractError("mission.worker.tools must be [shell, apply_patch]");
+  }
+  return {
+    kind: enumAt(object.kind, "mission.worker.kind", ["codex_tools_container"] as const),
+    image: sha256At(object.image, "mission.worker.image"),
+    codex_version: stringAt(object.codex_version, "mission.worker.codex_version", {
+      min: 10,
+      max: 64,
+      pattern: /^codex-cli [0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$/u,
+    }),
+    codex_sha256: sha256At(object.codex_sha256, "mission.worker.codex_sha256"),
+    output_schema_sha256: sha256At(
+      object.output_schema_sha256,
+      "mission.worker.output_schema_sha256",
+    ),
+    model: stringAt(object.model, "mission.worker.model", { min: 1, max: 128 }),
+    network: enumAt(object.network, "mission.worker.network", ["provider"] as const),
+    tools: ["shell", "apply_patch"],
+    memory_mb: integerAt(object.memory_mb, "mission.worker.memory_mb", 256, 32_768),
+    cpu_count: integerAt(object.cpu_count, "mission.worker.cpu_count", 1, 16),
+    pids_limit: integerAt(object.pids_limit, "mission.worker.pids_limit", 16, 1024),
+  };
+}
+
+function parseTargetPacket(value: unknown): TargetPacketSpec {
+  const object = objectAt(value, "mission.target_packet");
+  exactKeys(object, ["path", "sha256"], [], "mission.target_packet");
+  return {
+    path: relativePathAt(object.path, "mission.target_packet.path"),
+    sha256: sha256At(object.sha256, "mission.target_packet.sha256"),
+  };
+}
+
+function parseStrictBaseline(value: unknown): StrictBaseline {
+  const object = objectAt(value, "mission.strict_baseline");
+  exactKeys(
+    object,
+    ["status", "blocker_count", "blockers_root", "rule_counts"],
+    [],
+    "mission.strict_baseline",
+  );
+  const rule_counts = arrayAt(
+    object.rule_counts,
+    "mission.strict_baseline.rule_counts",
+    { min: 0, max: 64 },
+    (item, at) => {
+      const entry = objectAt(item, at);
+      exactKeys(entry, ["rule", "count"], [], at);
+      return {
+        rule: stringAt(entry.rule, `${at}.rule`, {
+          min: 1,
+          max: 128,
+          pattern: /^[a-z][a-z0-9_]*$/u,
+        }),
+        count: integerAt(entry.count, `${at}.count`, 1, 1_000_000),
+      };
+    },
+  );
+  for (let index = 1; index < rule_counts.length; index += 1) {
+    if ((rule_counts[index - 1]?.rule ?? "") >= (rule_counts[index]?.rule ?? "")) {
+      throw new ContractError("mission.strict_baseline.rule_counts must be sorted and unique");
+    }
+  }
+  const blocker_count = integerAt(
+    object.blocker_count,
+    "mission.strict_baseline.blocker_count",
+    0,
+    1_000_000,
+  );
+  if (rule_counts.reduce((sum, entry) => sum + entry.count, 0) !== blocker_count) {
+    throw new ContractError("mission.strict_baseline.rule_counts must sum to blocker_count");
+  }
+  const status = enumAt(object.status, "mission.strict_baseline.status", ["pass", "fail"] as const);
+  if ((status === "pass") !== (blocker_count === 0)) {
+    throw new ContractError("mission.strict_baseline status must agree with blocker_count");
+  }
+  return {
+    status,
+    blocker_count,
+    blockers_root: sha256At(object.blockers_root, "mission.strict_baseline.blockers_root"),
+    rule_counts,
   };
 }
 
@@ -262,6 +422,12 @@ function parseScientificChain(value: unknown): ScientificChainSpec {
 
 export function parseMission(value: unknown): Mission {
   const object = objectAt(value, "mission");
+  const schema = enumAt(
+    object.schema,
+    "mission.schema",
+    [MISSION_SCHEMA, MISSION_V1_SCHEMA] as const,
+  );
+  const isV1 = schema === MISSION_V1_SCHEMA;
   exactKeys(
     object,
     [
@@ -284,15 +450,25 @@ export function parseMission(value: unknown): Mission {
       "scientific_chain",
       "landing",
     ],
-    ["parent_candidate", "repair_reason"],
+    isV1
+      ? ["parent_candidate", "repair_reason", "target_packet", "strict_baseline", "worker"]
+      : ["parent_candidate", "repair_reason"],
     "mission",
   );
+
+  if (isV1) {
+    for (const required of ["target_packet", "strict_baseline", "worker"] as const) {
+      if (object[required] === undefined) {
+        throw new ContractError(`mission.${required} is required for mission v1`);
+      }
+    }
+  }
 
   const replayability = enumAt(object.replayability, "mission.replayability", REPLAYABILITY);
   if (replayability !== "exact") {
     throw new ContractError("Canopus v0 requires replayability exact");
   }
-  const verifier = parseVerifier(object.verifier);
+  const verifier = parseVerifier(object.verifier, isV1);
   const verifierExecutable = relativePathAt(verifier.argv[0], "mission.verifier.argv[0]");
   if (!/^(?:[A-Za-z0-9_+.-]+\/)*[A-Za-z0-9_+.-]+$/u.test(verifierExecutable)) {
     throw new ContractError(
@@ -307,9 +483,16 @@ export function parseMission(value: unknown): Mission {
       `mission.landing.max_accepted_delta must be ${requiredDelta} for the registered routes`,
     );
   }
+  if (isV1 && (
+    landing.expected_routes.length !== 1 ||
+    landing.expected_routes[0] !== "defer" ||
+    landing.max_accepted_delta !== 0
+  )) {
+    throw new ContractError("mission v1 tool workers may only register zero-delta defer");
+  }
 
   const base = {
-    schema: enumAt(object.schema, "mission.schema", [MISSION_SCHEMA] as const),
+    schema,
     id: stringAt(object.id, "mission.id", { max: 134, pattern: MISSION_ID_RE }),
     target: stringAt(object.target, "mission.target", { min: 1, max: 256 }),
     vela_version: stringAt(object.vela_version, "mission.vela_version", {
@@ -347,14 +530,25 @@ export function parseMission(value: unknown): Mission {
     landing,
   };
 
+  const versioned = isV1
+    ? {
+        ...base,
+        schema: MISSION_V1_SCHEMA,
+        target_packet: parseTargetPacket(object.target_packet),
+        strict_baseline: parseStrictBaseline(object.strict_baseline),
+        worker: parseWorker(object.worker),
+        verifier: verifier as ContainerVerifierSpec,
+      }
+    : { ...base, schema: MISSION_SCHEMA, verifier: verifier as VerifierSpec };
+
   if ((object.parent_candidate === undefined) !== (object.repair_reason === undefined)) {
     throw new ContractError("mission repair requires both parent_candidate and repair_reason");
   }
   if (object.parent_candidate === undefined || object.repair_reason === undefined) {
-    return base;
+    return versioned;
   }
   return {
-    ...base,
+    ...versioned,
     parent_candidate: sha256At(object.parent_candidate, "mission.parent_candidate"),
     repair_reason: stringAt(object.repair_reason, "mission.repair_reason", {
       min: 1,

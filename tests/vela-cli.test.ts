@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import type { Mission } from "../src/contracts/mission.js";
+import type { Mission, MissionV1 } from "../src/contracts/mission.js";
 import {
+  strictBaselineFromCheck,
   validateLandResult,
   VelaClient,
   VelaClientError,
@@ -94,6 +95,16 @@ function fakeRunner(options: { version?: string; checkRoot?: string; proofRoot?:
     if (argv[1] === "check") {
       return result(argv, {
         ok: true,
+        summary: { strict: true, status: "pass", errors: 0, invalid_findings: 0 },
+        checks: [
+          { id: "schema", status: "pass" },
+          { id: "signals", status: "pass", failed: 0, blockers: [] },
+          { id: "events", status: "pass" },
+          { id: "state_integrity", status: "pass" },
+          { id: "active_policy", status: "pass" },
+          { id: "policy_readiness", status: "pass" },
+          { id: "policy_lane", status: "pass" },
+        ],
         replay: {
           event_log_hash: root.slice(7),
           current_hash: (options.checkRoot ?? root).slice(7),
@@ -137,6 +148,58 @@ function fakeRunner(options: { version?: string; checkRoot?: string; proofRoot?:
   return { runner, calls, environments };
 }
 
+function debtCheck(blockers: Array<Record<string, unknown>>): Record<string, unknown> {
+  const status = blockers.length === 0 ? "pass" : "fail";
+  return {
+    ok: blockers.length === 0,
+    summary: { strict: true, status, errors: 0, invalid_findings: 0 },
+    checks: [
+      { id: "schema", status: "pass" },
+      { id: "signals", status, failed: blockers.length, blockers },
+      { id: "events", status: "pass" },
+      { id: "state_integrity", status: "pass" },
+      { id: "active_policy", status: "pass" },
+      { id: "policy_readiness", status: "pass" },
+      { id: "policy_lane", status: "pass" },
+    ],
+    replay: {
+      event_log_hash: root.slice(7),
+      current_hash: root.slice(7),
+      replayed_hash: root.slice(7),
+      source_hash: root.slice(7),
+    },
+  };
+}
+
+function debtMission(check: Record<string, unknown>): MissionV1 {
+  const base = mission();
+  return {
+    ...base,
+    schema: "canopus.mission.v1",
+    target_packet: { path: "packet.json", sha256: root },
+    strict_baseline: strictBaselineFromCheck(check),
+    worker: {
+      kind: "codex_tools_container",
+      image: root,
+      codex_version: "codex-cli 0.144.5",
+      codex_sha256: root,
+      output_schema_sha256: root,
+      model: "gpt-5.2-codex",
+      network: "provider",
+      tools: ["shell", "apply_patch"],
+      memory_mb: 1024,
+      cpu_count: 1,
+      pids_limit: 64,
+    },
+    verifier: {
+      ...base.verifier,
+      capsule_path: "capsule",
+      capsule_sha256: root,
+      image: root,
+    },
+  };
+}
+
 function client(runner: CommandRunner): VelaClient {
   return new VelaClient({
     binary: process.execPath,
@@ -173,6 +236,77 @@ test("Vela client serializes strict check before proof verification", async () =
   };
   const inspection = await client(runner).inspect("/repo", "frontier");
   assert.deepEqual(inspection.roots, mission().roots);
+});
+
+test("Vela client accepts only an exact registered strict blocker set", async () => {
+  const blockers = [
+    { id: "sig_b", kind: "missing_conditions", reason: "b", severity: "warning" },
+    { id: "sig_a", kind: "missing_conditions", reason: "a", severity: "warning" },
+    { id: "sig_c", kind: "unsigned_registered_actor", reason: "c", severity: "error" },
+  ];
+  const check = debtCheck(blockers);
+  const activeMission = debtMission(check);
+  const fake = fakeRunner();
+  const runner: CommandRunner = async (options) => {
+    if (options.argv[1] === "check") return result(options.argv, check, 1);
+    return await fake.runner(options);
+  };
+  const inspection = await client(runner).assertRoots(
+    "/repo",
+    "frontier",
+    activeMission.roots,
+    activeMission.strict_baseline,
+  );
+  assert.equal(inspection.check.ok, false);
+  assert.deepEqual(activeMission.strict_baseline.rule_counts, [
+    { rule: "missing_conditions", count: 2 },
+    { rule: "unsigned_registered_actor", count: 1 },
+  ]);
+
+  const drifted = debtCheck([...blockers, {
+    id: "sig_d",
+    kind: "missing_conditions",
+    reason: "new debt",
+    severity: "warning",
+  }]);
+  const driftRunner: CommandRunner = async (options) => {
+    if (options.argv[1] === "check") return result(options.argv, drifted, 1);
+    return await fake.runner(options);
+  };
+  await assert.rejects(
+    client(driftRunner).assertRoots(
+      "/repo",
+      "frontier",
+      activeMission.roots,
+      activeMission.strict_baseline,
+    ),
+    (error: unknown) => error instanceof VelaClientError && error.code === "root_mismatch",
+  );
+});
+
+test("Vela client rejects non-signal failures despite a registered debt baseline", async () => {
+  const check = debtCheck([
+    { id: "sig_a", kind: "missing_conditions", reason: "a", severity: "warning" },
+  ]);
+  const activeMission = debtMission(check);
+  const checks = check.checks as Array<Record<string, unknown>>;
+  const events = checks.find((entry) => entry.id === "events");
+  assert.ok(events);
+  events.status = "fail";
+  const fake = fakeRunner();
+  const runner: CommandRunner = async (options) => {
+    if (options.argv[1] === "check") return result(options.argv, check, 1);
+    return await fake.runner(options);
+  };
+  await assert.rejects(
+    client(runner).assertRoots(
+      "/repo",
+      "frontier",
+      activeMission.roots,
+      activeMission.strict_baseline,
+    ),
+    /failed outside the registered signals baseline/u,
+  );
 });
 
 test("Vela client reports bounded structured errors and only digests raw streams", async () => {

@@ -10,7 +10,7 @@ import {
 } from "./artifact/freeze.js";
 import { materializeDraftArtifacts } from "./artifact/materialize.js";
 import { BudgetTracker } from "./budget/enforce.js";
-import type { Mission, MissionRoots } from "./contracts/mission.js";
+import type { Mission, MissionRoots, StrictBaseline } from "./contracts/mission.js";
 import type { FrozenArtifact } from "./contracts/candidate.js";
 import type { Engine } from "./engines/engine.js";
 import { engineManifest, verifierManifest } from "./evidence/manifests.js";
@@ -33,8 +33,17 @@ import { runVerifier } from "./verifier/run.js";
 import { cleanupWorkspace, prepareWorkspace, type WorkspacePaths } from "./workspace/prepare.js";
 
 export interface VelaPort {
-  assertRoots(repoRoot: string, frontier: string, expected: MissionRoots): Promise<VelaInspection>;
-  inspect(repoRoot: string, frontier: string): Promise<VelaInspection>;
+  assertRoots(
+    repoRoot: string,
+    frontier: string,
+    expected: MissionRoots,
+    strictBaseline?: StrictBaseline,
+  ): Promise<VelaInspection>;
+  inspect(
+    repoRoot: string,
+    frontier: string,
+    strictBaseline?: StrictBaseline,
+  ): Promise<VelaInspection>;
   next(mission: Mission, repoRoot: string): Promise<VelaCommandResponse>;
   work(
     mission: Mission,
@@ -65,6 +74,8 @@ export interface CanopusRunOptions {
   runRoot: string;
   vela: VelaPort | VelaClient;
   engine: Engine;
+  bundleRoot?: string;
+  dockerBinary?: string;
   verifierRunner?: CommandRunner;
 }
 
@@ -81,6 +92,10 @@ function sameRoots(left: MissionRoots, right: MissionRoots): boolean {
     left.vela_event_log === right.vela_event_log &&
     left.vela_snapshot === right.vela_snapshot
   );
+}
+
+function strictBaseline(mission: Mission): StrictBaseline | undefined {
+  return mission.schema === "canopus.mission.v1" ? mission.strict_baseline : undefined;
 }
 
 function recordField(
@@ -194,8 +209,18 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
     });
 
     await Promise.all([
-      options.vela.assertRoots(paths.input, options.mission.frontier, options.mission.roots),
-      options.vela.assertRoots(paths.landing, options.mission.frontier, options.mission.roots),
+      options.vela.assertRoots(
+        paths.input,
+        options.mission.frontier,
+        options.mission.roots,
+        strictBaseline(options.mission),
+      ),
+      options.vela.assertRoots(
+        paths.landing,
+        options.mission.frontier,
+        options.mission.roots,
+        strictBaseline(options.mission),
+      ),
     ]);
     await activity.append("roots.verified", { roots: options.mission.roots });
 
@@ -216,7 +241,11 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
       options.mission.target,
       options.mission.roots,
     );
-    const postWork = await options.vela.inspect(paths.landing, options.mission.frontier);
+    const postWork = await options.vela.inspect(
+      paths.landing,
+      options.mission.frontier,
+      strictBaseline(options.mission),
+    );
     assertWorkBinding(options.mission, work, postWork);
     await activity.append("work.claimed", {
       target: options.mission.target,
@@ -235,11 +264,37 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
     });
     await activity.append("engine.completed", {
       status: engine.draft.status,
+      claim: engine.draft.claim,
+      observations: engine.draft.observations,
+      caveats: engine.draft.caveats,
+      declared_artifacts: engine.draft.artifacts.map((artifact) => ({
+        path: artifact.path,
+        kind: artifact.kind,
+        bytes: Buffer.byteLength(artifact.content),
+      })),
       engine: engine.engine,
       usage: engine.usage,
       events_digest: engine.eventsDigest,
       action_types: engine.actionTypes,
     });
+    await writeExclusive(path.join(paths.root, "engine-result.json"), {
+      schema: "canopus.engine-result.v0",
+      authority: "non_authoritative",
+      draft: engine.draft,
+      engine: engine.engine,
+      usage: engine.usage,
+      wall_time_ms: engine.wallTimeMs,
+      event_types: engine.eventTypes,
+      action_types: engine.actionTypes,
+      events_digest: engine.eventsDigest,
+      stderr_digest: engine.stderrDigest,
+    });
+    if (engine.draft.status !== "success") {
+      phase = "engine_non_success";
+      throw new Error(
+        `worker returned ${engine.draft.status}; verifier and landing were not run`,
+      );
+    }
 
     await materializeDraftArtifacts({
       draft: engine.draft,
@@ -282,6 +337,8 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
       paths,
       artifacts: frozen,
       budget,
+      ...(options.bundleRoot === undefined ? {} : { bundleRoot: options.bundleRoot }),
+      ...(options.dockerBinary === undefined ? {} : { dockerBinary: options.dockerBinary }),
       ...(options.verifierRunner === undefined ? {} : { runner: options.verifierRunner }),
     });
     await activity.append("verifier.completed", {
@@ -315,6 +372,7 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
       paths.landing,
       options.mission.frontier,
       postWork.roots,
+      strictBaseline(options.mission),
     );
     const receipt = mapCandidateToReceipt(
       options.mission,
@@ -375,7 +433,11 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
       publication_state: publicationState(landing),
     });
 
-    const final = await options.vela.inspect(paths.landing, options.mission.frontier);
+    const final = await options.vela.inspect(
+      paths.landing,
+      options.mission.frontier,
+      strictBaseline(options.mission),
+    );
     phase = "clean_clone_reproduction";
     const reproductionRoot = `${paths.root}-reproduce`;
     const reproductionPaths = await prepareWorkspace({
@@ -391,6 +453,7 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
         reproductionPaths.input,
         options.mission.frontier,
         final.roots,
+        strictBaseline(options.mission),
       );
       await options.vela.verifyReceiptBinding(
         options.mission,
@@ -412,6 +475,8 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
         paths: reproductionPaths,
         artifacts: reproducedArtifacts,
         budget,
+        ...(options.bundleRoot === undefined ? {} : { bundleRoot: options.bundleRoot }),
+        ...(options.dockerBinary === undefined ? {} : { dockerBinary: options.dockerBinary }),
         ...(options.verifierRunner === undefined ? {} : { runner: options.verifierRunner }),
       });
     } finally {
@@ -496,7 +561,13 @@ export async function runCanopus(options: CanopusRunOptions): Promise<CanopusRun
       let observedRoots: MissionRoots | null = null;
       let inspectionError: string | null = null;
       try {
-        observedRoots = (await options.vela.inspect(paths.landing, options.mission.frontier)).roots;
+        observedRoots = (
+          await options.vela.inspect(
+            paths.landing,
+            options.mission.frontier,
+            strictBaseline(options.mission),
+          )
+        ).roots;
       } catch (inspectionFailure) {
         inspectionError =
           inspectionFailure instanceof Error ? inspectionFailure.message : String(inspectionFailure);

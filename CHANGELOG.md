@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+- Add Proposed ADR 0004 and Mission v1 preparation, validation, inspection,
+  exact strict-debt registration, tool-worker, separate container verifier,
+  and first-ranked Erdős 1056 k=15 bounded-search capsule.
+- Bind the engine-output schema into the portable bundle and worker contract;
+  reject runtime schema drift.
+- Add live hostile custody and verifier fixtures. The corrected custody fixture
+  requires a positive shell sentinel; the initial apparent pass is invalidated
+  because its probes did not execute. The verifier fixture denied network,
+  writes, and host-home visibility.
+- Preserve null and failed worker drafts as non-authoritative run evidence and
+  stop before verifier or landing.
+- Retain the live Bubblewrap failure under Docker `cap-drop ALL`. A seccomp
+  relaxation made credentials readable and was rejected. No `v0.2.0` release
+  or successful scientific landing was made.
+
 ## 0.1.11 - 2026-07-16
 
 - Preserve the Stage A v5 measurement stop without editing or pooling its

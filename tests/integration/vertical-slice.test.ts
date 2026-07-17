@@ -363,6 +363,84 @@ test("bounded vertical slice lands pending and reproduces from a clean clone", a
   );
 });
 
+test("null and failed workers retain bounded evidence without verifier or landing", async () => {
+  const source = await sourceRepository();
+  const mission: Mission = {
+    schema: "canopus.mission.v0",
+    id: "mission_safe_worker_failure",
+    target: "finite:42",
+    vela_version: "0.800.19",
+    vela_sha256: scientificRoot,
+    frontier: "frontier",
+    actor: "agent:canopus-failure",
+    role: "producer",
+    claim_type: "computational",
+    replayability: "exact",
+    objective: "Attempt one bounded computation.",
+    completion_condition: "A failed worker stops before verification and landing.",
+    roots: source.roots,
+    allowed_paths: ["result.json"],
+    budgets: {
+      max_research_wall_time_ms: 30_000,
+      max_research_processes: 4,
+      max_research_output_bytes: 1_048_576,
+      max_prompt_bytes: 1_048_576,
+      max_artifact_bytes: 1_048_576,
+      max_attempts: 1,
+      max_observed_tokens: 1000,
+    },
+    verifier: {
+      argv: ["frontier/verifier", "{artifact:result.json}"],
+      executable_sha256: source.verifierDigest,
+      cwd: "frontier",
+      timeout_ms: 1000,
+      max_output_bytes: 4096,
+      network: "deny",
+      writes: "deny",
+    },
+    scientific_chain: {
+      predicted_observable: "The worker either supplies exact bytes or stops.",
+      performed_test: "observe the bounded worker result",
+    },
+    landing: { expected_routes: ["defer"], max_accepted_delta: 0 },
+  };
+  const vela = new FakeVela();
+  let verifierCalls = 0;
+  const runRoot = path.join(source.parent, "worker-failure-run");
+  await assert.rejects(
+    runCanopus({
+      mission,
+      sourceRepo: source.repo,
+      runRoot,
+      vela,
+      engine: new FakeEngine({
+        schema: "canopus.engine-output.v0",
+        status: "failed",
+        claim: "The bounded computation could not execute.",
+        artifacts: [],
+        observations: ["No candidate bytes were produced."],
+        caveats: ["This is not a negative scientific result."],
+      }),
+      verifierRunner: async (options) => {
+        verifierCalls += 1;
+        return {
+          argv: [...options.argv], exitCode: 0, signal: null,
+          stdout: Buffer.alloc(0), stderr: Buffer.alloc(0), durationMs: 1,
+        };
+      },
+    }),
+    /worker returned failed; verifier and landing were not run/u,
+  );
+  const evidence = JSON.parse(await readFile(path.join(runRoot, "engine-result.json"), "utf8"));
+  const failure = JSON.parse(await readFile(path.join(runRoot, "failure.json"), "utf8"));
+  assert.equal(evidence.authority, "non_authoritative");
+  assert.equal(evidence.draft.status, "failed");
+  assert.equal(verifierCalls, 0);
+  assert.equal(vela.authored, undefined);
+  assert.equal(failure.phase, "engine_non_success");
+  assert.equal(failure.landing_observed, false);
+});
+
 test("all four bounded roles traverse freeze, verifier, Receipt, Defer, and reproduction", async () => {
   const source = await sourceRepository();
   const verifierRunner: CommandRunner = async (options) => ({

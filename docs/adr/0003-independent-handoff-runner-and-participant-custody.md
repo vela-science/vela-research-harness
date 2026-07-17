@@ -1,12 +1,12 @@
 # ADR 0003: Independent handoff runner and participant custody
 
-- Status: Proposed
-- Target release: Canopus `v0.2.0`
+- Status: Deferred
+- Target release: Unscheduled
 - Entry gate: ADR 0002 Stage A and Stage B complete safely
 
 The entry gate is not met. Stage A v6 stopped after two cells on an exact command
-reporting defect, so Canopus `v0.2.0` implementation and independent execution
-have not started.
+reporting defect, and no real outside participants are available. This runner
+remains an unscheduled design. It does not reserve Canopus `v0.2.0`.
 
 ## Context
 
@@ -21,8 +21,9 @@ claim that first-party repetitions are independent.
 
 ## Decision
 
-Canopus `v0.2.0` will provide a public, removable runner and participant packet
-for the experiment defined by Vela ADR 0006.
+If its entry gate is later met, a future Canopus release may provide a public,
+removable runner and participant packet for the experiment defined by Vela ADR
+0006.
 
 The runner owns:
 
@@ -131,10 +132,10 @@ The runner stops and preserves evidence after:
 
 ## Release boundary
 
-Canopus `v0.2.0` may ship the frozen packet and runner after ADR 0002 Stage A
-and Stage B pass. Running the independent experiment still depends on outside
-participants and a human steward. The release itself earns no independent or
-scientific credit.
+A future release may ship the frozen packet and runner only after a newly
+registered diagnostic program passes its stated entry gate. Running the
+independent experiment still depends on outside participants and a human
+steward. A release itself would earn no independent or scientific credit.
 
 ## Consequences
 

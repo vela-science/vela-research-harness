@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["schema", "status", "claim", "artifacts", "observations", "caveats"],
   "properties": {
-    "schema": { "const": "canopus.engine-output.v0" },
+    "schema": { "type": "string", "const": "canopus.engine-output.v0" },
     "status": { "enum": ["success", "null", "failed"] },
     "claim": { "type": "string", "minLength": 1, "maxLength": 8192 },
     "artifacts": {
@@ -19,7 +19,7 @@
         "properties": {
           "path": { "type": "string", "minLength": 1, "maxLength": 1024 },
           "kind": { "type": "string", "minLength": 1, "maxLength": 128 },
-          "encoding": { "const": "utf8" },
+          "encoding": { "type": "string", "const": "utf8" },
           "content": { "type": "string", "maxLength": 1048576 }
         }
       }

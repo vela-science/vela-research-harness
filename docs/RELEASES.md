@@ -1,5 +1,44 @@
 # Release evidence
 
+## Unreleased Mission v1 gate
+
+Proposed ADR 0004 has not satisfied the Canopus `v0.2.0` release gate.
+
+- Vela: public `v0.800.23`; source frontier commit
+  `d0a2f56dfecf7027248403e43ba133e18e56b3c6`
+- Selected target: first ranked non-review attack `erdos:1056`
+- Packet:
+  `sha256:d724686d60ffbb61e5e24eab9084b34f1a797381bfb2731a2fa81e14d7ee652e`
+- Starting event and snapshot roots:
+  `sha256:dea8bb4583376851a63587551205be3916c19cb28a609c8d81ba8321853cc6b3`
+  and
+  `sha256:8877c4a27dd75ef8525566b0dd11b94ccd1ea00af95a204dc7b34a22a41d3125`
+- Registered strict baseline: 1,592 blockers, comprising 1,511
+  `missing_conditions` and 81 `unsigned_registered_actor`
+- Codex: `0.144.5`; Linux native SHA-256
+  `8f1d33626fd268dd5a530f39b6fcf68f3655f1d1b4e87a37b3381141cf4e44bc`
+- Verifier image:
+  `sha256:126e800389c1589df44c17781de23399093c0dd15a6a085c3f28612c0a4bf6b8`
+- k=15 capsule:
+  `sha256:35d3e6a6a462d60bf4c7fbdceebec2baee7e60c22cb6f843395f090cfdfd9ea3`
+- The initial custody fixture reported staged auth, runtime auth, canary, and
+  auth-bearing process environment unreadable, but did not prove its shell
+  probes executed. That evidence is invalidated; the corrected fixture requires
+  a positive shell sentinel and fails at the same namespace boundary.
+- Live verifier fixture: network, root/input/artifact/capsule writes, and host
+  home all unavailable
+
+Retained safe failures found, in order: an output-schema compatibility error;
+an unbound schema root, which is now fixed; a registered token-cap stop; and a
+reproduced Linux namespace failure before any shell command could run. Adding
+Debian's documented `bubblewrap` package did not overcome Docker Desktop's
+namespace denial while all capabilities remained dropped. Relaxing seccomp
+allowed shell execution but also made the credential and canary readable, so
+it was rejected.
+
+No successful candidate, verifier pass, Receipt landing, accepted-event
+change, authority claim, human-key access, or Canopus `v0.2.0` release occurred.
+
 ## Canopus v0.1.11
 
 `v0.1.11` preserves the exact Stage A v5 stop and registers Stage A v6 before

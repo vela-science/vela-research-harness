@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vela.science/schemas/canopus/mission.v1.json",
+  "title": "Canopus mission v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "id", "target", "vela_version", "vela_sha256", "frontier",
+    "actor", "role", "claim_type", "replayability", "objective",
+    "completion_condition", "roots", "target_packet", "strict_baseline",
+    "allowed_paths", "budgets", "worker", "verifier", "scientific_chain",
+    "landing"
+  ],
+  "properties": {
+    "schema": { "const": "canopus.mission.v1" },
+    "id": { "type": "string", "pattern": "^mission_[a-z0-9][a-z0-9._-]{0,126}$" },
+    "target": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "vela_version": { "type": "string", "pattern": "^0\\.[0-9]+\\.[0-9]+$" },
+    "vela_sha256": { "$ref": "#/$defs/sha256" },
+    "frontier": { "anyOf": [{ "const": "." }, { "$ref": "#/$defs/relativePath" }] },
+    "actor": { "type": "string", "pattern": "^agent:[a-z0-9][a-z0-9._-]{0,62}$" },
+    "role": { "enum": ["producer", "adversary", "verifier", "fidelity"] },
+    "claim_type": { "enum": ["computational", "theoretical", "empirical", "negative", "contradiction"] },
+    "replayability": { "const": "exact" },
+    "objective": { "type": "string", "minLength": 1, "maxLength": 8192 },
+    "completion_condition": { "type": "string", "minLength": 1, "maxLength": 4096 },
+    "roots": { "$ref": "#/$defs/roots" },
+    "target_packet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/relativePath" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "strict_baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "blocker_count", "blockers_root", "rule_counts"],
+      "properties": {
+        "status": { "enum": ["pass", "fail"] },
+        "blocker_count": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "blockers_root": { "$ref": "#/$defs/sha256" },
+        "rule_counts": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["rule", "count"],
+            "properties": {
+              "rule": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 128 },
+              "count": { "type": "integer", "minimum": 1, "maximum": 1000000 }
+            }
+          }
+        }
+      }
+    },
+    "allowed_paths": {
+      "type": "array", "minItems": 1, "maxItems": 64, "uniqueItems": true,
+      "items": { "$ref": "#/$defs/relativePath" }
+    },
+    "budgets": { "$ref": "#/$defs/budgets" },
+    "worker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "image", "codex_version", "codex_sha256", "output_schema_sha256", "model", "network", "tools", "memory_mb", "cpu_count", "pids_limit"],
+      "properties": {
+        "kind": { "const": "codex_tools_container" },
+        "image": { "$ref": "#/$defs/sha256" },
+        "codex_version": { "type": "string", "pattern": "^codex-cli [0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$" },
+        "codex_sha256": { "$ref": "#/$defs/sha256" },
+        "output_schema_sha256": { "$ref": "#/$defs/sha256" },
+        "model": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "network": { "const": "provider" },
+        "tools": { "const": ["shell", "apply_patch"] },
+        "memory_mb": { "type": "integer", "minimum": 256, "maximum": 32768 },
+        "cpu_count": { "type": "integer", "minimum": 1, "maximum": 16 },
+        "pids_limit": { "type": "integer", "minimum": 16, "maximum": 1024 }
+      }
+    },
+    "verifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["argv", "executable_sha256", "cwd", "timeout_ms", "max_output_bytes", "network", "writes", "capsule_path", "capsule_sha256", "image"],
+      "properties": {
+        "argv": { "type": "array", "minItems": 1, "maxItems": 64, "items": { "type": "string", "maxLength": 4096 } },
+        "executable_sha256": { "$ref": "#/$defs/sha256" },
+        "cwd": { "$ref": "#/$defs/relativePath" },
+        "timeout_ms": { "type": "integer", "minimum": 100, "maximum": 3600000 },
+        "max_output_bytes": { "type": "integer", "minimum": 1024, "maximum": 67108864 },
+        "network": { "const": "deny" },
+        "writes": { "const": "deny" },
+        "capsule_path": { "$ref": "#/$defs/relativePath" },
+        "capsule_sha256": { "$ref": "#/$defs/sha256" },
+        "image": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "scientific_chain": { "$ref": "#/$defs/scientificChain" },
+    "landing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected_routes", "max_accepted_delta"],
+      "properties": {
+        "expected_routes": { "const": ["defer"] },
+        "max_accepted_delta": { "const": 0 }
+      }
+    },
+    "parent_candidate": { "$ref": "#/$defs/sha256" },
+    "repair_reason": { "type": "string", "minLength": 1, "maxLength": 4096 }
+  },
+  "$defs": {
+    "gitObject": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
+    "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "relativePath": { "type": "string", "minLength": 1, "maxLength": 1024 },
+    "roots": {
+      "type": "object", "additionalProperties": false,
+      "required": ["git_commit", "git_tree", "vela_event_log", "vela_snapshot"],
+      "properties": {
+        "git_commit": { "$ref": "#/$defs/gitObject" },
+        "git_tree": { "$ref": "#/$defs/gitObject" },
+        "vela_event_log": { "$ref": "#/$defs/sha256" },
+        "vela_snapshot": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "budgets": {
+      "type": "object", "additionalProperties": false,
+      "required": ["max_research_wall_time_ms", "max_research_processes", "max_research_output_bytes", "max_prompt_bytes", "max_artifact_bytes", "max_attempts", "max_observed_tokens"],
+      "properties": {
+        "max_research_wall_time_ms": { "type": "integer", "minimum": 100, "maximum": 3600000 },
+        "max_research_processes": { "type": "integer", "minimum": 1, "maximum": 64 },
+        "max_research_output_bytes": { "type": "integer", "minimum": 1024, "maximum": 67108864 },
+        "max_prompt_bytes": { "type": "integer", "minimum": 1024, "maximum": 8388608 },
+        "max_artifact_bytes": { "type": "integer", "minimum": 1, "maximum": 1073741824 },
+        "max_attempts": { "type": "integer", "minimum": 1, "maximum": 8 },
+        "max_observed_tokens": { "type": "integer", "minimum": 1, "maximum": 1000000 }
+      }
+    },
+    "scientificChain": {
+      "type": "object", "additionalProperties": false, "required": ["performed_test"],
+      "properties": {
+        "predicted_observable": { "type": "string", "minLength": 1, "maxLength": 16384 },
+        "not_applicable": { "const": true },
+        "performed_test": { "type": "string", "minLength": 1, "maxLength": 16384 }
+      },
+      "oneOf": [
+        { "required": ["predicted_observable"], "not": { "required": ["not_applicable"] } },
+        { "required": ["not_applicable"], "not": { "required": ["predicted_observable"] } }
+      ]
+    }
+  }
+}

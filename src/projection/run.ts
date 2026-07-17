@@ -35,7 +35,7 @@ export interface RunRecord {
   };
   verifier: {
     status: "passed" | "failed" | "error";
-    sandbox: "macos_sandbox";
+    sandbox: "macos_sandbox" | "container_network_denied";
     record: {
       argv: string[];
       executable_digest: string;
@@ -206,7 +206,11 @@ export function parseRunRecord(value: unknown): RunRecord {
     },
     verifier: {
       status: enumAt(verifier.status, "run.verifier.status", ["passed", "failed", "error"] as const),
-      sandbox: literal(verifier.sandbox, "macos_sandbox", "run.verifier.sandbox"),
+      sandbox: enumAt(
+        verifier.sandbox,
+        "run.verifier.sandbox",
+        ["macos_sandbox", "container_network_denied"] as const,
+      ),
       record: {
         argv: arrayAt(testRecord.argv, "run.verifier.record.argv", { min: 1, max: 64 }, (item, at) =>
           stringAt(item, at, { max: 4096 }),

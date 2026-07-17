@@ -4,5 +4,6 @@ node_modules/
 .work/
 .artifacts/
 *.log
+capsules/*/verifier
+missions/*/capsule/verifier
 .DS_Store
-
