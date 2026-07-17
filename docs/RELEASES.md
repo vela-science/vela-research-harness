@@ -7,6 +7,14 @@ released Vela `v0.800.23`. The producer uses the exact native Codex CLI under a
 default-deny macOS permission profile. The independent verifier remains in a
 separate pinned, network-denied and write-denied container.
 
+- Release:
+  [`v0.2.0`](https://github.com/vela-science/vela-research-harness/releases/tag/v0.2.0)
+- Tag commit: `ab01e6b4eebebb64cd3403962e1104d4b2d43bbb`
+- Main CI:
+  [run 29547544125](https://github.com/vela-science/vela-research-harness/actions/runs/29547544125)
+- Tag CI:
+  [run 29547575629](https://github.com/vela-science/vela-research-harness/actions/runs/29547575629)
+
 - Source frontier commit and tree:
   `d0a2f56dfecf7027248403e43ba133e18e56b3c6` and
   `f28f356c5152bc004d76b2dc7301c9952243a9e5`
