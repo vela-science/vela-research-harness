@@ -610,7 +610,7 @@ export class VelaClient {
       );
     }
 
-    const proof = version === "0.900.0" || version === "0.900.1"
+    const proof = version === "0.900.0" || version === "0.900.1" || version === "0.900.2"
       ? {
           ok: true,
           command: "status_root_projection",

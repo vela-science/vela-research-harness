@@ -3,10 +3,10 @@
 ## 0.3.0 - Unreleased
 
 - Add the compact `doctor`, `run`, `inspect`, and `replay` product workflow over
-  Vela 0.900.1 while retaining Mission v1 as the advanced portable interface.
-- Advance the exact product and hosted-integration pin to Vela 0.900.1, the
-  compatible legacy migration-lock hygiene repair. Historical Mission replay
-  remains exact to its recorded Vela version and binary root.
+  Vela 0.900.2 while retaining Mission v1 as the advanced portable interface.
+- Advance the exact product and hosted-integration pin to Vela 0.900.2, the
+  compatible write-free projection and agent-guidance repair. Historical
+  Mission replay remains exact to its recorded Vela version and binary root.
 - Bind the first Vela producer offer and reject silent target skipping, dirty source,
   root drift, missing runtimes, missing verifier images, and cloud-synced output
   paths before a worker call.
@@ -23,6 +23,11 @@
   route `defer`, accepted-event delta zero, and matching clean-clone replay.
 - Keep proposal `vpr_f54338a5a453c1bf` pending for a personal human decision.
   The release tag remains gated on post-decision verification.
+- Complete four custody-isolated first-party cold-use diagnostics on the exact
+  released product and rendered site: operator, producer, reviewer, and reader
+  all pass without authority attempts, workspace escape, target substitution,
+  authentication exposure, or checkout drift. These sessions earn no
+  independent or scientific credit.
 
 ## 0.2.0 - 2026-07-16
 

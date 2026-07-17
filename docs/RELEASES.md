@@ -2,18 +2,19 @@
 
 ## Canopus v0.3.0 release candidate
 
-This candidate adds the one-command product path over released Vela 0.900.1.
+This candidate adds the one-command product path over released Vela 0.900.2.
 The tag and public release remain gated on the user's personal decision for the
 new pending Erdős proposal and a read-only post-decision replay audit.
 
 - Candidate Vela release commit and binary SHA-256:
-  `4e1343223d037fe3053ca08c723e9cac452c74df` and
-  `933ec42e579054554091d037dad6f6a4188d4297b49c7311cd704e9c4c68d02d`
+  `8fc734bea3a7e75e0ffc96c7252b41842e694350` and
+  `9947d398c1190b94c8f1ae8ba7b525d71ce7efc3ed4dad9cdb969e8a8c6ce54b`
 - The frozen dogfood runs below remain bound to Vela `0.900.0`, commit
   `67922a6052193a031ea9f6fc26d3beb9f30900c6`, and binary SHA-256
   `c512ec9f0ff4639c79fa14c49a1798b4ad52ff0cbfa8834dc766fac2ea4103ff`.
-  Vela `0.900.1` changes only legacy migration-lock hygiene; the released-Vela
-  integration test separately composes the candidate with its exact binary.
+  Vela `0.900.2` changes only read-projection locking and generated agent
+  guidance; the released-Vela integration test separately composes the
+  candidate with its exact binary.
 - Starting Erdős commit and tree:
   `d0a2f56dfecf7027248403e43ba133e18e56b3c6` and
   `f28f356c5152bc004d76b2dc7301c9952243a9e5`
@@ -65,6 +66,13 @@ new pending Erdős proposal and a read-only post-decision replay audit.
   `sha256:1b4ecccdcf11cf9c757450317e024af0b5fe27017a2796025dff57b923d5cc43`,
   and
   `sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+- Four-cell cold-use registration root:
+  `sha256:fdc99889eb50b34378ca18c6e3b8e0407a4b0a74e208a86d974c972e7b5d6584`.
+  All cells completed inside the custody profile with zero authority attempts,
+  key/auth exposure, workspace escape, target substitution, or false
+  acceptance claims. Operator/producer/reviewer/reader used 57,548, 87,985,
+  166,302, and 47,936 input-plus-output tokens respectively. This is
+  first-party interface evidence only.
 
 The first adjacent attempt produced an incorrect candidate and the frozen
 verifier rejected it before landing. Other infrastructure failures remain
