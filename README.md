@@ -12,7 +12,7 @@ replay or accepted state.
 
 ## Product workflow
 
-Canopus 0.3 targets checksum-pinned Vela 0.900.0. Its ordinary path is:
+Canopus 0.3 targets checksum-pinned Vela 0.900.1. Its ordinary path is:
 
 ```bash
 canopus doctor /path/to/frontier
@@ -65,7 +65,7 @@ primary help.
 
 ## Development
 
-Requires Node 22 or newer, pnpm 10, Vela 0.900.0, Codex CLI 0.144.5, and Docker.
+Requires Node 22 or newer, pnpm 10, Vela 0.900.1, Codex CLI 0.144.5, and Docker.
 
 ```bash
 pnpm install

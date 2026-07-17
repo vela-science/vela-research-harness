@@ -2,13 +2,18 @@
 
 ## Canopus v0.3.0 release candidate
 
-This candidate adds the one-command product path over released Vela 0.900.0.
+This candidate adds the one-command product path over released Vela 0.900.1.
 The tag and public release remain gated on the user's personal decision for the
 new pending Erdős proposal and a read-only post-decision replay audit.
 
-- Vela release commit and binary SHA-256:
-  `67922a6052193a031ea9f6fc26d3beb9f30900c6` and
-  `c512ec9f0ff4639c79fa14c49a1798b4ad52ff0cbfa8834dc766fac2ea4103ff`
+- Candidate Vela release commit and binary SHA-256:
+  `4e1343223d037fe3053ca08c723e9cac452c74df` and
+  `933ec42e579054554091d037dad6f6a4188d4297b49c7311cd704e9c4c68d02d`
+- The frozen dogfood runs below remain bound to Vela `0.900.0`, commit
+  `67922a6052193a031ea9f6fc26d3beb9f30900c6`, and binary SHA-256
+  `c512ec9f0ff4639c79fa14c49a1798b4ad52ff0cbfa8834dc766fac2ea4103ff`.
+  Vela `0.900.1` changes only legacy migration-lock hygiene; the released-Vela
+  integration test separately composes the candidate with its exact binary.
 - Starting Erdős commit and tree:
   `d0a2f56dfecf7027248403e43ba133e18e56b3c6` and
   `f28f356c5152bc004d76b2dc7301c9952243a9e5`

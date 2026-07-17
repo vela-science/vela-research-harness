@@ -3,7 +3,10 @@
 ## 0.3.0 - Unreleased
 
 - Add the compact `doctor`, `run`, `inspect`, and `replay` product workflow over
-  Vela 0.900.0 while retaining Mission v1 as the advanced portable interface.
+  Vela 0.900.1 while retaining Mission v1 as the advanced portable interface.
+- Advance the exact product and hosted-integration pin to Vela 0.900.1, the
+  compatible legacy migration-lock hygiene repair. Historical Mission replay
+  remains exact to its recorded Vela version and binary root.
 - Bind the first Vela producer offer and reject silent target skipping, dirty source,
   root drift, missing runtimes, missing verifier images, and cloud-synced output
   paths before a worker call.
