@@ -1,7 +1,8 @@
 # ADR 0005: Retained per-proposal withdrawal capabilities
 
-- Status: Accepted
-- Accepted: 2026-07-17 at the Canopus `v0.3.0` release gate
+- Status: Proposed
+- Release gate: pending released Vela `v0.901.0`, final protected-signer audit,
+  and Canopus tag publication
 - Target release: Canopus `v0.3.0`
 - Depends on: Vela ADR 0011 and released Vela `v0.901.0`
 - Authority effect: none beyond the Receipt-bound producer withdrawal defined

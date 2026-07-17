@@ -17,7 +17,7 @@ decision. The manifest also binds the successful run's exact strict-signal
 baseline so later invalid events cannot be normalized into trusted state.
 
 - Released Vela substrate commit:
-  `b2ab0483272e55b6ec6443affcf75934fc184e53`.
+  `abf6b3c48c7abced891143592bc5ed2ea4b20c3e`.
 - Released macOS arm64 Vela binary SHA-256:
   `4d5ba58421d2934160a955c09c7dd929d6a0add294d2cdab176f7f6d5f33e8f1`.
 - The frozen dogfood runs below remain bound to Vela `0.900.0`, commit
