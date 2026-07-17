@@ -101,8 +101,8 @@ async function prepareRuntime(task, fixture) {
     CODEX_HOME: codexHome,
     NO_COLOR: "1",
   };
-  await mkdir(path.join(fixture, ".agent-home"), { mode: 0o700 });
-  await mkdir(path.join(fixture, ".tmp"), { mode: 0o700 });
+  await mkdir(path.join(fixture, ".agent-home"), { recursive: true, mode: 0o700 });
+  await mkdir(path.join(fixture, ".tmp"), { recursive: true, mode: 0o700 });
   return {
     runtimeRoot,
     codexHome,
