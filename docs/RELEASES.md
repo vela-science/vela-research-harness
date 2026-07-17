@@ -16,9 +16,9 @@ after explicit withdrawal or an observed, strictly verified human terminal
 decision. The manifest also binds the successful run's exact strict-signal
 baseline so later invalid events cannot be normalized into trusted state.
 
-- Released Vela substrate commit:
+- Candidate Vela substrate commit:
   `00a6869da4e27533ede934e1e4f9904b72cedc9d`.
-- Released macOS arm64 Vela binary SHA-256:
+- Candidate macOS arm64 Vela binary SHA-256:
   `fd0653884b75e46ba10417db517179a2924ea4f41163db117b9ff6c0e38f6340`.
 - The frozen dogfood runs below remain bound to Vela `0.900.0`, commit
   `67922a6052193a031ea9f6fc26d3beb9f30900c6`, and binary SHA-256
@@ -69,8 +69,15 @@ baseline so later invalid events cannot be normalized into trusted state.
   ranking facts changed, so the default and `--first` paths refuse to reuse the
   1056 profile or skip rank 1. An explicit registered `--target` is allowed only
   when that target remains in the bounded current offers; pending 1056 is not.
-- Current proposal state: `vpr_f54338a5a453c1bf` is pending. Acceptance is
-  blocked by `engine_gate_blocked`; rejection remains available to the human.
+- Current proposal state: `vpr_f54338a5a453c1bf` is rejected by signed event
+  `vev_32667676119a30cb`. The other twelve proposals remain pending.
+- The first 0.901 cold reviewer diagnostic exposed an unordered compact queue
+  and remains failed historical evidence. The final exact-state diagnostic is
+  separately preregistered at
+  `sha256:8033a04c83cd8834fbeb361bb924771560b359cad9cf32186b77592c3cff07e7`.
+  Its fresh reviewer used only five read commands, selected the newest proposal
+  from one list, opened one exact Decision Brief, made no retired-command
+  attempt, and preserved the exact Erdős Git tree with zero interventions.
 - Hostile custody profile, event-stream, final-response, and stderr roots:
   `sha256:12b58762819481ad101e7a172a296224b6050a8a07a7431272e521a4102908da`,
   `sha256:6adf4676ed2162a3a77cd919eb4e9c111dacbc3d348e0e95fa13601c6588aa23`,
