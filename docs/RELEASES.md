@@ -56,6 +56,53 @@ exact landing reproduced from a clean clone.
 - Final strict state: pass with zero blockers; the one proposal remains pending
   and acceptance is blocked by the ordinary Engine gate.
 
+## Canopus v0.5.0 candidate preflight
+
+The first exact Sidon no-land preflight stopped safely with a null producer
+result. It created no artifact, did not invoke the frozen verifier, landed
+nothing, and changed no source-frontier or accepted-state byte. The run is
+non-authoritative research activity, not a negative scientific result.
+
+The initial diagnostic attempt exposed a product defect before a model call:
+`--no-land` still invoked `vela work`, so its disposable coordination lease
+made the frontier's separately recorded proof packet appear stale. Canopus
+commit `1e04dd8fa163ac05feeba2c6376cc35fac5a42b8` now keeps diagnostic runs
+root-exact by using the offer directly and recording `work.skipped`; landing
+runs still require the signed lease. Vela candidate commit
+`7a8613ba36f64595588aee85c6f5c181cb70905c` separately makes proof freshness
+insensitive only to `attempt.claimed` events. Its focused regression and an
+exact disposable Sidon `work` followed by strict check pass; every non-lease
+event remains freshness-bearing.
+
+- Run: `run_78b31cb0-b7f2-4aa5-bc41-98de9638b3f8`
+- Canopus source: `1e04dd8fa163ac05feeba2c6376cc35fac5a42b8`
+- Sidon source commit and tree:
+  `f557bb3f63c409c725df4944391c52ae7995fcca` and
+  `e5610aa6c5e1ad767e840e51a4e695dbfd2d2fdd`
+- Starting event and snapshot roots:
+  `sha256:5f85d0896688fec7b5a6517928f9e954c0136c8f345ade51011b95b42b9d6cb6`
+  and
+  `sha256:a09958d8bdb66ddcbbd274c345c6beab2fbf409b60e2e940ae4902487d952ce4`
+- Mission file SHA-256:
+  `b4d99ffee45f738805ea4846d59ba94783602b3321c8bd2cbf6d2faa5093b50e`
+- Worker event-stream root and activity tip:
+  `sha256:01178637ee16cd674e8eedddc0c14a1f711e928b4c59c6f68dcad039ab607585`
+  and
+  `sha256:882f7481b86d835941857b64f99743e961c53e191c9408eea0905d7c9558cccd`
+- Failure-record SHA-256:
+  `0608456baaa3e0d6390f2411d2900aed3e8198c9560b199f9a759a4a2170e08d`
+- Usage: 349,844 input tokens, including 307,712 cached input tokens;
+  7,250 output tokens; 2,429 reasoning-output tokens; 372,773 ms
+- Producer-reported bounded observation: the supplied 7,192-point seed was
+  checked for pair-sum uniqueness and all 16,777,216 possible one-point
+  extensions were searched without finding a 7,193-point extension.
+- Required caveat: this only concerns one-point extensions of that exact seed.
+  It does not establish that no 7,193-point Sidon subset of `{0,1}^24` exists.
+
+Repeating the same one-point-extension strategy would add no useful evidence.
+The positive Permit gate remains unmet and requires a materially different,
+preregistered construction or search strategy plus frozen-verifier success.
+
 ## Canopus v0.3.0
 
 This release adds the one-command product path and proposal-scoped producer
