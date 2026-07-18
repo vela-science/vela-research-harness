@@ -121,8 +121,8 @@ export async function doctorProduct(options: {
     if (vela.version !== "vela 0.901.0") {
       throw new Error(`Canopus v0.3.0 requires vela 0.901.0, observed ${vela.version}`);
     }
-    if (codex.version !== "codex-cli 0.144.5") {
-      throw new Error(`registered worker requires codex-cli 0.144.5, observed ${codex.version}`);
+    if (codex.version !== "codex-cli 0.144.6") {
+      throw new Error(`registered worker requires codex-cli 0.144.6, observed ${codex.version}`);
     }
     const profile = await loadProductProfile(options.profileName);
     const [status, offer, gitStatus, daemon, image] = await Promise.all([

@@ -28,7 +28,7 @@
       "capsule/verifier",
       "{artifact:artifacts/quantum-10-1-4.witness.json}"
     ],
-    "cwd": ".",
+    "cwd": "targets",
     "timeout_ms": 30000,
     "max_output_bytes": 65536,
     "capsule_path": "capsule/verifier"

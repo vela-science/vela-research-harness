@@ -4,7 +4,7 @@
   "target": "quantum:[[10,1,4]]",
   "target_packet_schema": "quantum-codes.stabilizer-work.v1",
   "draft": "missions/quantum-10-1-4/mission.draft.json",
-  "draft_sha256": "sha256:14ff82c3300a2f3dc4183b82914968b02d0789cfb4d230dcc4bf19744ea22247",
+  "draft_sha256": "sha256:3e93f7041cc2f6f524ef3fbe9979763ec001b575ba18e7b97a49d2007c43b955",
   "objective_sha256": "sha256:e03a4bbb8cbff57cc209820c24813a206f976c9589be51f1090ee69ccfd60d03",
   "completion_condition_sha256": "sha256:3f8efa58f9262d0e7a5cf3c7357a52b41331c8de4996c8d46d4bc187893a2372",
   "allowed_artifacts_sha256": "sha256:17c9b63d133d87c3f8947805a414772597b99babcebdf95645c80a8357b67e35",
