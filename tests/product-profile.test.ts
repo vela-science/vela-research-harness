@@ -14,7 +14,7 @@ import {
   packProductProfile,
   validateProductProfile,
 } from "../src/product/profile-bundle.js";
-import { selectProductOffer } from "../src/product/doctor.js";
+import { resolveProductProfile, selectProductOffer } from "../src/product/doctor.js";
 import { contentDigest } from "../src/util/canonical.js";
 
 test("registered product profiles stage exact distinct capsules and bounded Mission v1 drafts", async () => {
@@ -39,7 +39,6 @@ test("profile v2 binds exact platform custody and packs only portable contract r
   assert.deepEqual(await listProductProfiles(), [
     name,
     "erdos1056-k15-10428201-10428400",
-    "quantum-10-1-4-stabilizer",
     "quantum-10-1-4-stabilizer-retry",
   ]);
   const mac = await loadProductProfile(name, { platform: "darwin-arm64" });
@@ -91,5 +90,16 @@ test("explicit targets are deliberate while the default never skips rank one", a
   assert.throws(
     () => selectProductOffer(offer, profile, "erdos:124"),
     /not requested target erdos:124/u,
+  );
+});
+
+test("ordinary profile discovery selects the unique first-offer profile", async () => {
+  const profile = await resolveProductProfile({
+    targets: [{ rank: 1, target_id: "quantum:[[10,1,4]]" }],
+  });
+  assert.equal(profile.name, "quantum-10-1-4-stabilizer-retry");
+  await assert.rejects(
+    resolveProductProfile({ targets: [{ rank: 1, target_id: "unknown:target" }] }),
+    /no runnable profile is registered/u,
   );
 });

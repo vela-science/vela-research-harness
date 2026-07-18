@@ -5,7 +5,12 @@ import path from "node:path";
 import { objectAt, sha256At, stringAt } from "../contracts/validation.js";
 import { isolatedEnvironment, runCommand, type CommandRunner } from "../util/command.js";
 import { sha256Bytes } from "../util/canonical.js";
-import { loadProductProfile, stageProfileCapsule, type ProductProfile } from "./profile.js";
+import {
+  listProductProfiles,
+  loadProductProfile,
+  stageProfileCapsule,
+  type ProductProfile,
+} from "./profile.js";
 import { runtimeIdentity, type RuntimeIdentity } from "./runtime.js";
 
 export interface ProductDoctorResult {
@@ -102,6 +107,46 @@ export function selectProductOffer(
   };
 }
 
+export async function resolveProductProfile(
+  offer: Record<string, unknown>,
+  profileName?: string,
+  requestedTarget?: string,
+): Promise<ProductProfile> {
+  if (profileName !== undefined) return loadProductProfile(profileName);
+  const targets = offer.targets;
+  if (!Array.isArray(targets) || targets.length === 0) {
+    throw new Error("vela next returned no producer target");
+  }
+  const selectedOffer = requestedTarget === undefined
+    ? objectAt(targets[0], "vela next.targets[0]")
+    : targets
+        .map((value, index) => objectAt(value, `vela next.targets[${index}]`))
+        .find((value) => value.target_id === requestedTarget);
+  if (selectedOffer === undefined) {
+    throw new Error(`requested target ${requestedTarget} is not a current producer offer`);
+  }
+  const target = stringAt(selectedOffer.target_id, "vela next target_id", { min: 1, max: 256 });
+  const matches: ProductProfile[] = [];
+  for (const name of await listProductProfiles()) {
+    try {
+      const candidate = await loadProductProfile(name);
+      if (candidate.target === target) matches.push(candidate);
+    } catch (error) {
+      if (!(error instanceof Error) || !/replay-only/u.test(error.message)) throw error;
+    }
+  }
+  if (matches.length === 0) {
+    throw new Error(`no runnable profile is registered for producer target ${target}`);
+  }
+  if (matches.length !== 1) {
+    throw new Error(
+      `multiple runnable profiles are registered for producer target ${target}: ` +
+      `${matches.map((profile) => profile.name).sort().join(", ")}; select one with --profile`,
+    );
+  }
+  return matches[0]!;
+}
+
 export async function doctorProduct(options: {
   frontier: string;
   profileName?: string;
@@ -124,13 +169,11 @@ export async function doctorProduct(options: {
     if (codex.version !== "codex-cli 0.144.6") {
       throw new Error(`registered worker requires codex-cli 0.144.6, observed ${codex.version}`);
     }
-    const profile = await loadProductProfile(options.profileName);
-    const [status, offer, gitStatus, daemon, image] = await Promise.all([
+    const [status, offer, gitStatus, daemon] = await Promise.all([
       jsonCommand({ runner, argv: [vela.binary, "status", ".", "--json"], cwd: frontier, home: runtime, label: "vela status" }),
       jsonCommand({ runner, argv: [vela.binary, "next", ".", "--limit", "128", "--json"], cwd: frontier, home: runtime, label: "vela next" }),
       runner({ argv: [git.binary, "status", "--porcelain=v1", "--untracked-files=all"], cwd: frontier, env: isolatedEnvironment(runtime), timeoutMs: 30_000, maxOutputBytes: 8 * 1024 * 1024 }),
       runner({ argv: [docker.binary, "info", "--format={{.ServerVersion}}"], cwd: frontier, env: isolatedEnvironment(runtime), timeoutMs: 30_000, maxOutputBytes: 64 * 1024 }),
-      runner({ argv: [docker.binary, "image", "inspect", "--format={{.Id}}", profile.verifier_image], cwd: frontier, env: isolatedEnvironment(runtime), timeoutMs: 30_000, maxOutputBytes: 64 * 1024 }),
     ]);
     if (gitStatus.exitCode !== 0 || gitStatus.stderr.length !== 0) throw new Error("git status failed");
     const clean = gitStatus.stdout.length === 0;
@@ -138,12 +181,20 @@ export async function doctorProduct(options: {
     if (daemon.exitCode !== 0 || daemon.stdout.toString("utf8").trim() === "") {
       throw new Error("Docker daemon is not ready");
     }
+    if (status.schema !== "vela.status.v1" || offer.schema !== "vela.offer.v1") {
+      throw new Error("frontier did not return the Vela 0.9 compact contracts");
+    }
+    const profile = await resolveProductProfile(offer, options.profileName, options.requestedTarget);
+    const image = await runner({
+      argv: [docker.binary, "image", "inspect", "--format={{.Id}}", profile.verifier_image],
+      cwd: frontier,
+      env: isolatedEnvironment(runtime),
+      timeoutMs: 30_000,
+      maxOutputBytes: 64 * 1024,
+    });
     const imageId = image.stdout.toString("utf8").trim();
     if (image.exitCode !== 0 || image.stderr.length !== 0 || imageId !== profile.verifier_image) {
       throw new Error("registered verifier image is unavailable or drifted");
-    }
-    if (status.schema !== "vela.status.v1" || offer.schema !== "vela.offer.v1") {
-      throw new Error("frontier did not return the Vela 0.9 compact contracts");
     }
     const selected = selectProductOffer(offer, profile, options.requestedTarget);
     const roots = objectAt(status.roots, "vela status.roots");
@@ -183,8 +234,8 @@ export async function doctorProduct(options: {
           source: capsule.source,
         },
         next_action: options.requestedTarget === undefined
-          ? `canopus run ${frontier} --first --profile ${profile.name}`
-          : `canopus run ${frontier} --target ${selected.targetId} --profile ${profile.name}`,
+          ? `canopus run ${frontier} --first`
+          : `canopus run ${frontier} --target ${selected.targetId}`,
       },
     };
   } finally {
