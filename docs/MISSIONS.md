@@ -47,9 +47,11 @@ Defer-only Mission v1 bundles preserve their original zero-delta behavior. A
 profile may register `permit` only when it also freezes one closed positive
 `canopus.result-contract.v1` and a `vela.execution-binding.v1` over the full
 packet, profile, verifier-capsule, and result-contract roots. The worker result
-must be an exact computational success, the verifier must pass, and every
-required artifact kind must be present before Canopus authors the binding
-through Vela's Receipt builder. Any mismatch stops before landing. Vela alone
-evaluates the already-signed policy; Canopus then requires the registered route
-and accepted-event delta and reproduces the retained Receipt from a clean
-clone.
+must be an exact computational success, the verifier must pass, its claim is
+replaced by the contract's exact canonical claim, and every required artifact
+kind must be present before Canopus authors the binding through Vela's Receipt
+builder. Any mismatch stops before landing. Vela alone evaluates the
+already-signed policy; Canopus then requires the registered route and
+accepted-event delta and reproduces the retained Receipt from a clean clone.
+Canopus does not treat its own Receipt verifier row as load-bearing Vela
+assurance.

@@ -98,6 +98,7 @@ test("Sidon Permit profile binds one positive result contract and two static cap
   assert.deepEqual(await loadProfileResultContract(mac), {
     schema: "canopus.result-contract.v1",
     target: "sidon:a24-improve",
+    claim_exact: "There exists a Sidon subset of {0,1}^24 with at least 7,193 elements.",
     claim_type: "computational",
     replayability: "exact",
     candidate_status: "success",

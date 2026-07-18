@@ -142,6 +142,7 @@ function permitMissionV1(): Record<string, unknown> {
   const resultContract = {
     schema: "canopus.result-contract.v1",
     target: "target-1",
+    claim_exact: "The exact positive claim.",
     claim_type: "computational",
     replayability: "exact",
     candidate_status: "success",

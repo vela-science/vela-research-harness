@@ -59,6 +59,7 @@ function exactPermitMission(): Mission {
   const resultContract = {
     schema: "canopus.result-contract.v1",
     target: "target-1",
+    claim_exact: "The exact positive claim.",
     claim_type: "computational",
     replayability: "exact",
     candidate_status: "success",
@@ -214,9 +215,17 @@ test("exact Permit candidate emits the registered Vela execution binding", () =>
     },
   });
   const input = mapCandidateToReceipt(exact, candidate, outcome, exact.target);
+  assert.equal(candidate.claim, "The exact positive claim.");
+  assert.equal(input.claim, "The exact positive claim.");
   assert.deepEqual(
     input.executionBinding,
     exact.schema === "canopus.mission.v1" ? exact.execution_binding : undefined,
+  );
+
+  const substituted = { ...candidate, claim: "A broader claim the verifier did not establish." };
+  assert.throws(
+    () => mapCandidateToReceipt(exact, substituted, outcome, exact.target),
+    /does not satisfy the exact positive result contract/u,
   );
 });
 

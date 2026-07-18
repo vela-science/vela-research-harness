@@ -11,7 +11,7 @@
   "budgets_sha256": "sha256:94337a17242923ff4c923a88dd101902ee244f09809faba1bcdf090bb0e4ff00",
   "replay_argv_sha256": "sha256:cb5be793fffc9137070f9dc3a84c940f74db8de5c572cd413502ddd5fd8e210f",
   "result_contract": "missions/sidon-a24-improve/result-contract.json",
-  "result_contract_sha256": "sha256:b6c553dfa0205c001d6d71cbad64397035d8ae6904b5799b9bdb3e0df893385f",
+  "result_contract_sha256": "sha256:7dfe79ca2a616d9afb8438aad71a1a0ae134d3325c7d536d45ed8cf3d567e967",
   "landing": {
     "expected_routes": [
       "permit"

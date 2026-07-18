@@ -121,6 +121,7 @@ export interface ExecutionBindingV1 {
 export interface PositiveResultContractV1 {
   schema: typeof RESULT_CONTRACT_SCHEMA;
   target: string;
+  claim_exact: string;
   claim_type: "computational";
   replayability: "exact";
   candidate_status: "success";
@@ -450,6 +451,7 @@ export function parsePositiveResultContract(value: unknown): PositiveResultContr
     [
       "schema",
       "target",
+      "claim_exact",
       "claim_type",
       "replayability",
       "candidate_status",
@@ -471,6 +473,10 @@ export function parsePositiveResultContract(value: unknown): PositiveResultContr
   return {
     schema: RESULT_CONTRACT_SCHEMA,
     target: stringAt(object.target, "mission.result_contract.target", { min: 1, max: 256 }),
+    claim_exact: stringAt(object.claim_exact, "mission.result_contract.claim_exact", {
+      min: 1,
+      max: 8192,
+    }),
     claim_type: "computational",
     replayability: "exact",
     candidate_status: "success",

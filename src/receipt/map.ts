@@ -45,9 +45,16 @@ export function finalizeCandidate(options: {
   const verifierFailed =
     options.engine.draft.status === "success" && options.verifier.status !== "passed";
   const status = verifierFailed ? "failed" : options.engine.draft.status;
+  const exactPositiveClaim =
+    options.mission.schema === "canopus.mission.v1" &&
+    options.mission.result_contract !== undefined &&
+    options.engine.draft.status === "success" &&
+    options.verifier.status === "passed"
+      ? options.mission.result_contract.claim_exact
+      : undefined;
   const claim = verifierFailed
     ? `The engine proposed a candidate, but the declared verifier did not pass: ${options.engine.draft.claim}`
-    : options.engine.draft.claim;
+    : exactPositiveClaim ?? options.engine.draft.claim;
   const caveats = unique([
     ...options.engine.draft.caveats,
     `Declared verifier outcome: ${options.verifier.status}.`,
@@ -102,6 +109,7 @@ export function mapCandidateToReceipt(
     const contract = mission.result_contract;
     if (
       candidate.status !== contract.candidate_status ||
+      candidate.claim !== contract.claim_exact ||
       verifier.status !== contract.verifier_status ||
       mission.target !== contract.target ||
       mission.claim_type !== contract.claim_type ||

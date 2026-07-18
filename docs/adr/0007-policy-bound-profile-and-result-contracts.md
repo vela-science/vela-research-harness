@@ -24,11 +24,13 @@ and the exact `vela.execution-binding.v1` Receipt extension derived from:
 - the canonical result-contract digest.
 
 The result contract is deliberately positive and narrow: exact computational
-replay, worker status `success`, verifier status `passed`, the exact target, and
-one or more required artifact kinds. A null, failed, unverifiable, wrong-target,
-wrong-kind, wrong-profile, wrong-packet, or wrong-capsule result stops before
-landing. Historical and ordinary profile v2 contracts remain Defer-only and do
-not gain these fields.
+replay, worker status `success`, verifier status `passed`, the exact target, an
+exact canonical claim, and one or more required artifact kinds. Canopus replaces
+model-authored claim prose with that registered claim after the verifier passes;
+claim substitution therefore changes the result-contract root or stops before
+landing. A null, failed, unverifiable, wrong-target, wrong-kind, wrong-profile,
+wrong-packet, or wrong-capsule result also stops before landing. Historical and
+ordinary profile v2 contracts remain Defer-only and do not gain these fields.
 
 Canopus passes the four roots to Vela's existing Receipt authoring edge. It
 does not handcraft Vela attestations, agent identity bindings, policy context,
@@ -43,5 +45,10 @@ Permit, or unexpected accepted-state delta stops the run.
 ## Release gate
 
 The release requires the hostile wrong-profile and wrong-target vectors, one
-real positive Sidon witness or an honest Deferred/null outcome, exact Receipt
-and policy replay, and unchanged behavior for every Canopus 0.3/0.4 run record.
+hostile claim-substitution vector, one real positive Sidon witness or an honest
+Deferred/null outcome, exact Receipt and policy replay, and unchanged behavior
+for every Canopus 0.3/0.4 run record. A producer-declared Receipt verifier row
+is not by itself load-bearing policy evidence: the release also requires an
+end-to-end Vela route whose assurance derives from retained event evidence or a
+fresh exact floor. Lowering the signed policy's assurance threshold is not an
+acceptable substitute.
