@@ -2,6 +2,12 @@ name: Verifier image candidate
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - containers/verifier/**
+      - .github/workflows/verifier-image.yml
 
 permissions:
   contents: read
