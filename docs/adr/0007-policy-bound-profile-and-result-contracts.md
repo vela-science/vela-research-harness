@@ -38,7 +38,7 @@ or decision certificates. After landing, it verifies the retained binding,
 the registered route and accepted-state delta, and a clean-clone replay.
 
 The Sidon candidate uses one `vela-witness` JSON artifact and the generic
-`vela-verify` executable from Vela commit `d8902d6a`. The same Vela library
+`vela-verify` executable from Vela commit `234cc34a`. The same Vela library
 rechecks the retained artifact and exact claim during v0.2 landing and strict
 replay. The earlier target-specific C++ checker and six-line artifact format
 were removed after arm64/x86-64 parity, claim-inflation, and collision tests
@@ -61,12 +61,12 @@ the v0.2 exact Vela-native witness floor. Lowering the signed policy's
 assurance threshold is not an acceptable substitute.
 
 The current frozen Sidon candidate binds profile root
-`sha256:29b1bc18cc04ad715bace77ab536f03ec46573bec3a5fbfcbeeb33aa285d4da6`,
+`sha256:75ad68706fd74650b6d82c2820dc9aae78d20995e7d89b0045519383bbb4ed92`,
 result-contract root
 `sha256:092c30d5309701b6e2bd61c37b6c47f6a9abfcb768a326d06ba85aabf10dc6ca`,
 arm64 capsule root
-`sha256:7a75bef8c0cbe29e6385f5b9426e6f9a2ef65368142311843a3a9f16ac8bdf4f`,
+`sha256:7641fdaf11a3ad0c4110ade53b7d905c1ce1dae5a16234ed0d4e8d1dc79f548c`,
 and x86-64 capsule root
-`sha256:afa5f28a617f3a9e879be5d1e94df59669cccd29a089c4b6a2350a3f914da75c`.
+`sha256:799b6ba5afb372dd74abd7952b76640d19a2edca9fdd9c54aecb024de5e100cd`.
 These remain non-authoritative until the release and protected-policy gates
 pass.

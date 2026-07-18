@@ -1,7 +1,7 @@
 # Sidon `a(24)` improvement capsule
 
 This capsule is the generic `vela-verify` executable built from Vela commit
-`d8902d6a`. Canopus supplies the exact registered claim and one Vela-native
+`234cc34a`. Canopus supplies the exact registered claim and one Vela-native
 `sidon` witness; the executable rechecks both instead of maintaining a second
 target-specific verifier implementation.
 
