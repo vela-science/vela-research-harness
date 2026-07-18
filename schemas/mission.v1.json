@@ -68,7 +68,7 @@
       "required": ["kind", "platform", "codex_version", "codex_sha256", "permission_profile_path", "permission_profile_sha256", "workspace", "output_schema_sha256", "model", "network", "tools"],
       "properties": {
         "kind": { "const": "codex_tools_native" },
-        "platform": { "const": "darwin" },
+        "platform": { "enum": ["darwin", "linux"] },
         "codex_version": { "type": "string", "pattern": "^codex-cli [0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$" },
         "codex_sha256": { "$ref": "#/$defs/sha256" },
         "permission_profile_path": { "$ref": "#/$defs/relativePath" },

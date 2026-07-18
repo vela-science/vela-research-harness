@@ -39,6 +39,7 @@ test("profile v2 binds exact platform custody and packs only portable contract r
   assert.deepEqual(await listProductProfiles(), [
     name,
     "erdos1056-k15-10428201-10428400",
+    "quantum-10-1-4-stabilizer",
   ]);
   const mac = await loadProductProfile(name, { platform: "darwin-arm64" });
   const linux = await loadProductProfile(name, { platform: "linux-x86_64" });

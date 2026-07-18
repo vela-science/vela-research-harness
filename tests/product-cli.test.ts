@@ -51,6 +51,7 @@ test("profile help and validation retain the advanced closed interface", async (
   assert.deepEqual(list.profiles, [
     "erdos1056-k15-10428008-10428200",
     "erdos1056-k15-10428201-10428400",
+    "quantum-10-1-4-stabilizer",
   ]);
   const validation = JSON.parse(
     await help("profile", "validate", "erdos1056-k15-10428008-10428200"),

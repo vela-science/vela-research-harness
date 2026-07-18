@@ -7,3 +7,5 @@ node_modules/
 capsules/*/verifier
 missions/*/capsule/verifier
 .DS_Store
+__pycache__/
+*.pyc
