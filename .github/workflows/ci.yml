@@ -41,6 +41,7 @@ jobs:
             pnpm typecheck
             pnpm build
             node --test \
+              dist/tests/engine-tools.test.js \
               dist/tests/mission-v1.test.js \
               dist/tests/product-cli.test.js \
               dist/tests/product-profile.test.js

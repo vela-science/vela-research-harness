@@ -23,6 +23,9 @@ const draft = {
 };
 
 function mission(): MissionV1 {
+  if (process.platform !== "darwin" && process.platform !== "linux") {
+    throw new Error(`native worker contract fixture does not support ${process.platform}`);
+  }
   return {
     schema: "canopus.mission.v1",
     id: "mission_engine_tools",
@@ -61,7 +64,7 @@ function mission(): MissionV1 {
     },
     worker: {
       kind: "codex_tools_native",
-      platform: "darwin",
+      platform: process.platform,
       codex_version: "codex-cli 0.144.5",
       codex_sha256: digest,
       permission_profile_path: "contract/native-worker.config.toml",
