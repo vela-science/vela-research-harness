@@ -18,8 +18,12 @@ baseline so later invalid events cannot be normalized into trusted state.
 
 - Released Vela substrate commit:
   `f9badc0ad3e2a840385cfb006750209088249c27`.
-- Released macOS arm64 Vela binary SHA-256:
-  `fd0653884b75e46ba10417db517179a2924ea4f41163db117b9ff6c0e38f6340`.
+- Published macOS arm64 Vela archive and binary SHA-256:
+  `7e75ed3c86fc5ae46fc236907d6326ae1088548c34e10a5eefa5650c60457894`
+  and `d50e119d7c802c18c22a4bf9021802264d4d58f523ad028af46fdd0e7f8a3b32`.
+- The installed local dogfood binary is the same `vela 0.901.0` source at
+  `sha256:fd0653884b75e46ba10417db517179a2924ea4f41163db117b9ff6c0e38f6340`;
+  Canopus binds the exact bytes of whichever verified platform build it runs.
 - The frozen dogfood runs below remain bound to Vela `0.900.0`, commit
   `67922a6052193a031ea9f6fc26d3beb9f30900c6`, and binary SHA-256
   `c512ec9f0ff4639c79fa14c49a1798b4ad52ff0cbfa8834dc766fac2ea4103ff`.

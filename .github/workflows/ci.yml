@@ -24,14 +24,21 @@ jobs:
       - run: pnpm check
       - name: Verify released Vela composition
         env:
-          VELA_SHA256: 9947d398c1190b94c8f1ae8ba7b525d71ce7efc3ed4dad9cdb969e8a8c6ce54b
+          VELA_ARCHIVE_SHA256: 7e75ed3c86fc5ae46fc236907d6326ae1088548c34e10a5eefa5650c60457894
+          VELA_SHA256: d50e119d7c802c18c22a4bf9021802264d4d58f523ad028af46fdd0e7f8a3b32
         run: |
           curl --fail --location --silent --show-error \
-            https://github.com/vela-science/vela/releases/download/v0.900.2/vela-macos-aarch64 \
-            --output "$RUNNER_TEMP/vela"
-          printf '%s  %s\n' "$VELA_SHA256" "$RUNNER_TEMP/vela" | shasum -a 256 -c -
-          chmod +x "$RUNNER_TEMP/vela"
-          CANOPUS_VELA_BIN="$RUNNER_TEMP/vela" \
+            https://github.com/vela-science/vela/releases/download/v0.901.0/vela-macos-aarch64.tar.gz \
+            --output "$RUNNER_TEMP/vela-macos-aarch64.tar.gz"
+          printf '%s  %s\n' "$VELA_ARCHIVE_SHA256" "$RUNNER_TEMP/vela-macos-aarch64.tar.gz" \
+            | shasum -a 256 -c -
+          mkdir "$RUNNER_TEMP/vela-release"
+          tar -xzf "$RUNNER_TEMP/vela-macos-aarch64.tar.gz" \
+            -C "$RUNNER_TEMP/vela-release"
+          printf '%s  %s\n' "$VELA_SHA256" "$RUNNER_TEMP/vela-release/vela" \
+            | shasum -a 256 -c -
+          chmod +x "$RUNNER_TEMP/vela-release/vela"
+          CANOPUS_VELA_BIN="$RUNNER_TEMP/vela-release/vela" \
             CANOPUS_VELA_SHA256="sha256:$VELA_SHA256" \
             node --test dist/tests/integration/released-vela.test.js
       - run: pnpm pack:check
