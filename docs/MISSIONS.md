@@ -55,3 +55,10 @@ already-signed policy; Canopus then requires the registered route and
 accepted-event delta and reproduces the retained Receipt from a clean clone.
 Canopus does not treat its own Receipt verifier row as load-bearing Vela
 assurance.
+
+For exact construction profiles, prefer Vela-native `vela-witness` JSON and a
+packaged `vela-verify` executable. This gives the isolated producer verifier,
+Vela policy derivation, strict replay, and third-party reproduction one shared
+pure verifier and claim-fidelity contract. A target-specific wrapper is kept
+only when Vela has no suitable verifier; it is not duplicated for presentation
+or convenience.

@@ -4,14 +4,14 @@
   "target": "sidon:a24-improve",
   "target_packet_schema": "sidon-frontier.a24-improvement-work.v1",
   "draft": "missions/sidon-a24-improve/mission.draft.json",
-  "draft_sha256": "sha256:8cfcb5ea2e74d4836f41ea2a536f1292fd42511503a677f59cd69a33380ef27b",
-  "objective_sha256": "sha256:ac2a547c8e74d9f63bd760edad127498f02d1bdaab059a298bb659c78ae1f7bd",
-  "completion_condition_sha256": "sha256:8e49cecc0019601f7facf27fd8ce87526e992a392399621702f9bca955cdf5ec",
-  "allowed_artifacts_sha256": "sha256:0f8297ca9b337aba91eff471dcc49679d6ec88527fa5edcf93d95083f30e02ff",
+  "draft_sha256": "sha256:14422212f5123e272f189a649f03b5478241e45e3b4c5b50c9c85c2b740c7ab1",
+  "objective_sha256": "sha256:01f1beadf7a6a2ac50231a684832f20373cb64ef6e53abb54ba1d166313b92f0",
+  "completion_condition_sha256": "sha256:2905f7634414bae14069544b6925bea216359f863a3d61344556dfbc72755bfe",
+  "allowed_artifacts_sha256": "sha256:7b8758c99e0d73b657d158fda5757b8697952cd4c1de21e6ad84771371782f87",
   "budgets_sha256": "sha256:94337a17242923ff4c923a88dd101902ee244f09809faba1bcdf090bb0e4ff00",
-  "replay_argv_sha256": "sha256:cb5be793fffc9137070f9dc3a84c940f74db8de5c572cd413502ddd5fd8e210f",
+  "replay_argv_sha256": "sha256:3ad9f09b1f0cb5dbffb6ac07c9cd524998b1880bf6de770e259ff4dd9d50c670",
   "result_contract": "missions/sidon-a24-improve/result-contract.json",
-  "result_contract_sha256": "sha256:7dfe79ca2a616d9afb8438aad71a1a0ae134d3325c7d536d45ed8cf3d567e967",
+  "result_contract_sha256": "sha256:092c30d5309701b6e2bd61c37b6c47f6a9abfcb768a326d06ba85aabf10dc6ca",
   "landing": {
     "expected_routes": [
       "permit"
@@ -23,14 +23,14 @@
       "worker_profile": "runtime/native-worker/config.toml",
       "worker_profile_sha256": "sha256:12b58762819481ad101e7a172a296224b6050a8a07a7431272e521a4102908da",
       "verifier_capsule": "capsules/sidon-a24/bin/linux-arm64/verifier",
-      "verifier_capsule_sha256": "sha256:372cbd0d71f82f33953499c677182d00d9c6b97f6098562a093450d063fbfc5e",
+      "verifier_capsule_sha256": "sha256:7a75bef8c0cbe29e6385f5b9426e6f9a2ef65368142311843a3a9f16ac8bdf4f",
       "verifier_image": "ghcr.io/vela-science/canopus-verifier@sha256:a6f354862f2a3f7d72eb99244c65fa8583c98b74e17e3d5ce6e31ef48aa16536"
     },
     "linux-x86_64": {
       "worker_profile": "runtime/native-worker/config-linux.toml",
       "worker_profile_sha256": "sha256:f568f62c84f563cc63bb74ec6bbb0c8f596ce7ba9ecd156647c24bb5d5222123",
       "verifier_capsule": "capsules/sidon-a24/bin/linux-x86_64/verifier",
-      "verifier_capsule_sha256": "sha256:be762ca0ee19a04efbd34cdb87dd5d8253533b76cfc29dffa1f664c759fe602f",
+      "verifier_capsule_sha256": "sha256:afa5f28a617f3a9e879be5d1e94df59669cccd29a089c4b6a2350a3f914da75c",
       "verifier_image": "ghcr.io/vela-science/canopus-verifier@sha256:a6f354862f2a3f7d72eb99244c65fa8583c98b74e17e3d5ce6e31ef48aa16536"
     }
   }

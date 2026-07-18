@@ -88,7 +88,7 @@ test("profile v2 binds exact platform custody and packs only portable contract r
   ]);
 });
 
-test("Sidon Permit profile binds one positive result contract and two static capsules", async () => {
+test("Sidon Permit profile binds one positive result contract and two portable capsules", async () => {
   const mac = await loadProductProfile("sidon-a24-improve", { platform: "darwin-arm64" });
   const linux = await loadProductProfile("sidon-a24-improve", { platform: "linux-x86_64" });
   assert.equal(mac.target, "sidon:a24-improve");
@@ -103,7 +103,7 @@ test("Sidon Permit profile binds one positive result contract and two static cap
     replayability: "exact",
     candidate_status: "success",
     verifier_status: "passed",
-    required_artifact_kinds: ["sidon-witness"],
+    required_artifact_kinds: ["vela-witness"],
   });
   const validation = await validateProductProfile(mac.name);
   assert.equal(validation.platforms["darwin-arm64"].verifier_capsule_sha256, mac.capsule_sha256);
