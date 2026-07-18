@@ -26,6 +26,36 @@ unchanged.
   observed-token postcondition to 400,000. It supplies no prior candidate or
   search hint.
 
+The preregistered retry then completed the full ordinary `canopus run --first`
+path without a profile override or target skip. The separate capsule passed,
+Vela routed the Receipt to Defer, accepted-state delta remained zero, and the
+exact landing reproduced from a clean clone.
+
+- Successful run: `run_05e89dab-90c0-4620-95e9-673b1f653c9d`
+- Mission and run-evidence roots:
+  `sha256:1aadb6883a341d5e4006988ec9e318dfbb3dee0a3393e977ce85e32331e952f7`
+  and
+  `sha256:f25fb67463acbffe610297ab3707bda3f296811a191d16de4f1890f083a2de53`
+- Witness and verifier-output roots:
+  `sha256:f23ac24e932de13538ac842bc2a467648aa82628577cffff6c71411e59a06a3c`
+  and
+  `sha256:77ce67ab56df78a5a06275dd74df1a4e7bbec3bd4358b51a00a1324940bedbe8`
+- Usage: 314,096 observed tokens, seven research processes, and 239,926 ms
+- Receipt and proposal:
+  `sha256:7f600b655a2bb6ca8ce14eaed2f5c412cf70f13f7b40e390cb690ddb4ebb8e2f`
+  and `vpr_74b245aa3c2d159e`
+- Final quantum commit and tree:
+  `016eeb08b9cf9a2971354b3b0bcde95ca56ee952` and
+  `7e77b6a6f5c9014b1c3147ca72c6e1cb91a2fd67`
+- Final event, snapshot, proposal, and artifact roots:
+  `sha256:7a8d06e9c86b9437fffaa6dac9803827f9ad64ee32c34fb1603af8ca986a17ab`,
+  `sha256:0975b1b7fda4c2fee1b5cf6fe312843f3f36425151da75eab389522ee1a73e10`,
+  `sha256:cdc0f3c3637294d70250b956867d9188df193909a104fa80bde8685e8d1e8ec0`,
+  and
+  `sha256:d4a485fdc3de718b4d21b6141a9cd564c4cc572a4d8b30744c9df61084efa748`
+- Final strict state: pass with zero blockers; the one proposal remains pending
+  and acceptance is blocked by the ordinary Engine gate.
+
 ## Canopus v0.3.0
 
 This release adds the one-command product path and proposal-scoped producer

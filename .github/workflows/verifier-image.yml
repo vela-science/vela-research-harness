@@ -38,10 +38,3 @@ jobs:
             ghcr.io/vela-science/canopus-verifier:sha-${{ github.sha }}
       - name: Record immutable multi-platform digest
         run: echo "ghcr.io/vela-science/canopus-verifier@${{ steps.build.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
-      - name: Make the source-linked verifier package publicly pullable
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api --method PATCH \
-            /orgs/vela-science/packages/container/canopus-verifier \
-            -f visibility=public
