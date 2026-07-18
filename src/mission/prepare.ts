@@ -14,7 +14,13 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 
-import { parseMission, type MissionV1 } from "../contracts/mission.js";
+import {
+  EXECUTION_BINDING_SCHEMA,
+  parseMission,
+  type LandingSpec,
+  type MissionV1,
+  type PositiveResultContractV1,
+} from "../contracts/mission.js";
 import {
   objectAt,
   relativePathAt,
@@ -38,6 +44,9 @@ export interface PrepareMissionOptions {
   outputSchema: string;
   permissionProfile: string;
   targetPacket?: { target: string; schema: string };
+  landing?: LandingSpec;
+  profileRoot?: string;
+  resultContract?: PositiveResultContractV1;
   runner?: CommandRunner;
 }
 
@@ -405,8 +414,23 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
         network: "deny",
         writes: "deny",
       },
-      landing: { expected_routes: ["defer"], max_accepted_delta: 0 },
+      landing: options.landing ?? { expected_routes: ["defer"], max_accepted_delta: 0 },
+      ...(options.profileRoot === undefined || options.resultContract === undefined
+        ? {}
+        : {
+            execution_binding: {
+              schema: EXECUTION_BINDING_SCHEMA,
+              packet_root: packet.sha256,
+              profile_root: sha256At(options.profileRoot, "profile root"),
+              verifier_capsule_root: capsuleDigest,
+              result_contract_root: contentDigest(options.resultContract),
+            },
+            result_contract: options.resultContract,
+          }),
     });
+    if ((options.profileRoot === undefined) !== (options.resultContract === undefined)) {
+      throw new Error("mission preparation requires profile root and result contract together");
+    }
     if (prepared.schema !== "canopus.mission.v1") {
       throw new Error("prepared mission did not produce mission v1");
     }
@@ -460,6 +484,9 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
         workspace: "target_packet_only",
         output_schema_sha256: outputSchemaDigest,
       },
+      ...(prepared.execution_binding === undefined
+        ? {}
+        : { execution_binding: prepared.execution_binding }),
     };
     await Promise.all([
       writeFile(missionPath, canonicalJson(prepared), { flag: "wx", mode: 0o600 }),

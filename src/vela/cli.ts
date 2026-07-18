@@ -1,7 +1,12 @@
 import path from "node:path";
 
 import type { FrozenArtifact } from "../contracts/candidate.js";
-import type { Mission, MissionRoots, StrictBaseline } from "../contracts/mission.js";
+import type {
+  ExecutionBindingV1,
+  Mission,
+  MissionRoots,
+  StrictBaseline,
+} from "../contracts/mission.js";
 import {
   GIT_OBJECT_RE,
   SHA256_RE,
@@ -81,6 +86,7 @@ export interface AuthoredReceiptInput {
   result: string;
   evidence: string[];
   counterevidence: string[];
+  executionBinding?: ExecutionBindingV1;
   work?: string;
 }
 
@@ -856,6 +862,18 @@ export class VelaClient {
     for (const counterevidence of input.counterevidence) {
       args.push("--counterevidence", counterevidence);
     }
+    if (input.executionBinding !== undefined) {
+      args.push(
+        "--packet-root",
+        input.executionBinding.packet_root,
+        "--profile-root",
+        input.executionBinding.profile_root,
+        "--verifier-capsule-root",
+        input.executionBinding.verifier_capsule_root,
+        "--result-contract-root",
+        input.executionBinding.result_contract_root,
+      );
+    }
     if (input.work !== undefined) args.push("--work", input.work);
     args.push("--as", mission.actor, "--json");
     const argv = [this.#binary, ...args];
@@ -1011,6 +1029,26 @@ export class VelaClient {
       }
     }
     const environment = fieldObject(receipt, "environment", "retained receipt");
+    if (input.executionBinding === undefined) {
+      if (environment["vela:execution_binding"] !== undefined) {
+        throw new VelaClientError(
+          "malformed_output",
+          "retained receipt invented an exact execution binding",
+        );
+      }
+    } else {
+      const binding = fieldObject(
+        environment,
+        "vela:execution_binding",
+        "retained receipt.environment",
+      );
+      if (canonicalJcs(binding) !== canonicalJcs(input.executionBinding)) {
+        throw new VelaClientError(
+          "root_mismatch",
+          "retained exact execution binding drifted",
+        );
+      }
+    }
     const chain = fieldObject(environment, "vela:scientific_chain", "retained receipt.environment");
     const expectedChain = {
       schema: "vela.scientific-chain.producer.v1",

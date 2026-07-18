@@ -401,6 +401,13 @@ test("Vela client delegates Receipt v1 authoring to the released CLI", async () 
       result: "The declared verifier exited zero.",
       evidence: [`artifact:${root}`],
       counterevidence: [],
+      executionBinding: {
+        schema: "vela.execution-binding.v1",
+        packet_root: root,
+        profile_root: `sha256:${"b".repeat(64)}`,
+        verifier_capsule_root: `sha256:${"c".repeat(64)}`,
+        result_contract_root: `sha256:${"d".repeat(64)}`,
+      },
       work: "task-1",
     },
     mission().roots,
@@ -412,6 +419,10 @@ test("Vela client delegates Receipt v1 authoring to the released CLI", async () 
   assert.ok(land?.includes("--predicted-observable"));
   assert.ok(land?.includes("--performed-test"));
   assert.ok(land?.includes("--evidence"));
+  assert.ok(land?.includes("--packet-root"));
+  assert.ok(land?.includes("--profile-root"));
+  assert.ok(land?.includes("--verifier-capsule-root"));
+  assert.ok(land?.includes("--result-contract-root"));
   assert.equal(land?.includes("--push"), false);
   assert.equal(land?.includes("sign"), false);
 });

@@ -98,6 +98,24 @@ export function mapCandidateToReceipt(
   if (candidate.status === "success" && verifier.status !== "passed") {
     throw new Error("a success candidate requires a passing declared verifier");
   }
+  if (mission.schema === "canopus.mission.v1" && mission.result_contract !== undefined) {
+    const contract = mission.result_contract;
+    if (
+      candidate.status !== contract.candidate_status ||
+      verifier.status !== contract.verifier_status ||
+      mission.target !== contract.target ||
+      mission.claim_type !== contract.claim_type ||
+      mission.replayability !== contract.replayability
+    ) {
+      throw new Error("candidate does not satisfy the exact positive result contract");
+    }
+    const artifactKinds = new Set(candidate.artifacts.map((artifact) => artifact.kind));
+    for (const kind of contract.required_artifact_kinds) {
+      if (!artifactKinds.has(kind)) {
+        throw new Error(`candidate is missing result-contract artifact kind ${kind}`);
+      }
+    }
+  }
   const result =
     verifier.status === "passed"
       ? "The declared verifier exited zero on the frozen artifact set."
@@ -134,6 +152,9 @@ export function mapCandidateToReceipt(
     result,
     evidence,
     counterevidence,
+    ...(mission.schema === "canopus.mission.v1" && mission.execution_binding !== undefined
+      ? { executionBinding: mission.execution_binding }
+      : {}),
     ...(work === undefined ? {} : { work }),
   };
 }

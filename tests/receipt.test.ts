@@ -6,7 +6,7 @@ import test from "node:test";
 
 import { freezeArtifact, type FrozenArtifactLocation } from "../src/artifact/freeze.js";
 import type { Candidate } from "../src/contracts/candidate.js";
-import type { Mission } from "../src/contracts/mission.js";
+import { parseMission, type Mission } from "../src/contracts/mission.js";
 import {
   finalizeCandidate,
   installFrozenArtifacts,
@@ -14,6 +14,7 @@ import {
 } from "../src/receipt/map.js";
 import type { EngineResult } from "../src/engines/engine.js";
 import type { VerifierOutcome } from "../src/verifier/run.js";
+import { contentDigest } from "../src/util/canonical.js";
 
 const digest = `sha256:${"a".repeat(64)}`;
 const empty = `sha256:${"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}`;
@@ -52,6 +53,57 @@ function mission(): Mission {
     },
     landing: { expected_routes: ["defer"], max_accepted_delta: 0 },
   };
+}
+
+function exactPermitMission(): Mission {
+  const resultContract = {
+    schema: "canopus.result-contract.v1",
+    target: "target-1",
+    claim_type: "computational",
+    replayability: "exact",
+    candidate_status: "success",
+    verifier_status: "passed",
+    required_artifact_kinds: ["witness"],
+  };
+  return parseMission({
+    ...mission(),
+    schema: "canopus.mission.v1",
+    target_packet: { path: "packet/target.json", sha256: digest },
+    strict_baseline: {
+      status: "pass",
+      blocker_count: 0,
+      blockers_root: digest,
+      rule_counts: [],
+    },
+    worker: {
+      kind: "codex_tools_native",
+      platform: "darwin",
+      codex_version: "codex-cli 0.144.6",
+      codex_sha256: digest,
+      permission_profile_path: "contract/native-worker.config.toml",
+      permission_profile_sha256: digest,
+      workspace: "target_packet_only",
+      output_schema_sha256: digest,
+      model: "gpt-5.2-codex",
+      network: "provider_only",
+      tools: ["shell", "apply_patch"],
+    },
+    verifier: {
+      ...mission().verifier,
+      capsule_path: "capsule/verifier",
+      capsule_sha256: digest,
+      image: digest,
+    },
+    landing: { expected_routes: ["permit"], max_accepted_delta: 1 },
+    result_contract: resultContract,
+    execution_binding: {
+      schema: "vela.execution-binding.v1",
+      packet_root: digest,
+      profile_root: `sha256:${"b".repeat(64)}`,
+      verifier_capsule_root: digest,
+      result_contract_root: contentDigest(resultContract),
+    },
+  });
 }
 
 function verifier(status: VerifierOutcome["status"] = "passed"): VerifierOutcome {
@@ -141,6 +193,31 @@ test("failed verifier cannot remain a success candidate", () => {
   assert.match(candidate.claim, /did not pass/u);
   const input = mapCandidateToReceipt(mission(), candidate, outcome);
   assert.deepEqual(input.counterevidence, ["verifier_outcome:failed"]);
+});
+
+test("exact Permit candidate emits the registered Vela execution binding", () => {
+  const exact = exactPermitMission();
+  const outcome = verifier();
+  const candidate = finalizeCandidate({
+    mission: exact,
+    engine: engine(),
+    frozen: frozen(),
+    verifier: outcome,
+    budget: {
+      research_elapsed_ms: 5,
+      research_processes: 2,
+      research_output_bytes: 2,
+      prompt_bytes: 1,
+      artifact_bytes: 10,
+      attempts: 1,
+      observed_tokens: 3,
+    },
+  });
+  const input = mapCandidateToReceipt(exact, candidate, outcome, exact.target);
+  assert.deepEqual(
+    input.executionBinding,
+    exact.schema === "canopus.mission.v1" ? exact.execution_binding : undefined,
+  );
 });
 
 test("frozen artifacts install into the separate landing clone", async () => {

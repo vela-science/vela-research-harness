@@ -4,6 +4,7 @@ import test from "node:test";
 import { parseCandidate } from "../src/contracts/candidate.js";
 import { parseMission } from "../src/contracts/mission.js";
 import { parseCandidateDraft } from "../src/candidate/validate.js";
+import { contentDigest } from "../src/util/canonical.js";
 
 const hex = "a".repeat(64);
 const digest = `sha256:${hex}`;
@@ -136,6 +137,29 @@ function missionV1(): Record<string, unknown> {
   };
 }
 
+function permitMissionV1(): Record<string, unknown> {
+  const input = missionV1();
+  const resultContract = {
+    schema: "canopus.result-contract.v1",
+    target: "target-1",
+    claim_type: "computational",
+    replayability: "exact",
+    candidate_status: "success",
+    verifier_status: "passed",
+    required_artifact_kinds: ["witness"],
+  };
+  input.landing = { expected_routes: ["permit"], max_accepted_delta: 1 };
+  input.result_contract = resultContract;
+  input.execution_binding = {
+    schema: "vela.execution-binding.v1",
+    packet_root: digest,
+    profile_root: `sha256:${"b".repeat(64)}`,
+    verifier_capsule_root: digest,
+    result_contract_root: contentDigest(resultContract),
+  };
+  return input;
+}
+
 test("mission v0 round-trips a bounded exact-root contract", () => {
   assert.deepEqual(parseMission(mission()), mission());
 });
@@ -144,14 +168,33 @@ test("mission v1 round-trips a zero-delta tool-worker contract", () => {
   assert.deepEqual(parseMission(missionV1()), missionV1());
 });
 
-test("mission v1 rejects unregistered strict debt and authority-bearing routes", () => {
+test("mission v1 rejects unregistered strict debt and unbound Permit", () => {
   const debt = missionV1();
   (debt.strict_baseline as { blocker_count: number }).blocker_count = 4;
   assert.throws(() => parseMission(debt), /must sum to blocker_count/u);
 
   const permit = missionV1();
   permit.landing = { expected_routes: ["permit"], max_accepted_delta: 1 };
-  assert.throws(() => parseMission(permit), /only register zero-delta defer/u);
+  assert.throws(() => parseMission(permit), /Permit requires an exact execution binding/u);
+});
+
+test("mission v1 Permit is exact-root-bound and substitution fails closed", () => {
+  const intended = permitMissionV1();
+  assert.deepEqual(parseMission(intended), intended);
+
+  const packet = structuredClone(intended);
+  (packet.execution_binding as { packet_root: string }).packet_root =
+    `sha256:${"c".repeat(64)}`;
+  assert.throws(() => parseMission(packet), /does not match its retained packet/u);
+
+  const capsule = structuredClone(intended);
+  (capsule.execution_binding as { verifier_capsule_root: string }).verifier_capsule_root =
+    `sha256:${"d".repeat(64)}`;
+  assert.throws(() => parseMission(capsule), /does not match its retained packet/u);
+
+  const contract = structuredClone(intended);
+  (contract.result_contract as { target: string }).target = "target-2";
+  assert.throws(() => parseMission(contract), /does not match its retained packet/u);
 });
 
 test("mission v1 rejects missing capsules and widened worker tools", () => {

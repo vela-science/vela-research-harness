@@ -41,7 +41,14 @@ source checkout only after verifier success and clean-clone reproduction. It
 does not push a remote. Use `--no-land` for a diagnostic run that leaves the
 source frontier unchanged.
 
-After a deferred landing reproduces, Canopus retains only the exact
+Profiles are Defer-only by default. A profile can request the policy lane only
+when it includes a closed positive result contract and binds the full target
+packet, profile, verifier capsule, and result-contract roots into the Receipt.
+Canopus does not decide whether that work is admitted: released Vela evaluates
+the exact signed policy, and any route, root, result class, or accepted-state
+delta outside the frozen profile stops the run.
+
+After a pending landing reproduces, Canopus retains only the exact
 Receipt-bound producer seed needed to withdraw that one proposal. The
 capability never enters worker, verifier, or run evidence. Withdrawal is
 explicit, runs in a disposable exact-head clone, proves the accepted scientific

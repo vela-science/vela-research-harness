@@ -12,9 +12,12 @@ import {
   sha256At,
   stringAt,
 } from "./validation.js";
+import { contentDigest } from "../util/canonical.js";
 
 export const MISSION_SCHEMA = "canopus.mission.v0" as const;
 export const MISSION_V1_SCHEMA = "canopus.mission.v1" as const;
+export const EXECUTION_BINDING_SCHEMA = "vela.execution-binding.v1" as const;
+export const RESULT_CONTRACT_SCHEMA = "canopus.result-contract.v1" as const;
 export const ROLES = ["producer", "adversary", "verifier", "fidelity"] as const;
 // Vela Deny is deliberately error-shaped and therefore cannot be a successful
 // Canopus landing outcome. Missions register only success-shaped routes.
@@ -107,6 +110,24 @@ export interface LandingSpec {
   max_accepted_delta: number;
 }
 
+export interface ExecutionBindingV1 {
+  schema: typeof EXECUTION_BINDING_SCHEMA;
+  packet_root: string;
+  profile_root: string;
+  verifier_capsule_root: string;
+  result_contract_root: string;
+}
+
+export interface PositiveResultContractV1 {
+  schema: typeof RESULT_CONTRACT_SCHEMA;
+  target: string;
+  claim_type: "computational";
+  replayability: "exact";
+  candidate_status: "success";
+  verifier_status: "passed";
+  required_artifact_kinds: string[];
+}
+
 export type ScientificChainSpec =
   | { predicted_observable: string; performed_test: string }
   | { not_applicable: true; performed_test: string };
@@ -143,6 +164,8 @@ export interface MissionV1 extends MissionBase {
   strict_baseline: StrictBaseline;
   worker: WorkerSpec;
   verifier: ContainerVerifierSpec;
+  execution_binding?: ExecutionBindingV1;
+  result_contract?: PositiveResultContractV1;
 }
 
 export type Mission = MissionV0 | MissionV1;
@@ -394,6 +417,77 @@ function parseLanding(value: unknown): LandingSpec {
   };
 }
 
+function parseExecutionBinding(value: unknown): ExecutionBindingV1 {
+  const object = objectAt(value, "mission.execution_binding");
+  exactKeys(
+    object,
+    ["schema", "packet_root", "profile_root", "verifier_capsule_root", "result_contract_root"],
+    [],
+    "mission.execution_binding",
+  );
+  if (object.schema !== EXECUTION_BINDING_SCHEMA) {
+    throw new ContractError(`mission.execution_binding.schema must be ${EXECUTION_BINDING_SCHEMA}`);
+  }
+  return {
+    schema: EXECUTION_BINDING_SCHEMA,
+    packet_root: sha256At(object.packet_root, "mission.execution_binding.packet_root"),
+    profile_root: sha256At(object.profile_root, "mission.execution_binding.profile_root"),
+    verifier_capsule_root: sha256At(
+      object.verifier_capsule_root,
+      "mission.execution_binding.verifier_capsule_root",
+    ),
+    result_contract_root: sha256At(
+      object.result_contract_root,
+      "mission.execution_binding.result_contract_root",
+    ),
+  };
+}
+
+export function parsePositiveResultContract(value: unknown): PositiveResultContractV1 {
+  const object = objectAt(value, "mission.result_contract");
+  exactKeys(
+    object,
+    [
+      "schema",
+      "target",
+      "claim_type",
+      "replayability",
+      "candidate_status",
+      "verifier_status",
+      "required_artifact_kinds",
+    ],
+    [],
+    "mission.result_contract",
+  );
+  if (object.schema !== RESULT_CONTRACT_SCHEMA) {
+    throw new ContractError(`mission.result_contract.schema must be ${RESULT_CONTRACT_SCHEMA}`);
+  }
+  if (object.claim_type !== "computational" || object.replayability !== "exact") {
+    throw new ContractError("mission.result_contract is limited to exact computational results");
+  }
+  if (object.candidate_status !== "success" || object.verifier_status !== "passed") {
+    throw new ContractError("mission.result_contract must require a successful verified result");
+  }
+  return {
+    schema: RESULT_CONTRACT_SCHEMA,
+    target: stringAt(object.target, "mission.result_contract.target", { min: 1, max: 256 }),
+    claim_type: "computational",
+    replayability: "exact",
+    candidate_status: "success",
+    verifier_status: "passed",
+    required_artifact_kinds: arrayAt(
+      object.required_artifact_kinds,
+      "mission.result_contract.required_artifact_kinds",
+      { min: 1, max: 16, unique: true },
+      (item, at) => stringAt(item, at, {
+        min: 1,
+        max: 64,
+        pattern: /^[a-z][a-z0-9._-]*$/u,
+      }),
+    ).sort(),
+  };
+}
+
 function parseScientificChain(value: unknown): ScientificChainSpec {
   const object = objectAt(value, "mission.scientific_chain");
   exactKeys(
@@ -461,7 +555,15 @@ export function parseMission(value: unknown): Mission {
       "landing",
     ],
     isV1
-      ? ["parent_candidate", "repair_reason", "target_packet", "strict_baseline", "worker"]
+      ? [
+          "parent_candidate",
+          "repair_reason",
+          "target_packet",
+          "strict_baseline",
+          "worker",
+          "execution_binding",
+          "result_contract",
+        ]
       : ["parent_candidate", "repair_reason"],
     "mission",
   );
@@ -493,12 +595,8 @@ export function parseMission(value: unknown): Mission {
       `mission.landing.max_accepted_delta must be ${requiredDelta} for the registered routes`,
     );
   }
-  if (isV1 && (
-    landing.expected_routes.length !== 1 ||
-    landing.expected_routes[0] !== "defer" ||
-    landing.max_accepted_delta !== 0
-  )) {
-    throw new ContractError("mission v1 tool workers may only register zero-delta defer");
+  if (landing.expected_routes.length !== 1) {
+    throw new ContractError("mission landing must register exactly one expected route");
   }
 
   const base = {
@@ -541,14 +639,48 @@ export function parseMission(value: unknown): Mission {
   };
 
   const versioned = isV1
-    ? {
+    ? (() => {
+        const targetPacket = parseTargetPacket(object.target_packet);
+        const executionBinding = object.execution_binding === undefined
+          ? undefined
+          : parseExecutionBinding(object.execution_binding);
+        const resultContract = object.result_contract === undefined
+          ? undefined
+          : parsePositiveResultContract(object.result_contract);
+        if ((executionBinding === undefined) !== (resultContract === undefined)) {
+          throw new ContractError(
+            "mission v1 exact Permit requires both execution_binding and result_contract",
+          );
+        }
+        if (landing.expected_routes[0] === "permit" && executionBinding === undefined) {
+          throw new ContractError("mission v1 Permit requires an exact execution binding");
+        }
+        if (executionBinding !== undefined && resultContract !== undefined) {
+          if (base.claim_type !== "computational" || base.replayability !== "exact") {
+            throw new ContractError("exact Permit bindings require an exact computational mission");
+          }
+          if (
+            executionBinding.packet_root !== targetPacket.sha256 ||
+            executionBinding.verifier_capsule_root !== (verifier as ContainerVerifierSpec).capsule_sha256 ||
+            executionBinding.result_contract_root !== contentDigest(resultContract) ||
+            resultContract.target !== base.target
+          ) {
+            throw new ContractError(
+              "mission execution binding does not match its retained packet, capsule, result contract, or target",
+            );
+          }
+        }
+        return {
         ...base,
         schema: MISSION_V1_SCHEMA,
-        target_packet: parseTargetPacket(object.target_packet),
+        target_packet: targetPacket,
         strict_baseline: parseStrictBaseline(object.strict_baseline),
         worker: parseWorker(object.worker),
         verifier: verifier as ContainerVerifierSpec,
-      }
+        ...(executionBinding === undefined ? {} : { execution_binding: executionBinding }),
+        ...(resultContract === undefined ? {} : { result_contract: resultContract }),
+      };
+      })()
     : { ...base, schema: MISSION_SCHEMA, verifier: verifier as VerifierSpec };
 
   if ((object.parent_candidate === undefined) !== (object.repair_reason === undefined)) {

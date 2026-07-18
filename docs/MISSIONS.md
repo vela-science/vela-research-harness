@@ -30,16 +30,26 @@ structured-output schema, and verifier capsule into a portable bundle. The
 Codex binary, model, verifier image, resource ceilings, and every copied byte
 are hash-pinned.
 
-The producer runs through the native Codex CLI under a default-deny macOS
-permission profile. The writable workspace contains only the exact target
-packet; the full source checkout, Vela home, host home, and authentication file
-remain outside command-readable paths. Provider transport is available only to
-the Codex process. Shell commands have no network access.
+The producer runs through the native Codex CLI under a default-deny platform
+profile: Seatbelt on macOS and Codex's Bubblewrap sandbox on Linux or WSL2. The
+writable workspace contains only the exact target packet; the full source
+checkout, Vela home, host home, and authentication file remain outside
+command-readable paths. Provider transport is available only to the Codex
+process. Shell commands have no network access.
 
 Only a `success` draft with the declared artifact proceeds to the separate
 network-denied verifier. `null` and `failed` drafts are preserved in
 `engine-result.json` and stop before verification or Receipt landing. After a
 verifier pass, Canopus publishes exactly the frozen artifact sources in one
-unsigned non-authoritative Git commit and then calls `vela land`. Mission v1
-allows only Vela's `defer` route with accepted-event delta zero and requires a
-matching clean-clone replay.
+unsigned non-authoritative Git commit and then calls `vela land`.
+
+Defer-only Mission v1 bundles preserve their original zero-delta behavior. A
+profile may register `permit` only when it also freezes one closed positive
+`canopus.result-contract.v1` and a `vela.execution-binding.v1` over the full
+packet, profile, verifier-capsule, and result-contract roots. The worker result
+must be an exact computational success, the verifier must pass, and every
+required artifact kind must be present before Canopus authors the binding
+through Vela's Receipt builder. Any mismatch stops before landing. Vela alone
+evaluates the already-signed policy; Canopus then requires the registered route
+and accepted-event delta and reproduces the retained Receipt from a clean
+clone.

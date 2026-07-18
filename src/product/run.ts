@@ -15,7 +15,12 @@ import { isolatedEnvironment, runCommand, type CommandRunner } from "../util/com
 import { readBoundedRegularFile } from "../util/files.js";
 import { VelaClient } from "../vela/cli.js";
 import { doctorProduct, type ProductDoctorResult } from "./doctor.js";
-import { loadProfileDraft, packagedWorkerProfile, stageProfileCapsule } from "./profile.js";
+import {
+  loadProfileDraft,
+  loadProfileResultContract,
+  packagedWorkerProfile,
+  stageProfileCapsule,
+} from "./profile.js";
 import { retainWithdrawalCapability } from "../capability/withdrawal.js";
 
 export interface ProductRunResult {
@@ -199,6 +204,7 @@ export async function runProduct(options: {
     });
     const bundleRoot = path.join(outputRoot, "mission");
     const draft = await loadProfileDraft(diagnosis.profile);
+    const resultContract = await loadProfileResultContract(diagnosis.profile);
     const prepared = await prepareMission({
       draft: options.requestedTarget === undefined
         ? draft
@@ -216,6 +222,13 @@ export async function runProduct(options: {
         target: diagnosis.profile.target,
         schema: diagnosis.profile.target_packet_schema,
       },
+      landing: diagnosis.profile.landing,
+      ...(resultContract === undefined
+        ? {}
+        : {
+            profileRoot: diagnosis.profile.profile_sha256,
+            resultContract,
+          }),
       runner,
     });
     await rm(staging, { recursive: true, force: true });

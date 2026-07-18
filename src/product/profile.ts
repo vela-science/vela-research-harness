@@ -12,6 +12,11 @@ import {
   sha256At,
   stringAt,
 } from "../contracts/validation.js";
+import {
+  parsePositiveResultContract,
+  type LandingSpec,
+  type PositiveResultContractV1,
+} from "../contracts/mission.js";
 import { contentDigest, sha256Bytes } from "../util/canonical.js";
 import { readBoundedRegularFile } from "../util/files.js";
 
@@ -40,7 +45,10 @@ export interface ProductProfile {
   allowed_artifacts_sha256: string;
   budgets_sha256: string;
   replay_argv_sha256: string;
-  landing: { expected_routes: ["defer"]; max_accepted_delta: 0 };
+  landing: LandingSpec;
+  profile_sha256: string;
+  result_contract?: string;
+  result_contract_sha256?: string;
   platforms: Record<ProductPlatform, PlatformCapsule>;
   platform: ProductPlatform;
   capsule_binary: string;
@@ -128,6 +136,7 @@ function parseV2(
   value: Record<string, unknown>,
   name: string,
   platform: ProductPlatform,
+  profileSha256: string,
 ): ProductProfile {
   exactKeys(
     value,
@@ -146,7 +155,7 @@ function parseV2(
       "landing",
       "platforms",
     ],
-    [],
+    ["result_contract", "result_contract_sha256"],
     "profile",
   );
   const platformsValue = objectAt(value.platforms, "profile.platforms");
@@ -163,10 +172,21 @@ function parseV2(
     landingValue.expected_routes,
     "profile.landing.expected_routes",
     { min: 1, max: 1, unique: true },
-    (item, at) => stringAt(item, at, { min: 5, max: 5, pattern: /^defer$/u }),
+    (item, at) => stringAt(item, at, { min: 5, max: 6, pattern: /^(?:defer|permit)$/u }),
   );
-  if (expectedRoutes[0] !== "defer" || landingValue.max_accepted_delta !== 0) {
-    throw new Error("profile landing ceiling must be exactly defer with zero accepted delta");
+  const route = expectedRoutes[0];
+  if (route !== "defer" && route !== "permit") {
+    throw new Error("profile landing route is unsupported");
+  }
+  const maxAcceptedDelta = route === "permit" ? 1 : 0;
+  if (landingValue.max_accepted_delta !== maxAcceptedDelta) {
+    throw new Error(`profile ${route} landing must register accepted delta ${maxAcceptedDelta}`);
+  }
+  if ((value.result_contract === undefined) !== (value.result_contract_sha256 === undefined)) {
+    throw new Error("profile result contract path and root must be supplied together");
+  }
+  if (route === "permit" && value.result_contract === undefined) {
+    throw new Error("profile Permit landing requires an exact positive result contract");
   }
   const selected = platforms[platform];
   const parsed: ProductProfile = {
@@ -190,7 +210,17 @@ function parseV2(
     ),
     budgets_sha256: sha256At(value.budgets_sha256, "profile.budgets_sha256"),
     replay_argv_sha256: sha256At(value.replay_argv_sha256, "profile.replay_argv_sha256"),
-    landing: { expected_routes: ["defer"], max_accepted_delta: 0 },
+    landing: { expected_routes: [route], max_accepted_delta: maxAcceptedDelta },
+    profile_sha256: profileSha256,
+    ...(value.result_contract === undefined
+      ? {}
+      : {
+          result_contract: relativePathAt(value.result_contract, "profile.result_contract"),
+          result_contract_sha256: sha256At(
+            value.result_contract_sha256,
+            "profile.result_contract_sha256",
+          ),
+        }),
     platforms,
     platform,
     capsule_binary: selected.verifier_capsule,
@@ -219,8 +249,9 @@ export async function loadProductProfile(
     throw new Error(`unknown registered profile ${name}`);
   }
   const file = path.join(productPackageRoot(), "profiles", `${name}.json`);
+  const bytes = await readBoundedRegularFile(file, 1024 * 1024);
   const value = objectAt(
-    JSON.parse((await readBoundedRegularFile(file, 1024 * 1024)).toString("utf8")) as unknown,
+    JSON.parse(bytes.toString("utf8")) as unknown,
     "profile",
   );
   if (value.schema === PROFILE_V1_SCHEMA) {
@@ -234,7 +265,36 @@ export async function loadProductProfile(
     };
   }
   if (value.schema !== PROFILE_SCHEMA) throw new Error("profile schema is not supported");
-  return parseV2(value, name, options.platform ?? currentProductPlatform());
+  return parseV2(
+    value,
+    name,
+    options.platform ?? currentProductPlatform(),
+    sha256Bytes(bytes),
+  );
+}
+
+export async function loadProfileResultContract(
+  profile: ProductProfile,
+): Promise<PositiveResultContractV1 | undefined> {
+  if (profile.result_contract === undefined || profile.result_contract_sha256 === undefined) {
+    return undefined;
+  }
+  const file = await packagedProfileResource(profile.result_contract, "profile result contract");
+  const bytes = await readBoundedRegularFile(file, 1024 * 1024);
+  const observed = sha256Bytes(bytes);
+  if (observed !== profile.result_contract_sha256) {
+    throw new Error(
+      `profile result contract drifted: expected ${profile.result_contract_sha256}, observed ${observed}`,
+    );
+  }
+  const contract = parsePositiveResultContract(JSON.parse(bytes.toString("utf8")) as unknown);
+  if (contentDigest(contract) !== observed) {
+    throw new Error("profile result contract file is not exact canonical Canopus JSON");
+  }
+  if (contract.target !== profile.target) {
+    throw new Error("profile and positive result contract target disagree");
+  }
+  return contract;
 }
 
 export async function packagedProfileResource(relative: string, label: string): Promise<string> {

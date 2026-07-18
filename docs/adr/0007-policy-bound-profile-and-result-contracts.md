@@ -13,19 +13,32 @@ solve that by becoming a policy or authority service.
 
 ## Candidate decision
 
-If Vela ADR 0013 is accepted, Canopus profile v2 emits the exact
-`vela.execution-binding.v1` Receipt extension from its already-frozen packet,
-profile, capsule, and result-contract roots. It reports the expected Vela route
-before landing and verifies the retained policy context and decision
-certificate afterward.
+Vela ADR 0013 is accepted. Without introducing Mission v2, a closed Canopus
+profile v2 may add one canonical `canopus.result-contract.v1` and register
+`permit` with accepted-event delta one. Mission v1 then carries that contract
+and the exact `vela.execution-binding.v1` Receipt extension derived from:
+
+- the target packet's retained byte digest;
+- the complete profile JSON byte digest;
+- the staged verifier capsule's byte digest; and
+- the canonical result-contract digest.
+
+The result contract is deliberately positive and narrow: exact computational
+replay, worker status `success`, verifier status `passed`, the exact target, and
+one or more required artifact kinds. A null, failed, unverifiable, wrong-target,
+wrong-kind, wrong-profile, wrong-packet, or wrong-capsule result stops before
+landing. Historical and ordinary profile v2 contracts remain Defer-only and do
+not gain these fields.
+
+Canopus passes the four roots to Vela's existing Receipt authoring edge. It
+does not handcraft Vela attestations, agent identity bindings, policy context,
+or decision certificates. After landing, it verifies the retained binding,
+the registered route and accepted-state delta, and a clean-clone replay.
 
 Canopus cannot author, sign, activate, rotate, revoke, or approve a Vela policy.
 It may prepare the exact read-only policy plan for inspection. The human alone
 approves the protected card. A policy mismatch, missing binding, unexpected
 Permit, or unexpected accepted-state delta stops the run.
-
-If ADR 0013 is rejected as unnecessary, this ADR records No Change and Canopus
-0.5 uses the released v0.1 route without inventing a parallel binding format.
 
 ## Release gate
 

@@ -9,6 +9,7 @@ import {
   listProductProfiles,
   loadProductProfile,
   loadProfileDraft,
+  loadProfileResultContract,
   packagedProfileResource,
   type ProductPlatform,
 } from "./profile.js";
@@ -24,6 +25,7 @@ export interface ProfileValidation {
   name: string;
   profile_sha256: string;
   draft_sha256: string;
+  result_contract_sha256: string | null;
   platforms: Record<ProductPlatform, {
     worker_profile_sha256: string;
     verifier_capsule_sha256: string;
@@ -46,6 +48,7 @@ export async function validateProductProfile(name: string): Promise<ProfileValid
   const canonical = profiles[0];
   if (canonical === undefined) throw new Error("profile has no supported platform capsules");
   await loadProfileDraft(canonical);
+  await loadProfileResultContract(canonical);
   const profileFile = await packagedProfileResource(`profiles/${name}.json`, "profile");
   const profileBytes = await readBoundedRegularFile(profileFile, 1024 * 1024);
   const platforms = Object.fromEntries(await Promise.all(profiles.map(async (profile) => {
@@ -70,6 +73,7 @@ export async function validateProductProfile(name: string): Promise<ProfileValid
     name,
     profile_sha256: sha256Bytes(profileBytes),
     draft_sha256: canonical.draft_sha256,
+    result_contract_sha256: canonical.result_contract_sha256 ?? null,
     platforms,
   };
 }
@@ -86,6 +90,13 @@ export async function packProductProfile(
   };
   await add(`profiles/${name}.json`, validation.profile_sha256, "profile");
   await add(profile.draft, profile.draft_sha256, "profile draft");
+  if (profile.result_contract !== undefined && profile.result_contract_sha256 !== undefined) {
+    await add(
+      profile.result_contract,
+      profile.result_contract_sha256,
+      "profile result contract",
+    );
+  }
   for (const platform of SUPPORTED_PRODUCT_PLATFORMS) {
     const capsule = profile.platforms[platform];
     await add(capsule.worker_profile, capsule.worker_profile_sha256, `${platform} worker profile`);
