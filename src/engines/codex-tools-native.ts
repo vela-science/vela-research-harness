@@ -170,24 +170,32 @@ function requireV1(context: EngineContext): MissionV1 {
   return context.mission;
 }
 
-async function assertRuntimeProfile(options: {
+export async function assertNativeRuntimeProfile(options: {
   binary: string;
   runner: CommandRunner;
   environment: NodeJS.ProcessEnv;
   cwd: string;
+  sourceAuth: string;
   runtimeAuth: string;
   inaccessibleInput: string;
+  unrelatedFile: string;
   canary: string;
   outsideWrite: string;
   timeoutMs: number;
 }): Promise<void> {
   const script = [
-    "runtime=false; input=false; canary=false; writable=false;",
-    'if /bin/dd if="$1" of=/dev/null bs=1 count=1 2>/dev/null; then runtime=true; fi;',
-    'if /bin/dd if="$2" of=/dev/null bs=1 count=1 2>/dev/null; then input=true; fi;',
-    'if /bin/dd if="$3" of=/dev/null bs=1 count=1 2>/dev/null; then canary=true; fi;',
-    'if { printf "probe\\n" > "$4"; } 2>/dev/null; then writable=true; fi;',
-    'printf "%s %s %s %s\\n" "$runtime" "$input" "$canary" "$writable";',
+    "curl=false; source=false; runtime=false; input=false; unrelated=false; canary=false; writable=false; network=false; environ=false; proc=false;",
+    'if /usr/bin/curl --version >/dev/null 2>&1; then curl=true; fi;',
+    'if /bin/dd if="$1" of=/dev/null bs=1 count=1 2>/dev/null; then source=true; fi;',
+    'if /bin/dd if="$2" of=/dev/null bs=1 count=1 2>/dev/null; then runtime=true; fi;',
+    'if /bin/dd if="$3" of=/dev/null bs=1 count=1 2>/dev/null; then input=true; fi;',
+    'if /bin/dd if="$4" of=/dev/null bs=1 count=1 2>/dev/null; then unrelated=true; fi;',
+    'if /bin/dd if="$5" of=/dev/null bs=1 count=1 2>/dev/null; then canary=true; fi;',
+    'if { printf "probe\\n" > "$6"; } 2>/dev/null; then writable=true; fi;',
+    'if /usr/bin/curl --fail --silent --show-error --max-time 3 --output /dev/null https://example.com/ 2>/dev/null; then network=true; fi;',
+    "if /usr/bin/env | /usr/bin/grep -Eq '^(OPENAI_API_KEY|CODEX_API_KEY|CANOPUS_AUTH)='; then environ=true; fi;",
+    "if [ -r /proc/1/environ ] && /usr/bin/grep -aEq '(OPENAI_API_KEY|CODEX_API_KEY|CANOPUS_AUTH)=' /proc/1/environ; then proc=true; fi;",
+    'printf "%s %s %s %s %s %s %s %s %s %s\\n" "$curl" "$source" "$runtime" "$input" "$unrelated" "$canary" "$writable" "$network" "$environ" "$proc";',
   ].join(" ");
   const result = await options.runner({
     argv: [
@@ -202,8 +210,10 @@ async function assertRuntimeProfile(options: {
       "-c",
       script,
       "sh",
+      options.sourceAuth,
       options.runtimeAuth,
       options.inaccessibleInput,
+      options.unrelatedFile,
       options.canary,
       options.outsideWrite,
     ],
@@ -215,10 +225,11 @@ async function assertRuntimeProfile(options: {
   if (
     result.exitCode !== 0 ||
     result.stderr.length !== 0 ||
-    result.stdout.toString("utf8").trim() !== "false false false false"
+    result.stdout.toString("utf8").trim() !==
+      "true false false false false false false false false false"
   ) {
     const stdout = result.stdout.toString("utf8").trim();
-    const boundedStdout = /^(?:true|false)(?: (?:true|false)){3}$/u.test(stdout)
+    const boundedStdout = /^(?:true|false)(?: (?:true|false)){9}$/u.test(stdout)
       ? stdout
       : `sha256=${sha256Bytes(result.stdout)}`;
     throw new Error(
@@ -300,13 +311,18 @@ export class CodexToolsNativeEngine implements Engine {
       }
 
       context.budget.beginProcess();
-      await assertRuntimeProfile({
+      await assertNativeRuntimeProfile({
         binary,
         runner: this.#runner,
-        environment,
+        environment: {
+          ...environment,
+          CANOPUS_AUTH: "canopus-preflight-environment-canary",
+        },
         cwd: workspace,
+        sourceAuth: path.join(this.#options.authHome, "auth.json"),
         runtimeAuth: path.join(runtimeCodexHome, "auth.json"),
-        inaccessibleInput: context.paths.input,
+        inaccessibleInput: path.join(context.paths.input, mission.target_packet.path),
+        unrelatedFile: path.join(context.paths.landing, ".git", "HEAD"),
         canary,
         outsideWrite: path.join(context.paths.work, "outside-write"),
         timeoutMs: context.budget.remainingTimeMs(),

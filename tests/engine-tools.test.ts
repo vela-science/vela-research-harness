@@ -136,6 +136,8 @@ function events(): string {
 test("native tool worker pins Codex and permission-profile identities", async () => {
   const paths = await workspace();
   await writeFile(path.join(paths.input, "packet.json"), "{}\n");
+  await mkdir(path.join(paths.landing, ".git"));
+  await writeFile(path.join(paths.landing, ".git", "HEAD"), "ref: refs/heads/main\n");
   const authHome = path.join(paths.root, "source-auth");
   await mkdir(authHome);
   await writeFile(path.join(authHome, "auth.json"), JSON.stringify({
@@ -170,7 +172,10 @@ test("native tool worker pins Codex and permission-profile identities", async ()
     if (options.argv[1] === "sandbox") {
       return {
         argv: [...options.argv], exitCode: 0, signal: null,
-        stdout: Buffer.from("false false false false\n"), stderr: Buffer.alloc(0), durationMs: 1,
+        stdout: Buffer.from(
+          "true false false false false false false false false false\n",
+        ),
+        stderr: Buffer.alloc(0), durationMs: 1,
       };
     }
     assert.equal(options.argv[1], "exec");
@@ -209,6 +214,12 @@ test("native tool worker pins Codex and permission-profile identities", async ()
   assert.deepEqual(result.draft, draft);
   assert.deepEqual(result.actionTypes, ["command_execution"]);
   assert.equal(result.engine.binary_sha256, active.worker.codex_sha256);
+  const preflight = calls[1] ?? [];
+  assert.equal(preflight[1], "sandbox");
+  assert.ok(preflight.includes(path.join(authHome, "auth.json")));
+  assert.ok(preflight.includes(path.join(paths.input, "packet.json")));
+  assert.ok(preflight.includes(path.join(paths.landing, ".git", "HEAD")));
+  assert.equal(preflight.includes(paths.input), false);
   const run = calls[2] ?? [];
   assert.ok(run.includes("--strict-config"));
   assert.equal(run.includes("--sandbox"), false);

@@ -39,6 +39,13 @@ must prove authentication, human keys, host canaries, unrelated repositories,
 outside writes, command network, and verifier access unavailable before a real
 mission.
 
+Hosted Linux CI additionally runs the real Codex Bubblewrap sandbox without a
+model call or credential. This deterministic preflight proves that the pinned
+binary and permission profile hide source and runtime authentication canaries,
+sealed inputs, unrelated files, and host canaries; deny outside writes and
+command network; and scrub authentication-shaped environment state. It does
+not replace or earn credit for the model-mediated hostile custody fixture.
+
 Historical benchmark sources and immutable registrations stay in Git and
 source archives but leave ordinary help and the installed npm payload.
 
