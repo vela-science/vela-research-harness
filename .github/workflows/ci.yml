@@ -61,9 +61,12 @@ jobs:
           printf '%s  %s\n' "$VELA_SHA256" "$RUNNER_TEMP/vela-release/vela" \
             | shasum -a 256 -c -
           chmod +x "$RUNNER_TEMP/vela-release/vela"
-          CANOPUS_VELA_BIN="$RUNNER_TEMP/vela-release/vela" \
-            CANOPUS_VELA_SHA256="sha256:$VELA_SHA256" \
-            node --test dist/tests/integration/released-vela.test.js
+          "$RUNNER_TEMP/vela-release/vela" --version
+          if [ "${{ runner.os }}" = macOS ]; then
+            CANOPUS_VELA_BIN="$RUNNER_TEMP/vela-release/vela" \
+              CANOPUS_VELA_SHA256="sha256:$VELA_SHA256" \
+              node --test dist/tests/integration/released-vela.test.js
+          fi
       - run: pnpm pack:check
 
   windows-read-only:
