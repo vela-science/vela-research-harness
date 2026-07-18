@@ -1,5 +1,31 @@
 # Release evidence
 
+## Canopus v0.4.0 candidate
+
+The first registered quantum mission stopped safely before verification or
+landing because provider-reported usage exceeded its frozen 100,000-token
+postcondition. The stopped run is not a scientific result. It accessed no
+human key, made no authority mutation, and left the frontier's canonical roots
+unchanged.
+
+- Run: `run_b701a970-08e2-47be-8ecd-b2d466a8735c`
+- Failure: `max_observed_tokens budget exceeded: 379561 > 100000`
+- Tool trace and activity roots:
+  `sha256:df2f2f475fcba95afa95c88a1432df428d0b4caa91512fbac44825df217aeba8`
+  and
+  `sha256:4f055f4bf7fd97425d1c5a8dc29f52ca42dcc2c47e30464370a8e10fc7a15d2d`
+- Provider usage: 370,520 input tokens, including 323,584 cached input tokens,
+  plus 9,041 output tokens
+- The final trace contains a candidate at
+  `sha256:8eba28711ace157bf60895e6028c14b3e08b1261cfe9e519d36c1114287f6826`.
+  A separate diagnostic invocation of the already frozen capsule reproduced
+  rank nine, stabilizer size 512, all 3,675 low-weight checks, and distance at
+  least four. This diagnosis does not repair the stopped run or authorize
+  landing its artifact.
+- A distinct retry profile preserves the first registration and raises only the
+  observed-token postcondition to 400,000. It supplies no prior candidate or
+  search hint.
+
 ## Canopus v0.3.0
 
 This release adds the one-command product path and proposal-scoped producer
