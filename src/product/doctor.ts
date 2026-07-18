@@ -31,7 +31,11 @@ export interface ProductDoctorResult {
     vela: RuntimeIdentity;
     codex: RuntimeIdentity;
     git: RuntimeIdentity;
-    docker: RuntimeIdentity & { daemon: "ready"; verifier_image: string };
+    docker: RuntimeIdentity & {
+      daemon: "ready";
+      verifier_image: string;
+      verifier_image_id: string;
+    };
   };
   capsule: { sha256: string; source: "packaged" };
   next_action: string;
@@ -185,16 +189,32 @@ export async function doctorProduct(options: {
       throw new Error("frontier did not return the Vela 0.9 compact contracts");
     }
     const profile = await resolveProductProfile(offer, options.profileName, options.requestedTarget);
-    const image = await runner({
-      argv: [docker.binary, "image", "inspect", "--format={{.Id}}", profile.verifier_image],
-      cwd: frontier,
-      env: isolatedEnvironment(runtime),
-      timeoutMs: 30_000,
-      maxOutputBytes: 64 * 1024,
-    });
-    const imageId = image.stdout.toString("utf8").trim();
-    if (image.exitCode !== 0 || image.stderr.length !== 0 || imageId !== profile.verifier_image) {
-      throw new Error("registered verifier image is unavailable or drifted");
+    const [image, repoDigests] = await Promise.all([
+      runner({
+        argv: [docker.binary, "image", "inspect", "--format={{.Id}}", profile.verifier_image],
+        cwd: frontier,
+        env: isolatedEnvironment(runtime),
+        timeoutMs: 30_000,
+        maxOutputBytes: 64 * 1024,
+      }),
+      runner({
+        argv: [docker.binary, "image", "inspect", "--format={{json .RepoDigests}}", profile.verifier_image],
+        cwd: frontier,
+        env: isolatedEnvironment(runtime),
+        timeoutMs: 30_000,
+        maxOutputBytes: 64 * 1024,
+      }),
+    ]);
+    if (image.exitCode !== 0 || repoDigests.exitCode !== 0) {
+      throw new Error(`registered verifier image is unavailable; run docker pull ${profile.verifier_image}`);
+    }
+    if (image.stderr.length !== 0 || repoDigests.stderr.length !== 0) {
+      throw new Error("registered verifier image inspection produced unexpected stderr");
+    }
+    const imageId = sha256At(image.stdout.toString("utf8").trim(), "Docker image ID");
+    const observedDigests = JSON.parse(repoDigests.stdout.toString("utf8")) as unknown;
+    if (!Array.isArray(observedDigests) || !observedDigests.includes(profile.verifier_image)) {
+      throw new Error("registered verifier image repository digest drifted");
     }
     const selected = selectProductOffer(offer, profile, options.requestedTarget);
     const roots = objectAt(status.roots, "vela status.roots");
@@ -227,7 +247,12 @@ export async function doctorProduct(options: {
           vela,
           codex,
           git,
-          docker: { ...docker, daemon: "ready", verifier_image: imageId },
+          docker: {
+            ...docker,
+            daemon: "ready",
+            verifier_image: profile.verifier_image,
+            verifier_image_id: imageId,
+          },
         },
         capsule: {
           sha256: profile.capsule_sha256,

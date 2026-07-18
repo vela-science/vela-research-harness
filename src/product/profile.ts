@@ -83,6 +83,14 @@ async function registeredProfileNames(): Promise<string[]> {
     .sort();
 }
 
+export function verifierImageAt(value: unknown, at = "verifier_image"): string {
+  return stringAt(value, at, {
+    min: 100,
+    max: 200,
+    pattern: /^ghcr\.io\/vela-science\/canopus-verifier@sha256:[0-9a-f]{64}$/u,
+  });
+}
+
 export async function listProductProfiles(): Promise<string[]> {
   return registeredProfileNames();
 }
@@ -112,7 +120,7 @@ function parsePlatformCapsule(value: unknown, at: string): PlatformCapsule {
       object.verifier_capsule_sha256,
       `${at}.verifier_capsule_sha256`,
     ),
-    verifier_image: sha256At(object.verifier_image, `${at}.verifier_image`),
+    verifier_image: verifierImageAt(object.verifier_image, `${at}.verifier_image`),
   };
 }
 

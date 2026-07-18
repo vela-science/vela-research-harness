@@ -8,6 +8,7 @@ import {
   loadProductProfile,
   loadProfileDraft,
   stageProfileCapsule,
+  verifierImageAt,
 } from "../src/product/profile.js";
 import {
   listProductProfiles,
@@ -31,6 +32,18 @@ test("registered product profiles stage exact distinct capsules and bounded Miss
     const staged = await stageProfileCapsule({ profile, stagingRoot: staging });
     assert.equal(staged.source, "packaged");
   }
+});
+
+test("portable verifier images require the exact public repository and full digest", () => {
+  assert.throws(() => verifierImageAt(`sha256:${"a".repeat(64)}`), /length|invalid format/u);
+  assert.throws(
+    () => verifierImageAt(`ghcr.io/other/canopus-verifier@sha256:${"a".repeat(64)}`),
+    /length|invalid format/u,
+  );
+  assert.throws(
+    () => verifierImageAt("ghcr.io/vela-science/canopus-verifier:latest"),
+    /length|invalid format/u,
+  );
 });
 
 test("profile v2 binds exact platform custody and packs only portable contract resources", async () => {
