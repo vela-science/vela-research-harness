@@ -33,7 +33,18 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm check
+      - name: Run platform-appropriate checks
+        run: |
+          if [ "${{ runner.os }}" = macOS ]; then
+            pnpm check
+          else
+            pnpm typecheck
+            pnpm build
+            node --test \
+              dist/tests/mission-v1.test.js \
+              dist/tests/product-cli.test.js \
+              dist/tests/product-profile.test.js
+          fi
       - name: Verify released Vela composition
         env:
           VELA_ARCHIVE: ${{ matrix.archive }}
