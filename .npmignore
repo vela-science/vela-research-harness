@@ -1,6 +1,3 @@
-.diag/
-.runs/
-.work/
-capsules/*/verifier
-missions/*/capsule/verifier
-tests/fixtures/native-worker/tmp/
+dist/src/benchmark/
+dist/tests/
+benchmarks/

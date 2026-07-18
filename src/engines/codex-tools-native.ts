@@ -50,7 +50,9 @@ function prompt(mission: MissionV1): string {
     ? [
         "This registered Erdős mission already supplies the complete algorithm, range, artifact grammar, and completion test. The packet identity has already been verified by the harness.",
         "Do not enumerate the workspace, rediscover files, re-hash the packet, inspect unrelated packet fields, or search for the verifier. Start by writing the bounded search program, then compile and run it, inspect only the small result artifact, and return.",
-        "The profile exposes the Xcode compiler and SDK directly. Compile inside the workspace with `mkdir -p artifacts tmp && TMPDIR=$PWD/tmp clang++ ...`; do not call `/usr/bin/clang++`, `xcrun`, or `xcodebuild`.",
+        mission.worker.platform === "darwin"
+          ? "The profile exposes the Xcode compiler and SDK directly. Compile inside the workspace with `mkdir -p artifacts tmp && TMPDIR=$PWD/tmp clang++ ...`; do not call `/usr/bin/clang++`, `xcrun`, or `xcodebuild`."
+          : "The profile exposes the system C++ compiler directly. Compile inside the workspace with `mkdir -p artifacts tmp && TMPDIR=$PWD/tmp c++ ...`; do not install packages or invoke a container from the worker.",
         "Implement the registered flat table literally: table size 1<<25; slot=(uint64_t(residue)*11400714819323198485ull)>>(64-25); linear probing with mask; uint32 key and generation arrays plus uint8 counts; increment generation once per prime; factorial starts at 1 and multiplies by cut only when cut>0 before counting that cut.",
         "For each prime choose the greatest count and then smallest residue. Across primes replace the best only on a strictly greater count, preserving the earliest prime on ties. After choosing the best prime/residue, recompute its increasing cut list from scratch.",
         "Use at most six shell or patch tool calls. A token-efficient correct computation is part of this mission's product contract.",

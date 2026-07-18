@@ -73,7 +73,7 @@ export interface ContainerVerifierSpec extends VerifierSpec {
 
 export interface WorkerSpec {
   kind: "codex_tools_native";
-  platform: "darwin";
+  platform: "darwin" | "linux";
   codex_version: string;
   codex_sha256: string;
   permission_profile_path: string;
@@ -285,7 +285,7 @@ function parseWorker(value: unknown): WorkerSpec {
   }
   return {
     kind: enumAt(object.kind, "mission.worker.kind", ["codex_tools_native"] as const),
-    platform: enumAt(object.platform, "mission.worker.platform", ["darwin"] as const),
+    platform: enumAt(object.platform, "mission.worker.platform", ["darwin", "linux"] as const),
     codex_version: stringAt(object.codex_version, "mission.worker.codex_version", {
       min: 10,
       max: 64,

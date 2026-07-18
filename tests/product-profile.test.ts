@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -9,6 +9,11 @@ import {
   loadProfileDraft,
   stageProfileCapsule,
 } from "../src/product/profile.js";
+import {
+  listProductProfiles,
+  packProductProfile,
+  validateProductProfile,
+} from "../src/product/profile-bundle.js";
 import { selectProductOffer } from "../src/product/doctor.js";
 import { contentDigest } from "../src/util/canonical.js";
 
@@ -26,6 +31,45 @@ test("registered product profiles stage exact distinct capsules and bounded Miss
     const staged = await stageProfileCapsule({ profile, stagingRoot: staging });
     assert.equal(staged.source, "packaged");
   }
+});
+
+test("profile v2 binds exact platform custody and packs only portable contract resources", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "canopus-profile-pack-parent-"));
+  const name = "erdos1056-k15-10428008-10428200";
+  assert.deepEqual(await listProductProfiles(), [
+    name,
+    "erdos1056-k15-10428201-10428400",
+  ]);
+  const mac = await loadProductProfile(name, { platform: "darwin-arm64" });
+  const linux = await loadProductProfile(name, { platform: "linux-x86_64" });
+  assert.equal(mac.target_packet_schema, "erdos-frontier.problem-work.v1");
+  assert.equal(mac.permission_profile, "runtime/native-worker/config.toml");
+  assert.equal(linux.permission_profile, "runtime/native-worker/config-linux.toml");
+  assert.notEqual(mac.capsule_sha256, linux.capsule_sha256);
+  assert.equal(mac.landing.max_accepted_delta, 0);
+  assert.deepEqual(mac.landing.expected_routes, ["defer"]);
+
+  const validation = await validateProductProfile(name);
+  assert.equal(validation.schema, "canopus.profile-validation.v1");
+  assert.equal(validation.platforms["darwin-arm64"].verifier_capsule_sha256, mac.capsule_sha256);
+  assert.equal(validation.platforms["linux-x86_64"].verifier_capsule_sha256, linux.capsule_sha256);
+
+  const output = path.join(root, "bundle");
+  const packed = await packProductProfile(name, output);
+  const manifest = JSON.parse(await readFile(packed.manifest, "utf8")) as {
+    schema: string;
+    files: Array<{ path: string }>;
+  };
+  assert.equal(manifest.schema, "canopus.profile-pack.v1");
+  assert.equal(packed.files, 6);
+  assert.deepEqual(manifest.files.map((file) => file.path), [
+    "capsules/erdos1056-k15/bin/10428008-10428200/verifier",
+    "capsules/erdos1056-k15/bin/linux-x86_64/10428008-10428200/verifier",
+    "missions/erdos1056-k15/mission.draft.json",
+    `profiles/${name}.json`,
+    "runtime/native-worker/config-linux.toml",
+    "runtime/native-worker/config.toml",
+  ]);
 });
 
 test("explicit targets are deliberate while the default never skips rank one", async () => {

@@ -40,3 +40,20 @@ test("mission help retains the advanced portable interface", async () => {
   assert.match(output, /canopus mission prepare/u);
   assert.match(output, /canopus mission validate/u);
 });
+
+test("profile help and validation retain the advanced closed interface", async () => {
+  const output = await help("profile", "--help");
+  assert.match(output, /canopus profile list/u);
+  assert.match(output, /canopus profile validate/u);
+  assert.match(output, /canopus profile pack/u);
+
+  const list = JSON.parse(await help("profile", "list")) as { profiles: string[] };
+  assert.deepEqual(list.profiles, [
+    "erdos1056-k15-10428008-10428200",
+    "erdos1056-k15-10428201-10428400",
+  ]);
+  const validation = JSON.parse(
+    await help("profile", "validate", "erdos1056-k15-10428008-10428200"),
+  ) as { validation: { schema: string } };
+  assert.equal(validation.validation.schema, "canopus.profile-validation.v1");
+});

@@ -37,6 +37,7 @@ export interface PrepareMissionOptions {
   verifierImage: string;
   outputSchema: string;
   permissionProfile: string;
+  targetPacket?: { target: string; schema: string };
   runner?: CommandRunner;
 }
 
@@ -189,12 +190,23 @@ function selectedAttack(
   return matches[0] as Record<string, unknown>;
 }
 
-function packetFromTarget(target: Record<string, unknown>): { path: string; sha256: string } {
+function packetFromTarget(
+  target: Record<string, unknown>,
+  expected?: { target: string; schema: string },
+): { path: string; sha256: string } {
   const packet = target.packet === undefined
     ? objectAt(objectAt(target.task, "vela next attack.task").packet_ref, "vela next attack.task.packet_ref")
     : objectAt(target.packet, "vela next attack.packet");
-  if (packet.schema !== "erdos-frontier.problem-work.v1") {
-    throw new Error("selected attack target has no supported exact problem packet");
+  const targetId = target.target_id ?? target.id;
+  if (expected !== undefined && targetId !== expected.target) {
+    throw new Error(`selected attack target ${String(targetId)} does not match profile target ${expected.target}`);
+  }
+  const schema = stringAt(packet.schema, "vela next attack.packet.schema", { min: 1, max: 128 });
+  if (expected !== undefined && schema !== expected.schema) {
+    throw new Error(`selected packet schema ${schema} does not match profile schema ${expected.schema}`);
+  }
+  if (expected === undefined && schema !== "erdos-frontier.problem-work.v1") {
+    throw new Error("selected attack target has no registered exact problem packet schema");
   }
   return {
     path: relativePathAt(packet.path, "vela next attack.packet.path"),
@@ -224,8 +236,8 @@ async function workerIdentity(
   cwd: string,
   home: string,
 ): Promise<{ codex_version: string; codex_sha256: string }> {
-  if (process.platform !== "darwin") {
-    throw new Error("canopus.mission.v1 native workers currently require macOS");
+  if (process.platform !== "darwin" && process.platform !== "linux") {
+    throw new Error("canopus.mission.v1 tool workers require macOS, Linux, or WSL2");
   }
   const binary = await realpath(binaryPath);
   const output = await commandText(runner, [binary, "--version"], cwd, home, true);
@@ -298,7 +310,7 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
       "vela next attack.target_id",
       { min: 1, max: 256 },
     );
-    const packet = packetFromTarget(target);
+    const packet = packetFromTarget(target, options.targetPacket);
     const packetSource = await sourceFile(sourceRepo, packet.path, "target packet");
     const packetBytes = await readBoundedRegularFile(packetSource, 64 * 1024 * 1024);
     if (sha256Bytes(packetBytes) !== packet.sha256) {
@@ -374,7 +386,7 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
       worker: {
         ...workerDraft,
         kind: "codex_tools_native",
-        platform: "darwin",
+        platform: process.platform,
         ...identity,
         permission_profile_path: "contract/native-worker.config.toml",
         permission_profile_sha256: permissionProfileDigest,
@@ -440,7 +452,7 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
         image: verifierImage,
       },
       worker: {
-        platform: "darwin",
+        platform: process.platform,
         codex_version: identity.codex_version,
         codex_sha256: identity.codex_sha256,
         permission_profile_path: "contract/native-worker.config.toml",

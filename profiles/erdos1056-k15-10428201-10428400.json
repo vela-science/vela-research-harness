@@ -1,11 +1,33 @@
 {
-  "schema": "canopus.profile.v1",
+  "schema": "canopus.profile.v2",
   "name": "erdos1056-k15-10428201-10428400",
   "target": "erdos:1056",
+  "target_packet_schema": "erdos-frontier.problem-work.v1",
   "draft": "missions/erdos1056-k15-adjacent/mission.draft.json",
-  "capsule_binary": "capsules/erdos1056-k15/bin/10428201-10428400/verifier",
-  "capsule_sha256": "sha256:6144b9d9e217b4a57651b90c157ec9cc17d2c0fdcfc80a24bc9fa694bc16f626",
-  "range_start": 10428201,
-  "range_end": 10428400,
-  "verifier_image": "sha256:2c29bfc915f4e164b075c7c2772bb1ff8b3e28de3d32411e5a59137c90614962"
+  "draft_sha256": "sha256:8b093795d942f64c52085853becba38fe87bd8eefb017a6d4893fec5d5861434",
+  "objective_sha256": "sha256:db5fc9fb352538667f69dfd28f70bf9ae5b1034c09b9bc9900f605ef716a4968",
+  "completion_condition_sha256": "sha256:4a4a06e2c867867a191af27900e96c23e677db2775783f1829c31e4867a7f270",
+  "allowed_artifacts_sha256": "sha256:87a23745c24114cda0db66f39835811ef20016d1175dc88ed8ed214a3c9394a5",
+  "budgets_sha256": "sha256:26e3697f491461dd3073ebfb9960fcaf70e6412095fd4eeade7169fb79a4b070",
+  "replay_argv_sha256": "sha256:19f3b87cef961cdea35a855ff49c58012724287c6e360786fc4ae55965c75a78",
+  "landing": {
+    "expected_routes": ["defer"],
+    "max_accepted_delta": 0
+  },
+  "platforms": {
+    "darwin-arm64": {
+      "worker_profile": "runtime/native-worker/config.toml",
+      "worker_profile_sha256": "sha256:12b58762819481ad101e7a172a296224b6050a8a07a7431272e521a4102908da",
+      "verifier_capsule": "capsules/erdos1056-k15/bin/10428201-10428400/verifier",
+      "verifier_capsule_sha256": "sha256:6144b9d9e217b4a57651b90c157ec9cc17d2c0fdcfc80a24bc9fa694bc16f626",
+      "verifier_image": "sha256:2c29bfc915f4e164b075c7c2772bb1ff8b3e28de3d32411e5a59137c90614962"
+    },
+    "linux-x86_64": {
+      "worker_profile": "runtime/native-worker/config-linux.toml",
+      "worker_profile_sha256": "sha256:f568f62c84f563cc63bb74ec6bbb0c8f596ce7ba9ecd156647c24bb5d5222123",
+      "verifier_capsule": "capsules/erdos1056-k15/bin/linux-x86_64/10428201-10428400/verifier",
+      "verifier_capsule_sha256": "sha256:1dca7ecc03bd2dcdeca378de1239f63fc1c2f753846772150fd521606a2ae5de",
+      "verifier_image": "sha256:b402f466e33f0fd8b925956c3820f2db7b777033a85d381267fc4489505908bb"
+    }
+  }
 }

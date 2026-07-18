@@ -6,11 +6,6 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { readdir, stat } from "node:fs/promises";
 
-import {
-  loadCompositionStageA,
-  runCompositionStageA,
-} from "./benchmark/composition.js";
-import { runPairedBenchmark } from "./benchmark/run.js";
 import { parseMission } from "./contracts/mission.js";
 import { CodexExecEngine } from "./engines/codex-exec.js";
 import { CodexToolsNativeEngine } from "./engines/codex-tools-native.js";
@@ -21,6 +16,12 @@ import { doctorProduct } from "./product/doctor.js";
 import { replayProduct } from "./product/replay.js";
 import { runProduct } from "./product/run.js";
 import { withdrawProduct } from "./product/withdraw.js";
+import {
+  listProductProfiles,
+  packProductProfile,
+  validateProductProfile,
+} from "./product/profile-bundle.js";
+import { loadProductProfile } from "./product/profile.js";
 import { runCanopus } from "./run.js";
 import { readBoundedRegularFile } from "./util/files.js";
 import { VelaClient } from "./vela/cli.js";
@@ -37,8 +38,7 @@ Primary workflow:
   canopus replay <run.json>
   canopus withdraw [frontier] [--run <run.json|latest>] --reason <text>
 
-Mission v1 prepare/validate and frozen benchmark reproduction remain available
-under advanced help.
+Mission v1 prepare/validate remains available under advanced help.
 
 Canopus may land a Receipt v1 as an agent after verifier success. It cannot
 sign, accept, or make a human scientific decision.`;
@@ -53,6 +53,17 @@ function missionUsage(): string {
 prepare derives exact Git, Vela, packet, native permission-profile,
 verifier-image, Codex, capsule, and strict-baseline roots. validate is read-only
 and checks the closed contract and portable bundle bytes.`;
+}
+
+function profileUsage(): string {
+  return `Usage:
+  canopus profile list
+  canopus profile show <name>
+  canopus profile validate <name>
+  canopus profile pack <name> --output <new-directory>
+
+Profiles are closed, content-addressed producer contracts. Version 1 profiles
+remain replay-only; new tool-using missions require a validated version 2 profile.`;
 }
 
 function runUsage(): string {
@@ -169,7 +180,8 @@ function packagedOutputSchema(): string {
 }
 
 function packagedNativeWorkerProfile(): string {
-  return fileURLToPath(new URL("../../runtime/native-worker/config.toml", import.meta.url));
+  const file = process.platform === "linux" ? "config-linux.toml" : "config.toml";
+  return fileURLToPath(new URL(`../../runtime/native-worker/${file}`, import.meta.url));
 }
 
 async function missionCommand(args: string[]): Promise<void> {
@@ -226,6 +238,46 @@ async function missionCommand(args: string[]): Promise<void> {
       manifest: prepared.manifestPath,
     })}\n`,
   );
+}
+
+async function profileCommand(args: string[]): Promise<void> {
+  const [subcommand, name, ...rest] = args;
+  if (subcommand === undefined || isHelp(subcommand) || isHelp(name)) {
+    process.stdout.write(`${profileUsage()}\n`);
+    return;
+  }
+  if (subcommand === "list") {
+    if (name !== undefined || rest.length !== 0) throw new Error("profile list accepts no arguments");
+    process.stdout.write(`${JSON.stringify({
+      ok: true,
+      command: "profile list",
+      profiles: await listProductProfiles(),
+    })}\n`);
+    return;
+  }
+  if (name === undefined) throw new Error(`profile ${subcommand} requires a profile name`);
+  if (subcommand === "show") {
+    if (rest.length !== 0) throw new Error("profile show accepts exactly one profile name");
+    const profile = await loadProductProfile(name);
+    process.stdout.write(`${JSON.stringify({ ok: true, command: "profile show", profile })}\n`);
+    return;
+  }
+  if (subcommand === "validate") {
+    if (rest.length !== 0) throw new Error("profile validate accepts exactly one profile name");
+    process.stdout.write(`${JSON.stringify({
+      ok: true,
+      command: "profile validate",
+      validation: await validateProductProfile(name),
+    })}\n`);
+    return;
+  }
+  if (subcommand === "pack") {
+    const values = options(rest, ["--output"]);
+    const result = await packProductProfile(name, path.resolve(required(values, "--output")));
+    process.stdout.write(`${JSON.stringify({ ok: true, command: "profile pack", ...result })}\n`);
+    return;
+  }
+  throw new Error(`unknown profile command ${subcommand}`);
 }
 
 async function runMission(file: string, rest: string[]): Promise<void> {
@@ -397,39 +449,6 @@ async function withdrawCommand(args: string[]): Promise<void> {
   process.stdout.write(`${JSON.stringify(result)}\n`);
 }
 
-async function benchmark(command: string, file: string, rest: string[]): Promise<void> {
-  const values = options(rest, ["--repo", "--output-root", "--codex", "--codex-home"]);
-  const repoRoot = path.resolve(required(values, "--repo"));
-  const outputRoot = path.resolve(required(values, "--output-root"));
-  const codexBinary = path.resolve(required(values, "--codex"));
-  const home = authHome(values);
-  if (command === "benchmark") {
-    const report = await runPairedBenchmark({
-      registrationPath: path.resolve(file), repoRoot, outputRoot, codexBinary, codexHome: home,
-    });
-    process.stdout.write(`${JSON.stringify({
-      ok: true,
-      command,
-      directional_result: report.directional_result,
-      causal_claim: false,
-      model_calls: report.arms.length,
-      report: path.join(outputRoot, "report.json"),
-    })}\n`);
-    return;
-  }
-  const prepared = await loadCompositionStageA({ repoRoot, registrationPath: path.resolve(file) });
-  const result = await runCompositionStageA({ prepared, outputRoot, codexBinary, codexHome: home });
-  process.stdout.write(`${JSON.stringify({
-    ok: true,
-    command,
-    model_calls: result.records.length,
-    completed_cells: result.report.completed_cells,
-    safe_cells: result.report.safe_cells,
-    hard_safety_pass: result.report.hard_safety_pass,
-    report: path.join(outputRoot, "report.json"),
-  })}\n`);
-}
-
 async function main(argv: string[]): Promise<void> {
   const [command, file, ...rest] = argv;
   if (command === undefined || isHelp(command)) {
@@ -438,6 +457,10 @@ async function main(argv: string[]): Promise<void> {
   }
   if (command === "mission") {
     await missionCommand(argv.slice(1));
+    return;
+  }
+  if (command === "profile") {
+    await profileCommand(argv.slice(1));
     return;
   }
   if (isHelp(file)) {
@@ -478,11 +501,6 @@ async function main(argv: string[]): Promise<void> {
     } else {
       await productRunCommand(argv.slice(1));
     }
-    return;
-  }
-  if (command === "benchmark" || command === "benchmark-composition") {
-    if (file === undefined) throw new Error(`${command} requires a registration file`);
-    await benchmark(command, file, rest);
     return;
   }
   throw new Error(`unknown command ${command}`);

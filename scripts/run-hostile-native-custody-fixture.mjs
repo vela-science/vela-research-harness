@@ -149,7 +149,12 @@ const sourceHome = await realpath(options.get("--codex-home"));
 const unrelated = await realpath(options.get("--unrelated"));
 const fixture = fileURLToPath(new URL("../tests/fixtures/native-worker/", import.meta.url));
 const permissionProfile = fileURLToPath(
-  new URL("../runtime/native-worker/config.toml", import.meta.url),
+  new URL(
+    process.platform === "linux"
+      ? "../runtime/native-worker/config-linux.toml"
+      : "../runtime/native-worker/config.toml",
+    import.meta.url,
+  ),
 );
 const runtime = await mkdtemp(path.join(os.tmpdir(), "canopus-native-custody-"));
 
@@ -257,7 +262,9 @@ try {
       CODEX_HOME: codexHome,
       LANG: "C.UTF-8",
       LC_ALL: "C.UTF-8",
-      SSL_CERT_FILE: "/etc/ssl/cert.pem",
+      SSL_CERT_FILE: process.platform === "linux"
+        ? "/etc/ssl/certs/ca-certificates.crt"
+        : "/etc/ssl/cert.pem",
       NO_COLOR: "1",
       VELA_NO_KEY_ACCESS: "1",
     },

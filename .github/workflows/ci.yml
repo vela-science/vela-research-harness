@@ -9,14 +9,26 @@ permissions:
 
 jobs:
   check:
-    runs-on: macos-15
-    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            archive: vela-macos-aarch64.tar.gz
+            archive_sha256: 7e75ed3c86fc5ae46fc236907d6326ae1088548c34e10a5eefa5650c60457894
+            binary_sha256: d50e119d7c802c18c22a4bf9021802264d4d58f523ad028af46fdd0e7f8a3b32
+          - runner: ubuntu-24.04
+            archive: vela-linux-x86_64.tar.gz
+            archive_sha256: 29ff6001374196a24fba3766462474f09fc197721cc38e353dabca01eecad2fa
+            binary_sha256: cf30a1dc5f575e74055396a9afde59f9b64fb82fc01e58a3e1863a5e36d6444e
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
         with:
           version: 10.33.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: pnpm
@@ -24,17 +36,17 @@ jobs:
       - run: pnpm check
       - name: Verify released Vela composition
         env:
-          VELA_ARCHIVE_SHA256: 7e75ed3c86fc5ae46fc236907d6326ae1088548c34e10a5eefa5650c60457894
-          VELA_SHA256: d50e119d7c802c18c22a4bf9021802264d4d58f523ad028af46fdd0e7f8a3b32
+          VELA_ARCHIVE: ${{ matrix.archive }}
+          VELA_ARCHIVE_SHA256: ${{ matrix.archive_sha256 }}
+          VELA_SHA256: ${{ matrix.binary_sha256 }}
         run: |
           curl --fail --location --silent --show-error \
-            https://github.com/vela-science/vela/releases/download/v0.901.0/vela-macos-aarch64.tar.gz \
-            --output "$RUNNER_TEMP/vela-macos-aarch64.tar.gz"
-          printf '%s  %s\n' "$VELA_ARCHIVE_SHA256" "$RUNNER_TEMP/vela-macos-aarch64.tar.gz" \
+            "https://github.com/vela-science/vela/releases/download/v0.901.0/$VELA_ARCHIVE" \
+            --output "$RUNNER_TEMP/$VELA_ARCHIVE"
+          printf '%s  %s\n' "$VELA_ARCHIVE_SHA256" "$RUNNER_TEMP/$VELA_ARCHIVE" \
             | shasum -a 256 -c -
           mkdir "$RUNNER_TEMP/vela-release"
-          tar -xzf "$RUNNER_TEMP/vela-macos-aarch64.tar.gz" \
-            -C "$RUNNER_TEMP/vela-release"
+          tar -xzf "$RUNNER_TEMP/$VELA_ARCHIVE" -C "$RUNNER_TEMP/vela-release"
           printf '%s  %s\n' "$VELA_SHA256" "$RUNNER_TEMP/vela-release/vela" \
             | shasum -a 256 -c -
           chmod +x "$RUNNER_TEMP/vela-release/vela"
@@ -42,3 +54,37 @@ jobs:
             CANOPUS_VELA_SHA256="sha256:$VELA_SHA256" \
             node --test dist/tests/integration/released-vela.test.js
       - run: pnpm pack:check
+
+  windows-read-only:
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          version: 10.33.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm build
+      - name: Verify Vela and installed Canopus package
+        shell: pwsh
+        run: |
+          $archive = "$env:RUNNER_TEMP\vela-windows-x86_64.zip"
+          Invoke-WebRequest `
+            -Uri "https://github.com/vela-science/vela/releases/download/v0.901.0/vela-windows-x86_64.zip" `
+            -OutFile $archive
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLower() -ne `
+              "81c6055cb2aac63922db43d06babd36f4d6a47c2f90f9b9792588977ab27b513") {
+            throw "Vela archive checksum mismatch"
+          }
+          Expand-Archive $archive "$env:RUNNER_TEMP\vela"
+          & "$env:RUNNER_TEMP\vela\vela.exe" --version
+          pnpm pack --pack-destination $env:RUNNER_TEMP
+          $package = Get-ChildItem "$env:RUNNER_TEMP\vela-science-canopus-*.tgz" | Select-Object -First 1
+          npm install --global --prefix "$env:RUNNER_TEMP\canopus" $package.FullName
+          & "$env:RUNNER_TEMP\canopus\canopus.cmd" --help
+          & "$env:RUNNER_TEMP\canopus\canopus.cmd" profile validate erdos1056-k15-10428008-10428200

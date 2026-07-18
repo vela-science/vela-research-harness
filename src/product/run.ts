@@ -15,7 +15,7 @@ import { isolatedEnvironment, runCommand, type CommandRunner } from "../util/com
 import { readBoundedRegularFile } from "../util/files.js";
 import { VelaClient } from "../vela/cli.js";
 import { doctorProduct, type ProductDoctorResult } from "./doctor.js";
-import { loadProfileDraft, stageProfileCapsule } from "./profile.js";
+import { loadProfileDraft, packagedWorkerProfile, stageProfileCapsule } from "./profile.js";
 import { retainWithdrawalCapability } from "../capability/withdrawal.js";
 
 export interface ProductRunResult {
@@ -211,7 +211,11 @@ export async function runProduct(options: {
       dockerBinary: diagnosis.public.runtimes.docker.binary,
       verifierImage: diagnosis.profile.verifier_image,
       outputSchema: packageFile("schemas/engine-output.v0.json"),
-      permissionProfile: packageFile("runtime/native-worker/config.toml"),
+      permissionProfile: await packagedWorkerProfile(diagnosis.profile),
+      targetPacket: {
+        target: diagnosis.profile.target,
+        schema: diagnosis.profile.target_packet_schema,
+      },
       runner,
     });
     await rm(staging, { recursive: true, force: true });

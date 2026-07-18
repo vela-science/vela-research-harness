@@ -28,11 +28,13 @@ first offer unless an exact registered target is requested. It refuses dirty
 frontiers, drifted binaries or roots, missing verifier images, cloud-synced
 output paths, and unregistered targets.
 
-The native Codex worker runs under a bundled default-deny macOS profile with
-only the target workspace and required compiler files exposed. Authentication,
-human keys, unrelated repositories, browser/search/MCP/app surfaces, delegation,
-and command network access remain outside the worker boundary. The verifier
-runs separately with network and writes denied.
+The native Codex worker runs under a bundled default-deny profile with only the
+target workspace and required compiler files exposed. macOS uses Seatbelt;
+Linux and WSL2 use Codex's Bubblewrap sandbox. Native Windows supports the
+read-only product surface and directs tool-using runs to WSL2. Authentication,
+human keys, unrelated repositories, browser/search/MCP/app surfaces,
+delegation, and command network access remain outside the worker boundary. The
+verifier runs separately with network and writes denied.
 
 A successful landing creates unsigned local Git commits and fast-forwards the
 source checkout only after verifier success and clean-clone reproduction. It
@@ -51,9 +53,9 @@ The packaged Erdős profiles cover these exact inclusive ranges:
 - `erdos1056-k15-10428008-10428200`
 - `erdos1056-k15-10428201-10428400`
 
-Both capsules are content-addressed static Linux arm64 binaries. Their source is
-retained for audit and reproducible rebuilding, but an installed product run
-does not require a cross-compiler.
+Both capsules are content-addressed static Linux binaries for arm64 and x86-64.
+Their source and pinned build provenance are retained for audit and reproducible
+rebuilding, but an installed product run does not require a cross-compiler.
 
 ## Advanced and historical interfaces
 
@@ -67,13 +69,23 @@ canopus mission prepare path/to/draft.json \
 canopus mission validate /new/bundle/mission.json
 ```
 
-Mission v0 and the stopped cold-use registrations remain available for exact
-historical reproduction. Benchmark commands are intentionally absent from
-primary help.
+Closed profile v2 contracts have a separate advanced lifecycle:
+
+```bash
+canopus profile list
+canopus profile show erdos1056-k15-10428008-10428200
+canopus profile validate erdos1056-k15-10428008-10428200
+canopus profile pack erdos1056-k15-10428008-10428200 --output /new/profile-pack
+```
+
+Mission v0 and the stopped cold-use registrations remain available in Git for
+exact historical reproduction. Benchmark commands, compiled benchmark modules,
+registrations, and benchmark documentation are intentionally absent from the
+installed npm package.
 
 ## Development
 
-Requires Node 22 or newer, pnpm 10, Vela 0.901.0, Codex CLI 0.144.5, and Docker.
+Requires Node 22 or newer, pnpm 10, Vela 0.901.0, Codex CLI 0.144.6, and Docker.
 
 ```bash
 pnpm install
