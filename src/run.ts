@@ -374,22 +374,38 @@ export async function runCanopus(
       offer_digest: contentDigest(offer.value),
     });
 
-    const work = await options.vela.work(
-      options.mission,
-      paths.landing,
-      options.mission.target,
-      options.mission.roots,
-    );
-    const postWork = await options.vela.inspect(
-      paths.landing,
-      options.mission.frontier,
-      strictBaseline(options.mission),
-    );
-    assertWorkBinding(options.mission, work, postWork);
-    await activity.append("work.claimed", {
-      target: options.mission.target,
-      roots: postWork.roots,
-    });
+    let workBriefing: Record<string, unknown>;
+    let postWork: VelaInspection | undefined;
+    if (options.noLand === true) {
+      // Diagnostic mode has no landing edge and therefore needs no durable
+      // lease. Avoiding `vela work` keeps the disposable clone at the exact
+      // registered roots and prevents an operational attempt event from
+      // needlessly invalidating a previously exported proof packet.
+      workBriefing = offer.value;
+      await activity.append("work.skipped", {
+        target: options.mission.target,
+        mode: "no_land",
+        reason: "diagnostic run has no landing edge",
+      });
+    } else {
+      const work = await options.vela.work(
+        options.mission,
+        paths.landing,
+        options.mission.target,
+        options.mission.roots,
+      );
+      postWork = await options.vela.inspect(
+        paths.landing,
+        options.mission.frontier,
+        strictBaseline(options.mission),
+      );
+      assertWorkBinding(options.mission, work, postWork);
+      workBriefing = work.value;
+      await activity.append("work.claimed", {
+        target: options.mission.target,
+        roots: postWork.roots,
+      });
+    }
 
     await activity.append("engine.started", {
       engine: options.engine.name,
@@ -397,7 +413,7 @@ export async function runCanopus(
     });
     const engine = await options.engine.run({
       mission: options.mission,
-      briefing: work.value,
+      briefing: workBriefing,
       paths,
       budget,
     });
@@ -595,6 +611,9 @@ export async function runCanopus(
       return { record, projection, paths };
     }
 
+    if (postWork === undefined) {
+      throw new Error("landing run omitted the required Vela work lease");
+    }
     const preLand = await options.vela.assertRoots(
       paths.landing,
       options.mission.frontier,

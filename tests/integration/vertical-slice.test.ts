@@ -68,6 +68,7 @@ async function sourceRepository(): Promise<{
 class FakeVela implements VelaPort {
   public authored: AuthoredReceiptInput | undefined;
   public nextCalls = 0;
+  public workCalls = 0;
   public nextRoot: string | undefined;
   readonly #failBinding: boolean;
 
@@ -124,6 +125,7 @@ class FakeVela implements VelaPort {
     target: string,
     _expected: MissionRoots,
   ): Promise<VelaCommandResponse> {
+    this.workCalls += 1;
     await writeFile(path.join(repoRoot, "frontier/.fake-work-lease"), `${target}\n`);
     await git(repoRoot, "add", "frontier/.fake-work-lease");
     await git(
@@ -438,6 +440,8 @@ test("no-land diagnostic verifies and reproduces without invoking Vela landing",
   assert.equal(result.record.reproduction.matched, true);
   assert.equal(result.projection.landed, false);
   assert.equal(vela.authored, undefined);
+  assert.equal(vela.workCalls, 0);
+  assert.match(await readFile(path.join(result.paths.root, "activity.jsonl"), "utf8"), /work\.skipped/u);
   assert.equal(await git(source.repo, "rev-parse", "HEAD^{commit}"), source.roots.git_commit);
 });
 

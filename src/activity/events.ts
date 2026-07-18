@@ -5,6 +5,7 @@ export const ACTIVITY_TYPES = [
   "workspace.prepared",
   "roots.verified",
   "target.offered",
+  "work.skipped",
   "work.claimed",
   "engine.started",
   "engine.completed",
