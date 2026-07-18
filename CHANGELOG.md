@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 - Unreleased
+## 0.3.0 - 2026-07-17
 
 - Add the compact `doctor`, `run`, `inspect`, `replay`, and explicit `withdraw`
   product workflow over Vela 0.901.0 while retaining Mission v1 as the advanced
@@ -24,8 +24,8 @@
   route `defer`, accepted-event delta zero, and matching clean-clone replay.
 - Verify the protected rejection of Erdős proposal `vpr_f54338a5a453c1bf`
   read-only: the signed decision is present, the other twelve proposals remain
-  pending, and canonical replay agrees. The release tag remains gated on the
-  final Vela binary pin and release audit.
+  pending, and canonical replay agrees. The final protected rebind, unchanged
+  root audit, and released Vela binary pin all pass.
 - Add ADR 0005 and proposal-scoped withdrawal capabilities. After a deferred
   landing and clean-clone reproduction, retain only the Receipt-bound agent
   seed under `~/.canopus/capabilities/<proposal-id>/`; never expose it to the
