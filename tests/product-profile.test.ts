@@ -7,6 +7,7 @@ import test from "node:test";
 import {
   loadProductProfile,
   loadProfileDraft,
+  loadProfileResultContract,
   stageProfileCapsule,
   verifierImageAt,
 } from "../src/product/profile.js";
@@ -53,6 +54,7 @@ test("profile v2 binds exact platform custody and packs only portable contract r
     name,
     "erdos1056-k15-10428201-10428400",
     "quantum-10-1-4-stabilizer-retry",
+    "sidon-a24-improve",
   ]);
   const mac = await loadProductProfile(name, { platform: "darwin-arm64" });
   const linux = await loadProductProfile(name, { platform: "linux-x86_64" });
@@ -84,6 +86,27 @@ test("profile v2 binds exact platform custody and packs only portable contract r
     "runtime/native-worker/config-linux.toml",
     "runtime/native-worker/config.toml",
   ]);
+});
+
+test("Sidon Permit profile binds one positive result contract and two static capsules", async () => {
+  const mac = await loadProductProfile("sidon-a24-improve", { platform: "darwin-arm64" });
+  const linux = await loadProductProfile("sidon-a24-improve", { platform: "linux-x86_64" });
+  assert.equal(mac.target, "sidon:a24-improve");
+  assert.equal(mac.target_packet_schema, "sidon-frontier.a24-improvement-work.v1");
+  assert.deepEqual(mac.landing, { expected_routes: ["permit"], max_accepted_delta: 1 });
+  assert.notEqual(mac.capsule_sha256, linux.capsule_sha256);
+  assert.deepEqual(await loadProfileResultContract(mac), {
+    schema: "canopus.result-contract.v1",
+    target: "sidon:a24-improve",
+    claim_type: "computational",
+    replayability: "exact",
+    candidate_status: "success",
+    verifier_status: "passed",
+    required_artifact_kinds: ["sidon-witness"],
+  });
+  const validation = await validateProductProfile(mac.name);
+  assert.equal(validation.platforms["darwin-arm64"].verifier_capsule_sha256, mac.capsule_sha256);
+  assert.equal(validation.platforms["linux-x86_64"].verifier_capsule_sha256, linux.capsule_sha256);
 });
 
 test("explicit targets are deliberate while the default never skips rank one", async () => {

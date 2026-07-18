@@ -1,0 +1,40 @@
+{
+  "id": "mission_sidon_a24_improve_v1",
+  "target": "sidon:a24-improve",
+  "frontier": ".",
+  "actor": "agent:canopus-local",
+  "role": "producer",
+  "claim_type": "computational",
+  "replayability": "exact",
+  "objective": "Produce exactly one positive witness at artifacts/sidon-a24-improvement.witness.txt. The supplied target packet contains a verified 7,192-point seed and the complete output contract. Return engine status success only if the artifact contains more than 7,192 distinct 24-bit points and you have independently checked that every componentwise integer pair sum for i<=j is distinct. A null or failed result is valid if no improvement is found, but do not create a success artifact in that case. Do not claim maximality, classification, or universal nonexistence.",
+  "completion_condition": "The frozen capsule parses the exact six-line artifact, requires more than 7,192 distinct vectors, and independently sorts and duplicate-checks all m(m+1)/2 componentwise pair sums in a separate network-denied and write-denied container.",
+  "allowed_paths": [
+    "artifacts/sidon-a24-improvement.witness.txt"
+  ],
+  "budgets": {
+    "max_research_wall_time_ms": 1800000,
+    "max_research_processes": 16,
+    "max_research_output_bytes": 16777216,
+    "max_prompt_bytes": 2097152,
+    "max_artifact_bytes": 1048576,
+    "max_attempts": 1,
+    "max_observed_tokens": 400000
+  },
+  "worker": {
+    "model": "gpt-5.4"
+  },
+  "verifier": {
+    "argv": [
+      "capsule/verifier",
+      "{artifact:artifacts/sidon-a24-improvement.witness.txt}"
+    ],
+    "cwd": "targets",
+    "timeout_ms": 180000,
+    "max_output_bytes": 65536,
+    "capsule_path": "capsule/verifier"
+  },
+  "scientific_chain": {
+    "predicted_observable": "The frozen verifier reports status passed, the claimed size above 7,192, and exactly m(m+1)/2 distinct componentwise pair sums for the supplied point set.",
+    "performed_test": "capsule/verifier artifacts/sidon-a24-improvement.witness.txt"
+  }
+}
