@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.2 - 2026-07-19
+
+- Preserve the failed `v0.4.1` tag and its verified GitHub build attestation as
+  audit evidence. npm received no package and no GitHub release was created.
+- Pass npm an explicit local tarball path (`./release/*.tgz`). Without the
+  leading `./`, npm interpreted the relative path as a GitHub repository
+  shorthand and stopped before the OIDC exchange.
+
 ## 0.4.1 - 2026-07-19
 
 - Preserve the failed `v0.4.0` tag as audit evidence. Its release workflow

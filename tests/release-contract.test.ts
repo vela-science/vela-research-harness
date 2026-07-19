@@ -18,7 +18,7 @@ test("release binds tag, GitHub attestation, and npm trusted provenance", async 
     "--source-ref",
     "--source-digest",
     "--deny-self-hosted-runners",
-    "npm publish release/*.tgz --provenance --access public",
+    "npm publish ./release/*.tgz --provenance --access public",
     "npm audit signatures --json --include-attestations",
     "https://slsa.dev/provenance/v1",
   ]) {
