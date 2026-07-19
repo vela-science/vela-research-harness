@@ -32,6 +32,7 @@ if (process.platform !== "darwin" && process.platform !== "linux") {
 }
 
 const binary = await realpath(args[1]);
+const binaryBytes = await readFile(binary);
 const profile = fileURLToPath(new URL(
   process.platform === "linux"
     ? "../runtime/native-worker/config-linux.toml"
@@ -76,6 +77,13 @@ try {
   ]);
   await copyFile(profile, path.join(codexHome, "config.toml"));
   await chmod(path.join(codexHome, "config.toml"), 0o600);
+  let runtimeBinary = binary;
+  if (process.platform === "linux") {
+    const runtimeDirectory = path.join(workspace, ".canopus-runtime");
+    await mkdir(runtimeDirectory, { mode: 0o700 });
+    runtimeBinary = path.join(runtimeDirectory, "codex");
+    await writeFile(runtimeBinary, binaryBytes, { flag: "wx", mode: 0o500 });
+  }
 
   const environment = {
     ...isolatedEnvironment(home),
@@ -84,7 +92,7 @@ try {
     NO_COLOR: "1",
   };
   await assertNativeRuntimeProfile({
-    binary,
+    binary: runtimeBinary,
     runner: runCommand,
     environment,
     cwd: workspace,
@@ -100,7 +108,7 @@ try {
     includeSafeDiagnostics: true,
   });
   const version = await runCommand({
-    argv: [binary, "--version"],
+    argv: [runtimeBinary, "--version"],
     cwd: workspace,
     env: environment,
     timeoutMs: 30_000,
@@ -114,7 +122,7 @@ try {
     fixture: "native-sandbox-preflight.v1",
     platform: `${process.platform}-${process.arch}`,
     codex_version: version.stdout.toString("utf8").trim(),
-    codex_sha256: digest(await readFile(binary)),
+    codex_sha256: digest(binaryBytes),
     permission_profile_sha256: digest(await readFile(profile)),
     verdict: {
       curl_available: true,

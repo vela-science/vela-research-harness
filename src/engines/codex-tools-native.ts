@@ -97,6 +97,19 @@ async function prepareTargetPacketWorkspace(
   await writeFile(target, bytes, { flag: "wx", mode: 0o600 });
 }
 
+async function stageLinuxSandboxBinary(
+  workspace: string,
+  sourceBinary: string,
+  binaryBytes: Buffer,
+): Promise<string> {
+  if (process.platform !== "linux") return sourceBinary;
+  const runtimeDirectory = path.join(workspace, ".canopus-runtime");
+  await mkdir(runtimeDirectory, { recursive: false, mode: 0o700 });
+  const runtimeBinary = path.join(runtimeDirectory, "codex");
+  await writeFile(runtimeBinary, binaryBytes, { flag: "wx", mode: 0o500 });
+  return runtimeBinary;
+}
+
 function authSecrets(bytes: Buffer): Buffer[] {
   let value: unknown;
   try {
@@ -292,6 +305,7 @@ export class CodexToolsNativeEngine implements Engine {
 
     const workspace = path.join(context.paths.work, "native-worker");
     await prepareTargetPacketWorkspace(context.paths.input, workspace, mission);
+    const runtimeBinary = await stageLinuxSandboxBinary(workspace, binary, binaryBytes);
     const canaryDirectory = path.join(context.paths.work, "custody-canary");
     await mkdir(canaryDirectory, { mode: 0o700 });
     const canaryBytes = Buffer.from(`canopus-host-secret-${randomBytes(32).toString("hex")}\n`);
@@ -312,7 +326,7 @@ export class CodexToolsNativeEngine implements Engine {
     try {
       context.budget.beginProcess();
       const versionResult = await this.#runner({
-        argv: [binary, "--version"],
+        argv: [runtimeBinary, "--version"],
         cwd: workspace,
         env: environment,
         timeoutMs: Math.min(30_000, context.budget.remainingTimeMs()),
@@ -329,7 +343,7 @@ export class CodexToolsNativeEngine implements Engine {
 
       context.budget.beginProcess();
       await assertNativeRuntimeProfile({
-        binary,
+        binary: runtimeBinary,
         runner: this.#runner,
         environment: {
           ...environment,
@@ -351,7 +365,7 @@ export class CodexToolsNativeEngine implements Engine {
       const started = performance.now();
       const result = await this.#runner({
         argv: workerArgv({
-          binary,
+          binary: runtimeBinary,
           mission,
           outputSchema: this.#options.outputSchema,
           finalPath,

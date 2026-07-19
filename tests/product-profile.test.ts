@@ -98,7 +98,7 @@ test("Linux custody denies host roots and reopens only the exact workspace", asy
   assert.match(config, /^"\/tmp" = "deny"$/mu);
   assert.match(
     config,
-    /\[permissions\.canopus-worker\.filesystem\.":workspace_roots"\]\n"\." = "write"/u,
+    /\[permissions\.canopus-worker\.filesystem\.":workspace_roots"\]\n"\." = "write"\n"\.canopus-runtime" = "read"/u,
   );
   assert.doesNotMatch(config, /^"\/" = "write"$/mu);
 });

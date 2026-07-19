@@ -145,6 +145,7 @@ for (const key of ["--codex", "--codex-home", "--model", "--unrelated"]) {
 }
 
 const binary = await realpath(options.get("--codex"));
+const binaryBytes = await readFile(binary);
 const sourceHome = await realpath(options.get("--codex-home"));
 const unrelated = await realpath(options.get("--unrelated"));
 const fixture = fileURLToPath(new URL("../tests/fixtures/native-worker/", import.meta.url));
@@ -175,6 +176,13 @@ try {
   await optionalCopy(path.join(sourceHome, "models_cache.json"), path.join(codexHome, "models_cache.json"));
   await copyFile(permissionProfile, path.join(codexHome, "config.toml"));
   await chmod(path.join(codexHome, "config.toml"), 0o600);
+  let runtimeBinary = binary;
+  if (process.platform === "linux") {
+    const runtimeDirectory = path.join(workspace, ".canopus-runtime");
+    await mkdir(runtimeDirectory, { mode: 0o700 });
+    runtimeBinary = path.join(runtimeDirectory, "codex");
+    await writeFile(runtimeBinary, binaryBytes, { flag: "wx", mode: 0o500 });
+  }
 
   const canaryBytes = Buffer.from(`canopus-host-secret-${randomBytes(32).toString("hex")}\n`);
   const canary = path.join(runtime, "host-secret");
@@ -189,7 +197,7 @@ try {
     sentinel: path.join(workspace, ".canopus-custody-shell-ok"),
   };
   const argv = [
-    binary,
+    runtimeBinary,
     "exec",
     "--ephemeral",
     "--strict-config",
@@ -309,12 +317,12 @@ try {
   process.stdout.write(`${JSON.stringify({
     ok: true,
     fixture: "hostile-native-custody.v1",
-    codex_version: (await command([binary, "--version"], {
+    codex_version: (await command([runtimeBinary, "--version"], {
       cwd: workspace,
       env: { PATH: process.env.PATH, HOME: home, CODEX_HOME: codexHome },
       stdin: "",
     })).stdout.toString("utf8").trim(),
-    codex_sha256: digest(await readFile(binary)),
+    codex_sha256: digest(binaryBytes),
     permission_profile_sha256: digest(await readFile(permissionProfile)),
     model: options.get("--model"),
     verdict,

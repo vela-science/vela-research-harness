@@ -10,6 +10,7 @@ allow_login_shell = false
 
 [permissions.canopus-worker.filesystem.":workspace_roots"]
 "." = "write"
+".canopus-runtime" = "read"
 
 [permissions.canopus-worker.network]
 enabled = false
