@@ -12,7 +12,13 @@ replay or accepted state.
 
 ## Product workflow
 
-Canopus 0.3 targets checksum-pinned Vela 0.901.0. Its ordinary path is:
+Canopus 0.4 targets checksum-pinned Vela 0.901.0. Install the released CLI:
+
+```bash
+npm install --global @vela-science/canopus
+```
+
+Its ordinary path is:
 
 ```bash
 canopus doctor /path/to/frontier

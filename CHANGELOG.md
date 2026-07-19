@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0-rc.1 - Unreleased
+## 0.4.0 - 2026-07-19
 
 - Require the live Linux custody fixture to pass the exact deterministic Codex
   sandbox boundary before it reads staged authentication or makes a model call.
@@ -16,6 +16,10 @@
   rebuilds `dist`, the npm-valid `canopus` bin entry survives publication, and
   `publishConfig` requires public access with provenance. Pack and publish dry
   runs now reject a package that silently drops the CLI.
+- Publish the stable npm package through the exact GitHub Actions trusted
+  publisher, with long-lived npm tokens disabled. The one-time `0.4.0-rc.1`
+  namespace bootstrap remains an explicitly unprovenanced prerelease; stable
+  `0.4.0` is the release and default install target.
 
 ## 0.3.0 - 2026-07-17
 

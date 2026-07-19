@@ -1,12 +1,15 @@
 # Release evidence
 
-## Canopus v0.4.0 candidate
+## Canopus v0.4.0
 
-The source package advertises `0.4.0-rc.1` while this train remains
-unreleased. The prerelease identity prevents candidate tarballs from being
-mistaken for released `v0.3.0`; it grants no release or provenance credit.
-Final publication still requires the exact `v0.4.0` tag/version pair and the
-gates below.
+The source package advertises `0.4.0`. The public npm namespace was bootstrapped
+once with `0.4.0-rc.1` under the `next` tag so the package could bind its exact
+GitHub Actions trusted publisher. That bootstrap used interactive human 2FA,
+has no provenance attestation, and earns no release credit. Package publishing
+now disallows reusable npm tokens. The exact `v0.4.0` tag/version pair is
+published only by `.github/workflows/release.yml` in environment `npm`; the
+workflow must produce and verify both npm SLSA provenance and a GitHub build
+attestation before creating the matching GitHub release.
 
 The first registered quantum mission stopped safely before verification or
 landing because provider-reported usage exceeded its frozen 100,000-token

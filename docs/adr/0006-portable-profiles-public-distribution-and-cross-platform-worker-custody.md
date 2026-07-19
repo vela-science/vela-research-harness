@@ -1,6 +1,10 @@
 # ADR 0006: Portable profiles, public distribution, and cross-platform worker custody
 
-- Status: Proposed
+- Status: Accepted
+- Release gate: satisfied 2026-07-19 by the quantum Deferred landing and
+  clean-clone replay, macOS/Ubuntu/WSL2 hostile custody fixtures,
+  multi-architecture verifier and installed-package checks, and the exact
+  GitHub Actions OIDC publisher bound to the public npm package
 - Target: Canopus `v0.4.0`
 
 ## Context
@@ -71,8 +75,10 @@ in
 The hostile unrelated-data probe was placed on the Windows host mount rather
 than only inside the Linux guest. Both platform fixtures ran no research or
 authority action and claim no independent credit. They satisfy the Ubuntu and
-WSL2 custody portions of the gate. npm trusted-publishing provenance and final
-release evidence remain required, so this ADR stays Proposed.
+WSL2 custody portions of the gate. The `v0.4.0` release workflow supplies npm
+trusted-publishing provenance and final release evidence. The one-time
+namespace bootstrap is retained as an explicitly unprovenanced prerelease and
+earns no release credit.
 
 Historical benchmark sources and immutable registrations stay in Git and
 source archives but leave ordinary help and the installed npm payload.
