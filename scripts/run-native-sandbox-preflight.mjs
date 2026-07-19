@@ -95,6 +95,9 @@ try {
     canary,
     outsideWrite: path.join(runtime, "outside-write"),
     timeoutMs: 30_000,
+    // This fixture uses generated canaries only. Bounded printable stderr is
+    // safe to expose so hosted platform failures remain actionable.
+    includeSafeDiagnostics: true,
   });
   const version = await runCommand({
     argv: [binary, "--version"],

@@ -182,6 +182,7 @@ export async function assertNativeRuntimeProfile(options: {
   canary: string;
   outsideWrite: string;
   timeoutMs: number;
+  includeSafeDiagnostics?: boolean;
 }): Promise<void> {
   const script = [
     "curl=false; source=false; runtime=false; input=false; unrelated=false; canary=false; writable=false; network=false; environ=false; proc=false;",
@@ -232,9 +233,16 @@ export async function assertNativeRuntimeProfile(options: {
     const boundedStdout = /^(?:true|false)(?: (?:true|false)){9}$/u.test(stdout)
       ? stdout
       : `sha256=${sha256Bytes(result.stdout)}`;
+    const stderr = result.stderr.toString("utf8");
+    const boundedStderr =
+      options.includeSafeDiagnostics === true &&
+      result.stderr.length <= 4096 &&
+      /^[\t\n\r\x20-\x7e]*$/u.test(stderr)
+        ? JSON.stringify(stderr.trim())
+        : `sha256=${sha256Bytes(result.stderr)}`;
     throw new Error(
       `native Codex permission profile failed its deterministic custody preflight: ` +
-      `exit=${result.exitCode}; stdout=${boundedStdout}; stderr_sha256=${sha256Bytes(result.stderr)}`,
+      `exit=${result.exitCode}; stdout=${boundedStdout}; stderr=${boundedStderr}`,
     );
   }
 }
