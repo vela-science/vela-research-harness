@@ -100,6 +100,22 @@ byte-identical.
   Windows exposed the compact help surface, listed the exact four packaged
   profiles, and validated every profile from installed bytes.
 
+Native Windows no longer applies Unix-only isolation paths or probes Codex,
+Docker, authentication, or verifier images as though they were a native worker
+runtime. `doctor` remains a read-only Vela/Git/frontier/profile diagnostic and
+returns an exact WSL2 handoff; `run` refuses before creating output or probing
+credentials. Windows executable discovery now honors `PATHEXT` without using a
+shell.
+
+- Canopus source: `51348f7d17920787207086960122d89735bb2ba8`
+- Hosted CI: [run 29668041233](https://github.com/vela-science/vela-research-harness/actions/runs/29668041233)
+- Result: the native Windows `PATHEXT`, isolated-environment, read-only doctor,
+  early run-refusal, installed-package, and released-Vela checks passed. The
+  same run also passed the macOS product suite and Ubuntu real-sandbox,
+  anonymous-verifier, and installed-package gates.
+- This proves the native Windows read-only boundary. It does not substitute for
+  a model-mediated mission inside an actual WSL2 worker.
+
 ## Canopus v0.5.0 candidate preflight
 
 The first exact Sidon no-land preflight stopped safely with a null producer
