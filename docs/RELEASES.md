@@ -56,6 +56,32 @@ exact landing reproduced from a clean clone.
 - Final strict state: pass with zero blockers; the one proposal remains pending
   and acceptance is blocked by the ordinary Engine gate.
 
+The candidate's deterministic Linux custody gate now runs the exact published
+Codex `0.144.6` Linux binary inside Bubblewrap on Ubuntu 24.04. Canopus copies
+the already hash-verified runtime into a read-only carveout inside the one
+writable mission workspace, then masks `/home`, `/root`, and `/tmp`. This keeps
+the Codex re-exec available without exposing its host installation directory.
+
+- Canopus source: `a9afd4a4553edf9ce8248e765e7def69a1d37b3b`
+- Hosted CI: [run 29666791984](https://github.com/vela-science/vela-research-harness/actions/runs/29666791984)
+- Codex Linux binary root:
+  `sha256:a31ae9450a26216eb1e7c53102fd42123dd675974310b0e2ca3aa4cb622a2c15`
+- Linux permission-profile root:
+  `sha256:fddecc4b7458b91f6d55ae16b666d297ae7bcd1a2f5deeb6650dcea60fc0242c`
+- Deterministic verdict: command tools were available while source and runtime
+  authentication, the sealed packet, an unrelated repository, and a host
+  canary were unreadable; an outside-workspace write, command network,
+  auth-shaped environment variables, and `/proc/1/environ` exposure were all
+  denied.
+- The same credential-free job pulled
+  `ghcr.io/vela-science/canopus-verifier@sha256:a6f354862f2a3f7d72eb99244c65fa8583c98b74e17e3d5ce6e31ef48aa16536`
+  through a fresh anonymous Docker configuration and Docker reported the same
+  manifest digest.
+
+This proves the deterministic Ubuntu boundary and public exact-digest image
+availability. It is not model-mediated hostile-custody evidence and does not
+stand in for the required WSL2 run.
+
 ## Canopus v0.5.0 candidate preflight
 
 The first exact Sidon no-land preflight stopped safely with a null producer
