@@ -1,12 +1,12 @@
 {
-  "id": "mission_sidon_a24_improve_v1",
+  "id": "mission_sidon_a24_lift_multistart_v2",
   "target": "sidon:a24-improve",
   "frontier": ".",
   "actor": "agent:canopus-local",
   "role": "producer",
   "claim_type": "computational",
   "replayability": "exact",
-  "objective": "Produce exactly one positive Vela-native witness at artifacts/sidon-a24-improvement.witness.json and report its artifact kind as vela-witness. The supplied target packet contains a verified 7,192-point seed and the complete output contract. The artifact must be JSON with kind sidon, n 24, claimed_size at least 7,193, and points as distinct length-24 binary arrays. Return engine status success only if you have independently checked that every componentwise integer pair sum for i<=j is distinct. A null or failed result is valid if no improvement is found, but do not create a success artifact in that case. Do not claim maximality, classification, or universal nonexistence.",
+  "objective": "Produce exactly one positive Vela-native witness at artifacts/sidon-a24-improvement.witness.json and report its artifact kind as vela-witness. Do not repeat the exhausted one-point extension scan of the tracked 7,192-point seed. Instead, rebuild dimension 24 from witnesses/sidon-a23.witness.json: append a zero coordinate to its 5,179 verified points, then greedily admit points with appended coordinate one while preserving the Sidon invariant. Run exactly four deterministic full candidate orders over the 23-bit prefix x_i = (a*i + b) mod 2^23 for i=0..2^23-1, stopping early only after a construction reaches at least 7,193 points. Use the exact (a,b) pairs (1,0), (6017513,2036283), (4577779,2921079), and (2610411,6957542); each multiplier is odd, so every order is a permutation of the full candidate layer. Check collisions incrementally against all retained unordered componentwise pair sums. If a restart exceeds 7,192, independently recheck the complete set before writing the artifact. The artifact must be JSON with kind sidon, n 24, claimed_size at least 7,193, and points as distinct length-24 binary arrays. Return engine status success only after the independent check passes. If all four complete orders fail, return null with each terminal size and no artifact. Do not claim maximality, classification, or universal nonexistence.",
   "completion_condition": "The frozen Vela verifier parses the Vela-native witness, independently sorts and duplicate-checks all m(m+1)/2 componentwise pair sums, and proves the exact registered 7,193-point lower-bound claim in a separate network-denied and write-denied container.",
   "allowed_paths": [
     "artifacts/sidon-a24-improvement.witness.json"
