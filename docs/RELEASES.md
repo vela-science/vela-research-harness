@@ -1,8 +1,8 @@
 # Release evidence
 
-## Canopus v0.4.2
+## Canopus v0.4.3
 
-The source package advertises `0.4.0`. The public npm namespace was bootstrapped
+The source package advertises `0.4.3`. The public npm namespace was bootstrapped
 once with `0.4.0-rc.1` under the `next` tag so the package could bind its exact
 GitHub Actions trusted publisher. That bootstrap used interactive human 2FA,
 has no provenance attestation, and earns no release credit. Package publishing
@@ -13,10 +13,13 @@ corrected `v0.4.1` workflow passed both validation jobs and verified its GitHub
 build attestation, but npm interpreted `release/*.tgz` as a GitHub repository
 shorthand and stopped before OIDC publication; no npm package or GitHub release
 was created. Both tags are retained as failure evidence and are not moved. The
-corrected exact `v0.4.2` tag/version pair is
-published only by `.github/workflows/release.yml` in environment `npm`; the
-workflow must produce and verify both npm SLSA provenance and a GitHub build
-attestation before creating the matching GitHub release.
+corrected exact `v0.4.2` tag/version pair became the first stable package
+published only by `.github/workflows/release.yml` in environment `npm`. An
+independent clean-install smoke then found that its checksum manifest retained
+the build-directory prefix and that the CLI lacked a direct version probe.
+`v0.4.3` fixes both public-release UX defects. Its workflow must produce and
+verify both npm SLSA provenance and a GitHub build attestation before creating
+the matching GitHub release.
 
 The first registered quantum mission stopped safely before verification or
 landing because provider-reported usage exceeded its frozen 100,000-token

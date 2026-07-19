@@ -18,6 +18,7 @@ test("release binds tag, GitHub attestation, and npm trusted provenance", async 
     "--source-ref",
     "--source-digest",
     "--deny-self-hosted-runners",
+    "(cd release && shasum -a 256 *.tgz > SHA256SUMS)",
     "npm publish ./release/*.tgz --provenance --access public",
     "npm audit signatures --json --include-attestations",
     "https://slsa.dev/provenance/v1",
@@ -25,4 +26,5 @@ test("release binds tag, GitHub attestation, and npm trusted provenance", async 
     assert.match(workflow, new RegExp(contract.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
   }
   assert.doesNotMatch(workflow, /NPM_TOKEN|NODE_AUTH_TOKEN/u);
+  assert.doesNotMatch(workflow, /shasum -a 256 release\/\*\.tgz/u);
 });

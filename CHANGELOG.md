@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.3 - 2026-07-19
+
+- Add the stable `canopus --version` and `canopus -V` probes required for exact
+  runtime discovery and clean-install diagnosis.
+- Write release checksums with portable basenames so `shasum -a 256 -c
+  SHA256SUMS` works in the directory where users download the assets.
+- Preserve `v0.4.2` and its valid npm/GitHub provenance as a released artifact;
+  `0.4.3` is the corrected default install target.
+
 ## 0.4.2 - 2026-07-19
 
 - Preserve the failed `v0.4.1` tag and its verified GitHub build attestation as

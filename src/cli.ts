@@ -17,6 +17,7 @@ import { doctorProduct } from "./product/doctor.js";
 import { replayProduct } from "./product/replay.js";
 import { runProduct } from "./product/run.js";
 import { withdrawProduct } from "./product/withdraw.js";
+import { CANOPUS_VERSION } from "./product/version.js";
 import {
   listProductProfiles,
   packProductProfile,
@@ -32,6 +33,7 @@ function usage(): string {
   return `Canopus — bounded Vela research harness
 
 Primary workflow:
+  canopus --version
   canopus doctor [frontier]
   canopus run [frontier] [--first | --target <id>] [--profile <name>] \\
     [--output <dir>] [--no-land]
@@ -481,6 +483,11 @@ async function main(argv: string[]): Promise<void> {
   const [command, file, ...rest] = argv;
   if (command === undefined || isHelp(command)) {
     process.stdout.write(`${usage()}\n`);
+    return;
+  }
+  if (command === "--version" || command === "-V") {
+    if (file !== undefined) throw new Error("--version accepts no arguments");
+    process.stdout.write(`canopus ${CANOPUS_VERSION}\n`);
     return;
   }
   if (command === "mission") {

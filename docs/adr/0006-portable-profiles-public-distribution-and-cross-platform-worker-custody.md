@@ -5,7 +5,8 @@
   clean-clone replay, macOS/Ubuntu/WSL2 hostile custody fixtures,
   multi-architecture verifier and installed-package checks, and the exact
   GitHub Actions OIDC publisher bound to the public npm package
-- Target: Canopus `v0.4.2` (`v0.4.0` and `v0.4.1` stopped before publication)
+- Target: Canopus `v0.4.3` (`v0.4.0` and `v0.4.1` stopped before publication;
+  `v0.4.2` was the first provenance-backed public release)
 
 ## Context
 
@@ -75,7 +76,7 @@ in
 The hostile unrelated-data probe was placed on the Windows host mount rather
 than only inside the Linux guest. Both platform fixtures ran no research or
 authority action and claim no independent credit. They satisfy the Ubuntu and
-WSL2 custody portions of the gate. The `v0.4.2` release workflow supplies npm
+WSL2 custody portions of the gate. The `v0.4.3` release workflow supplies npm
 trusted-publishing provenance and final release evidence. The one-time
 namespace bootstrap is retained as an explicitly unprovenanced prerelease and
 earns no release credit.

@@ -62,7 +62,7 @@ jobs:
         run: |
           mkdir release
           pnpm pack --pack-destination release
-          shasum -a 256 release/*.tgz > release/SHA256SUMS
+          (cd release && shasum -a 256 *.tgz > SHA256SUMS)
       - uses: actions/attest-build-provenance@78e6cbd37d0ac1a40113c04f2037dacf1ea3f12e # v4
         with:
           subject-path: release/*.tgz

@@ -30,6 +30,11 @@ test("primary help presents only the compact product workflow", async () => {
   assert.match(output, /cannot\s+sign, accept, or make a human scientific decision/su);
 });
 
+test("version is a stable single-line product identity", async () => {
+  assert.equal(await help("--version"), "canopus 0.4.3\n");
+  assert.equal(await help("-V"), "canopus 0.4.3\n");
+});
+
 test("every compact product subcommand has focused help", async () => {
   for (const command of ["doctor", "run", "inspect", "replay", "withdraw"]) {
     const output = await help(command, "--help");
