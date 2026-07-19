@@ -93,6 +93,10 @@ installed npm package.
 ## Development
 
 Requires Node 22 or newer, pnpm 10, Vela 0.901.0, Codex CLI 0.144.6, and Docker.
+Linux and WSL2 also require Bubblewrap. On Ubuntu 24.04, follow OpenAI's
+[targeted AppArmor setup](https://developers.openai.com/codex/concepts/sandboxing#prerequisites)
+for `bwrap-userns-restrict`; Canopus never disables the global unprivileged
+user-namespace restriction or falls back to an unsandboxed worker.
 
 ```bash
 pnpm install

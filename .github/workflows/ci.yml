@@ -74,6 +74,12 @@ jobs:
           CODEX_TARBALL_SHA256: b6752eb2e8c10e6fcc96ac5c1c8ad8342cdb9a74504fb84686addf081a7d2868
           CODEX_BINARY_SHA256: a31ae9450a26216eb1e7c53102fd42123dd675974310b0e2ca3aa4cb622a2c15
         run: |
+          sudo apt-get update
+          sudo apt-get install --yes apparmor-profiles apparmor-utils bubblewrap
+          sudo install -m 0644 \
+            /usr/share/apparmor/extra-profiles/bwrap-userns-restrict \
+            /etc/apparmor.d/bwrap-userns-restrict
+          sudo apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict
           curl --fail --location --silent --show-error \
             "https://registry.npmjs.org/@openai/codex/-/codex-0.144.6-linux-x64.tgz" \
             --output "$RUNNER_TEMP/codex-0.144.6-linux-x64.tgz"

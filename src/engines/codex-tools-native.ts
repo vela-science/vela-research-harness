@@ -229,11 +229,18 @@ export async function assertNativeRuntimeProfile(options: {
     result.stdout.toString("utf8").trim() !==
       "true false false false false false false false false false"
   ) {
+    const stderr = result.stderr.toString("utf8");
+    if (stderr.includes("bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted")) {
+      throw new Error(
+        "native Codex sandbox is blocked by Ubuntu AppArmor user-namespace policy; " +
+        "install and load the targeted bwrap-userns-restrict profile documented at " +
+        "https://developers.openai.com/codex/concepts/sandboxing#prerequisites, then retry",
+      );
+    }
     const stdout = result.stdout.toString("utf8").trim();
     const boundedStdout = /^(?:true|false)(?: (?:true|false)){9}$/u.test(stdout)
       ? stdout
       : `sha256=${sha256Bytes(result.stdout)}`;
-    const stderr = result.stderr.toString("utf8");
     const boundedStderr =
       options.includeSafeDiagnostics === true &&
       result.stderr.length <= 4096 &&

@@ -6,7 +6,10 @@ import test from "node:test";
 
 import { BudgetTracker } from "../src/budget/enforce.js";
 import type { MissionV1 } from "../src/contracts/mission.js";
-import { CodexToolsNativeEngine } from "../src/engines/codex-tools-native.js";
+import {
+  assertNativeRuntimeProfile,
+  CodexToolsNativeEngine,
+} from "../src/engines/codex-tools-native.js";
 import type { CommandRunner } from "../src/util/command.js";
 import { sha256Bytes } from "../src/util/canonical.js";
 
@@ -225,4 +228,33 @@ test("native tool worker pins Codex and permission-profile identities", async ()
   assert.equal(run.includes("--sandbox"), false);
   assert.equal(run.includes("--ignore-user-config"), false);
   assert.equal(run.some((item) => item.includes(authHome)), false);
+});
+
+test("native preflight gives the exact Ubuntu AppArmor recovery action", async () => {
+  const runner: CommandRunner = async (options) => ({
+    argv: [...options.argv],
+    exitCode: 1,
+    signal: null,
+    stdout: Buffer.alloc(0),
+    stderr: Buffer.from(
+      "bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted\n",
+    ),
+    durationMs: 1,
+  });
+  await assert.rejects(
+    assertNativeRuntimeProfile({
+      binary: "/tmp/codex",
+      runner,
+      environment: {},
+      cwd: "/tmp/workspace",
+      sourceAuth: "/tmp/source-auth",
+      runtimeAuth: "/tmp/runtime-auth",
+      inaccessibleInput: "/tmp/sealed-input",
+      unrelatedFile: "/tmp/unrelated",
+      canary: "/tmp/canary",
+      outsideWrite: "/tmp/outside-write",
+      timeoutMs: 1000,
+    }),
+    /targeted bwrap-userns-restrict profile.+developers\.openai\.com/su,
+  );
 });
