@@ -65,6 +65,7 @@ function prompt(mission: MissionV1): string {
     "Do not inspect Codex configuration, credentials, process state, unrelated repositories, or paths outside the current workspace.",
     "Command network is denied. Do not invoke Vela or the separately frozen verifier as an authority oracle.",
     `The exact Vela work claim and roots were validated by the harness. The bound target packet is available at ${mission.target_packet.path}; inspect only the fields needed for this bounded computation.`,
+    "If the packet has a repair_context object, read that object first. It is a root-bound intervention record and producer strategy, not a verifier or authority decision.",
     "Keep tool output narrow. Do not print or ingest the whole target packet.",
     "A null or failed result is valid. Never turn a bounded negative search into universal nonexistence, verifier failure into success, or Git publication into scientific acceptance.",
     "Return only the supplied engine-output JSON shape. Artifact bytes must be inline UTF-8 content at mission.allowed_paths.",

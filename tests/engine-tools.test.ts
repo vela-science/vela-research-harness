@@ -188,6 +188,7 @@ test("native tool worker pins Codex and permission-profile identities", async ()
     assert.equal((await readFile(path.join(options.cwd, "packet.json"), "utf8")), "{}\n");
     const prompt = String(options.stdin);
     assert.match(prompt, /packet\.json/u);
+    assert.match(prompt, /repair_context object/u);
     assert.doesNotMatch(prompt, /WORK_BRIEFING_MUST_NOT_ENTER_MODEL_CONTEXT/u);
     const runtimeConfig = await readFile(path.join(options.env.CODEX_HOME ?? "", "config.toml"));
     assert.deepEqual(runtimeConfig, await readFile(permissionProfile));
