@@ -174,6 +174,21 @@ export function defaultProductOutput(frontier: string): string {
   return path.join(os.homedir(), ".canopus", "runs", path.basename(path.resolve(frontier)), stamp);
 }
 
+export function assertToolUsingMissionPlatform(
+  platform: NodeJS.Platform = process.platform,
+): void {
+  if (platform === "win32") {
+    throw new Error(
+      "tool-using missions do not run in native Windows; open WSL2, enter the frontier through its Linux path, and rerun the same canopus command there",
+    );
+  }
+  if (platform !== "darwin" && platform !== "linux") {
+    throw new Error(
+      `tool-using missions are unsupported on ${platform}; supported worker hosts are macOS and Linux/WSL2`,
+    );
+  }
+}
+
 export async function runProduct(options: {
   frontier: string;
   profileName?: string;
@@ -183,6 +198,9 @@ export async function runProduct(options: {
   noLand?: boolean;
   runner?: CommandRunner;
 }): Promise<ProductRunResult> {
+  // Refuse unsupported custody before creating an output directory or probing
+  // credentials. Native Windows retains doctor/inspect/replay only.
+  assertToolUsingMissionPlatform();
   const runner = options.runner ?? runCommand;
   const source = await realpath(options.frontier);
   const outputRoot = path.resolve(options.outputRoot ?? defaultProductOutput(source));
@@ -196,6 +214,11 @@ export async function runProduct(options: {
       ...(options.requestedTarget === undefined ? {} : { requestedTarget: options.requestedTarget }),
       runner,
     });
+    const codexRuntime = diagnosis.public.runtimes.codex;
+    const dockerRuntime = diagnosis.public.runtimes.docker;
+    if (!diagnosis.public.worker.mission_ready || codexRuntime === null || dockerRuntime === null) {
+      throw new Error(diagnosis.public.next_action);
+    }
     const staging = path.join(outputRoot, ".profile-staging");
     await mkdir(staging, { mode: 0o700 });
     await stageProfileCapsule({
@@ -213,8 +236,8 @@ export async function runProduct(options: {
       sourceRepo: source,
       outputRoot: bundleRoot,
       velaBinary: diagnosis.public.runtimes.vela.binary,
-      codexBinary: diagnosis.public.runtimes.codex.binary,
-      dockerBinary: diagnosis.public.runtimes.docker.binary,
+      codexBinary: codexRuntime.binary,
+      dockerBinary: dockerRuntime.binary,
       verifierImage: diagnosis.profile.verifier_image,
       outputSchema: packageFile("schemas/engine-output.v0.json"),
       permissionProfile: await packagedWorkerProfile(diagnosis.profile),
@@ -241,7 +264,7 @@ export async function runProduct(options: {
       runner,
     });
     const engine = new CodexToolsNativeEngine({
-      binary: diagnosis.public.runtimes.codex.binary,
+      binary: codexRuntime.binary,
       authHome: path.resolve(options.codexHome ?? process.env.CODEX_HOME ?? path.join(os.homedir(), ".codex")),
       outputSchema: path.join(bundleRoot, "contract", "engine-output.v0.json"),
       permissionProfile: path.join(bundleRoot, prepared.mission.worker.permission_profile_path),
@@ -254,7 +277,7 @@ export async function runProduct(options: {
       vela,
       engine,
       bundleRoot,
-      dockerBinary: diagnosis.public.runtimes.docker.binary,
+      dockerBinary: dockerRuntime.binary,
       verifierRunner: runner,
       retainWithdrawalCapability: async (context: {
         velaHome: string;

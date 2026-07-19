@@ -31,13 +31,13 @@ export interface ProductDoctorResult {
   offer: { target: string; rank: number; profile: string };
   runtimes: {
     vela: RuntimeIdentity;
-    codex: RuntimeIdentity;
     git: RuntimeIdentity;
-    docker: RuntimeIdentity & {
+    codex: RuntimeIdentity | null;
+    docker: (RuntimeIdentity & {
       daemon: "ready";
       verifier_image: string;
       verifier_image_id: string;
-    };
+    }) | null;
   };
   capsule: { sha256: string; source: "packaged" };
   worker: {
@@ -166,39 +166,95 @@ export async function doctorProduct(options: {
   profileName?: string;
   requestedTarget?: string;
   runner?: CommandRunner;
+  platform?: NodeJS.Platform;
 }): Promise<{ public: ProductDoctorResult; profile: ProductProfile }> {
   const runner = options.runner ?? runCommand;
+  const platform = options.platform ?? process.platform;
   const frontier = await realpath(options.frontier);
   const runtime = await mkdtemp(path.join(os.tmpdir(), "canopus-doctor-"));
   try {
-    const [vela, codex, git, docker] = await Promise.all([
+    const [vela, git] = await Promise.all([
       runtimeIdentity({ name: "vela", cwd: frontier, home: runtime, runner }),
-      runtimeIdentity({ name: "codex", cwd: frontier, home: runtime, runner }),
       runtimeIdentity({ name: "git", cwd: frontier, home: runtime, runner }),
-      runtimeIdentity({ name: "docker", cwd: frontier, home: runtime, runner }),
     ]);
     if (vela.version !== "vela 0.901.0") {
       throw new Error(`Canopus v0.3.0 requires vela 0.901.0, observed ${vela.version}`);
     }
-    if (codex.version !== "codex-cli 0.144.6") {
-      throw new Error(`registered worker requires codex-cli 0.144.6, observed ${codex.version}`);
-    }
-    const [status, offer, gitStatus, daemon] = await Promise.all([
+    const [status, offer, gitStatus] = await Promise.all([
       jsonCommand({ runner, argv: [vela.binary, "status", ".", "--json"], cwd: frontier, home: runtime, label: "vela status" }),
       jsonCommand({ runner, argv: [vela.binary, "next", ".", "--limit", "128", "--json"], cwd: frontier, home: runtime, label: "vela next" }),
       runner({ argv: [git.binary, "status", "--porcelain=v1", "--untracked-files=all"], cwd: frontier, env: isolatedEnvironment(runtime), timeoutMs: 30_000, maxOutputBytes: 8 * 1024 * 1024 }),
-      runner({ argv: [docker.binary, "info", "--format={{.ServerVersion}}"], cwd: frontier, env: isolatedEnvironment(runtime), timeoutMs: 30_000, maxOutputBytes: 64 * 1024 }),
     ]);
     if (gitStatus.exitCode !== 0 || gitStatus.stderr.length !== 0) throw new Error("git status failed");
     const clean = gitStatus.stdout.length === 0;
     if (!clean) throw new Error("frontier checkout must be clean before Canopus runs");
-    if (daemon.exitCode !== 0 || daemon.stdout.toString("utf8").trim() === "") {
-      throw new Error("Docker daemon is not ready");
-    }
     if (status.schema !== "vela.status.v1" || offer.schema !== "vela.offer.v1") {
       throw new Error("frontier did not return the Vela 0.9 compact contracts");
     }
     const profile = await resolveProductProfile(offer, options.profileName, options.requestedTarget);
+    const selected = selectProductOffer(offer, profile, options.requestedTarget);
+    const roots = objectAt(status.roots, "vela status.roots");
+    const gitState = objectAt(status.git, "vela status.git");
+    const integrity = objectAt(status.integrity, "vela status.integrity");
+    const staging = path.join(runtime, "capsule-build");
+    await mkdir(staging, { mode: 0o700 });
+    const capsule = await stageProfileCapsule({ profile, stagingRoot: staging });
+    if (platform === "win32") {
+      return {
+        profile,
+        public: {
+          schema: "canopus.doctor.v1",
+          ok: true,
+          authority: "read_only_diagnostic",
+          frontier: {
+            path: frontier,
+            git_commit: stringAt(gitState.commit, "vela status.git.commit", { min: 40, max: 64 }),
+            git_tree: stringAt(gitState.tree, "vela status.git.tree", { min: 40, max: 64 }),
+            event_log_root: sha256At(roots.event_log, "vela status.roots.event_log"),
+            snapshot_root: sha256At(roots.snapshot, "vela status.roots.snapshot"),
+            clean,
+            strict_blockers: nonnegative(integrity.blocker_count, "vela status.integrity.blocker_count"),
+          },
+          offer: {
+            target: selected.targetId,
+            rank: selected.rank,
+            profile: profile.name,
+          },
+          runtimes: { vela, git, codex: null, docker: null },
+          capsule: { sha256: profile.capsule_sha256, source: capsule.source },
+          worker: {
+            platform: `${platform}-${process.arch}`,
+            mission_runtime: "wsl2_required",
+            mission_ready: false,
+            custody_preflight: "wsl2_required",
+            custody_mode: "not_applicable",
+            permission_profile_sha256: profile.permission_profile_sha256,
+          },
+          next_action:
+            "Open WSL2, enter this frontier through its Linux path, and rerun canopus doctor there; native Windows supports inspect and replay only.",
+        },
+      };
+    }
+    if (platform !== "darwin" && platform !== "linux") {
+      throw new Error(`Canopus doctor does not support ${platform}`);
+    }
+    const [codex, docker] = await Promise.all([
+      runtimeIdentity({ name: "codex", cwd: frontier, home: runtime, runner }),
+      runtimeIdentity({ name: "docker", cwd: frontier, home: runtime, runner }),
+    ]);
+    if (codex.version !== "codex-cli 0.144.6") {
+      throw new Error(`registered worker requires codex-cli 0.144.6, observed ${codex.version}`);
+    }
+    const daemon = await runner({
+      argv: [docker.binary, "info", "--format={{.ServerVersion}}"],
+      cwd: frontier,
+      env: isolatedEnvironment(runtime),
+      timeoutMs: 30_000,
+      maxOutputBytes: 64 * 1024,
+    });
+    if (daemon.exitCode !== 0 || daemon.stdout.toString("utf8").trim() === "") {
+      throw new Error("Docker daemon is not ready");
+    }
     const [image, repoDigests] = await Promise.all([
       runner({
         argv: [docker.binary, "image", "inspect", "--format={{.Id}}", profile.verifier_image],
@@ -226,30 +282,17 @@ export async function doctorProduct(options: {
     if (!Array.isArray(observedDigests) || !observedDigests.includes(profile.verifier_image)) {
       throw new Error("registered verifier image repository digest drifted");
     }
-    const selected = selectProductOffer(offer, profile, options.requestedTarget);
-    const roots = objectAt(status.roots, "vela status.roots");
-    const gitState = objectAt(status.git, "vela status.git");
-    const integrity = objectAt(status.integrity, "vela status.integrity");
-    const staging = path.join(runtime, "capsule-build");
-    await mkdir(staging, { mode: 0o700 });
-    const [capsule, permissionProfile] = await Promise.all([
-      stageProfileCapsule({ profile, stagingRoot: staging }),
-      packagedWorkerProfile(profile),
-    ]);
-    const custody = process.platform === "win32"
-      ? undefined
-      : await runNativeCustodyPreflight({
-          binary: codex.binary,
-          permissionProfile,
-          runner,
-        });
-    if (custody !== undefined) {
-      if (custody.codex_version !== codex.version || custody.codex_sha256 !== codex.sha256) {
-        throw new Error("native custody preflight and discovered Codex identity disagree");
-      }
-      if (custody.permission_profile_sha256 !== profile.permission_profile_sha256) {
-        throw new Error("native custody preflight and registered worker profile disagree");
-      }
+    const permissionProfile = await packagedWorkerProfile(profile);
+    const custody = await runNativeCustodyPreflight({
+      binary: codex.binary,
+      permissionProfile,
+      runner,
+    });
+    if (custody.codex_version !== codex.version || custody.codex_sha256 !== codex.sha256) {
+      throw new Error("native custody preflight and discovered Codex identity disagree");
+    }
+    if (custody.permission_profile_sha256 !== profile.permission_profile_sha256) {
+      throw new Error("native custody preflight and registered worker profile disagree");
     }
     return {
       profile,
@@ -286,28 +329,17 @@ export async function doctorProduct(options: {
           sha256: profile.capsule_sha256,
           source: capsule.source,
         },
-        worker: custody === undefined
-          ? {
-              platform: `${process.platform}-${process.arch}`,
-              mission_runtime: "wsl2_required",
-              mission_ready: false,
-              custody_preflight: "wsl2_required",
-              custody_mode: "not_applicable",
-              permission_profile_sha256: profile.permission_profile_sha256,
-            }
-          : {
-              platform: custody.platform,
-              mission_runtime: "native",
-              mission_ready: true,
-              custody_preflight: "passed",
-              custody_mode: custody.mode,
-              permission_profile_sha256: custody.permission_profile_sha256,
-            },
-        next_action: custody === undefined
-          ? "Run tool-using missions inside WSL2; native Windows supports doctor, inspect, and replay only."
-          : options.requestedTarget === undefined
-            ? `canopus run ${frontier} --first`
-            : `canopus run ${frontier} --target ${selected.targetId}`,
+        worker: {
+          platform: custody.platform,
+          mission_runtime: "native",
+          mission_ready: true,
+          custody_preflight: "passed",
+          custody_mode: custody.mode,
+          permission_profile_sha256: custody.permission_profile_sha256,
+        },
+        next_action: options.requestedTarget === undefined
+          ? `canopus run ${frontier} --first`
+          : `canopus run ${frontier} --target ${selected.targetId}`,
       },
     };
   } finally {

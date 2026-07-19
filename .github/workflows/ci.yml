@@ -133,6 +133,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm build
+      - name: Verify native Windows platform contracts
+        run: node --test dist/tests/product-platform.test.js
       - name: Verify Vela and installed Canopus package
         shell: pwsh
         run: |

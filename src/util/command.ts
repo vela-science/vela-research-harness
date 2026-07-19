@@ -69,25 +69,40 @@ function terminateTree(pid: number | undefined, signal: NodeJS.Signals): void {
   }
 }
 
-export function isolatedEnvironment(home: string): NodeJS.ProcessEnv {
+export function isolatedEnvironment(
+  home: string,
+  platform: NodeJS.Platform = process.platform,
+): NodeJS.ProcessEnv {
   const path = process.env.PATH;
-  return {
+  const common: NodeJS.ProcessEnv = {
     ...(path === undefined ? {} : { PATH: path }),
     HOME: home,
     XDG_CONFIG_HOME: `${home}/.config`,
     XDG_CACHE_HOME: `${home}/.cache`,
     XDG_DATA_HOME: `${home}/.local/share`,
+    GIT_CONFIG_NOSYSTEM: "1",
+    GIT_TERMINAL_PROMPT: "0",
+    VELA_NO_KEY_ACCESS: "1",
+    NO_PROXY: "*",
+    no_proxy: "*",
+  };
+  if (platform === "win32") {
+    return {
+      ...common,
+      USERPROFILE: home,
+      APPDATA: `${home}\\AppData\\Roaming`,
+      LOCALAPPDATA: `${home}\\AppData\\Local`,
+      GIT_CONFIG_GLOBAL: "NUL",
+    };
+  }
+  return {
+    ...common,
     LANG: "C.UTF-8",
     LC_ALL: "C.UTF-8",
     // rustls-native-certs checks this before macOS keychains. Pinning the
     // system PEM bundle keeps TLS functional without exposing user keychains.
     SSL_CERT_FILE: "/etc/ssl/cert.pem",
-    GIT_CONFIG_NOSYSTEM: "1",
     GIT_CONFIG_GLOBAL: "/dev/null",
-    GIT_TERMINAL_PROMPT: "0",
-    VELA_NO_KEY_ACCESS: "1",
-    NO_PROXY: "*",
-    no_proxy: "*",
   };
 }
 

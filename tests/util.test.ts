@@ -24,6 +24,15 @@ test("isolated environment pins TLS to the system PEM bundle", () => {
   assert.equal(environment.SSL_CERT_DIR, undefined);
 });
 
+test("isolated Windows environment uses native null and custody paths", () => {
+  const environment = isolatedEnvironment("C:\\Canopus\\home", "win32");
+  assert.equal(environment.HOME, "C:\\Canopus\\home");
+  assert.equal(environment.USERPROFILE, "C:\\Canopus\\home");
+  assert.equal(environment.GIT_CONFIG_GLOBAL, "NUL");
+  assert.equal(environment.SSL_CERT_FILE, undefined);
+  assert.equal(environment.VELA_NO_KEY_ACCESS, "1");
+});
+
 test("command runner does not use a shell", async () => {
   const cwd = await mkdtemp(path.join(os.tmpdir(), "canopus-command-"));
   const result = await runCommand({

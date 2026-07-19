@@ -11,20 +11,47 @@ export interface RuntimeIdentity {
   sha256: string;
 }
 
-export async function findExecutable(name: string, searchPath = process.env.PATH ?? ""): Promise<string> {
-  if (name.includes(path.sep)) {
+export function executableNames(
+  name: string,
+  platform: NodeJS.Platform,
+  pathExt: string,
+): string[] {
+  if (platform !== "win32" || path.win32.extname(name) !== "") return [name];
+  const extensions = pathExt
+    .split(";")
+    .map((extension) => extension.trim())
+    .filter((extension) => extension !== "")
+    .map((extension) => extension.startsWith(".") ? extension : `.${extension}`);
+  return [name, ...extensions.map((extension) => `${name}${extension.toLowerCase()}`)];
+}
+
+export async function findExecutable(
+  name: string,
+  searchPath = process.env.PATH ?? "",
+  options: {
+    platform?: NodeJS.Platform;
+    pathExt?: string;
+  } = {},
+): Promise<string> {
+  const platform = options.platform ?? process.platform;
+  const pathExt = options.pathExt ?? process.env.PATHEXT ?? ".COM;.EXE;.BAT;.CMD";
+  const paths = platform === "win32" ? path.win32 : path;
+  const names = executableNames(name, platform, pathExt);
+  if (name.includes("/") || name.includes("\\")) {
     const binary = await realpath(path.resolve(name));
     await access(binary, constants.X_OK);
     return binary;
   }
-  for (const directory of searchPath.split(path.delimiter)) {
+  for (const directory of searchPath.split(platform === "win32" ? ";" : path.delimiter)) {
     if (directory === "") continue;
-    const candidate = path.join(directory, name);
-    try {
-      await access(candidate, constants.X_OK);
-      return await realpath(candidate);
-    } catch {
-      // Continue through the explicit PATH only.
+    for (const executable of names) {
+      const candidate = paths.join(directory, executable);
+      try {
+        await access(candidate, constants.X_OK);
+        return await realpath(candidate);
+      } catch {
+        // Continue through the explicit PATH and PATHEXT only.
+      }
     }
   }
   throw new Error(`${name} was not found on PATH`);

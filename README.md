@@ -33,7 +33,9 @@ cloud-synced output paths, and unregistered targets.
 The native Codex worker runs under a bundled default-deny profile with only the
 target workspace and required compiler files exposed. macOS uses Seatbelt;
 Linux and WSL2 use Codex's Bubblewrap sandbox. Native Windows supports the
-read-only product surface and directs tool-using runs to WSL2. Authentication,
+read-only product surface and directs tool-using runs to WSL2 before creating
+run output or probing credentials. Open WSL2, enter the frontier through its
+Linux path, and rerun the same `canopus run` command there. Authentication,
 human keys, unrelated repositories, browser/search/MCP/app surfaces,
 delegation, and command network access remain outside the worker boundary. The
 verifier runs separately with network and writes denied.
