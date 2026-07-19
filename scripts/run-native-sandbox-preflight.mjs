@@ -38,7 +38,7 @@ const profile = fileURLToPath(new URL(
     : "../runtime/native-worker/config.toml",
   import.meta.url,
 ));
-const runtime = await mkdtemp(path.join(os.tmpdir(), "canopus-native-preflight-"));
+const runtime = await mkdtemp(path.join(os.homedir(), ".canopus-native-preflight-"));
 
 try {
   const codexHome = path.join(runtime, "codex-home");
