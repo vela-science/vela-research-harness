@@ -7,6 +7,9 @@ const expectedNode24Pins = new Map([
   ["actions/checkout", "9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0"],
   ["actions/setup-node", "820762786026740c76f36085b0efc47a31fe5020"],
   ["pnpm/action-setup", "0ebf47130e4866e96fce0953f49152a61190b271"],
+  ["docker/login-action", "af1e73f918a031802d376d3c8bbc3fe56130a9b0"],
+  ["docker/setup-buildx-action", "bb05f3f5519dd87d3ba754cc423b652a5edd6d2c"],
+  ["docker/build-push-action", "53b7df96c91f9c12dcc8a07bcb9ccacbed38856a"],
 ]);
 
 test("workflow actions are immutable and Node tooling uses maintained runtimes", async () => {
