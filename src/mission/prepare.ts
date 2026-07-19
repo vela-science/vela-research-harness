@@ -41,6 +41,7 @@ export interface PrepareMissionOptions {
   codexBinary: string;
   dockerBinary: string;
   verifierImage: string;
+  verifierPlatform?: "linux/amd64" | "linux/arm64";
   outputSchema: string;
   permissionProfile: string;
   targetPacket?: { target: string; schema: string };
@@ -409,6 +410,9 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
         capsule_path: "capsule/verifier",
         capsule_sha256: capsuleDigest,
         image: verifierImage,
+        ...(options.verifierPlatform === undefined
+          ? {}
+          : { platform: options.verifierPlatform }),
         network: "deny",
         writes: "deny",
       },
@@ -472,6 +476,9 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
         bundle_path: "capsule/verifier",
         sha256: capsuleDigest,
         image: verifierImage,
+        ...(options.verifierPlatform === undefined
+          ? {}
+          : { platform: options.verifierPlatform }),
       },
       worker: {
         platform: process.platform,

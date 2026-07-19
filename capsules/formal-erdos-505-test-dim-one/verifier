@@ -29,25 +29,37 @@ if LC_ALL=C grep -Eq '(^|[^A-Za-z0-9_])(sorry|admit|axiom|unsafe)([^A-Za-z0-9_]|
 fi
 
 toolchain=/home/lean/.elan/toolchains/leanprover--lean4---v4.27.0/bin
-project=/home/lean/formal-conjectures
-if [ ! -x "$toolchain/lake" ] || [ ! -x "$toolchain/lean" ]; then
+project=/home/lean/mathlib
+if [ ! -x "$toolchain/lean" ]; then
   echo "frozen Lean 4.27.0 toolchain is unavailable" >&2
   exit 3
 fi
-if [ ! -f "$project/.lake/build/lib/lean/FormalConjectures/ErdosProblems/505.olean" ]; then
-  echo "frozen Erdős 505 module is unavailable" >&2
+if [ ! -f "$project/.lake/build/lib/lean/Mathlib/Analysis/InnerProductSpace/PiL2.olean" ] \
+    || [ ! -f "$project/.lake/build/lib/lean/Mathlib/Topology/MetricSpace/Bounded.olean" ]; then
+  echo "frozen minimal Mathlib modules are unavailable" >&2
   exit 3
 fi
 
 export PATH="$toolchain:/usr/local/bin:/usr/bin:/bin"
 export LC_ALL=C
+LEAN_PATH=$(
+  find "$project" -type d -path '*/.lake/build/lib/lean' -print \
+    | LC_ALL=C sort \
+    | paste -sd ':' -
+)
+if [ -z "$LEAN_PATH" ]; then
+  echo "frozen Mathlib module path is unavailable" >&2
+  exit 3
+fi
+export LEAN_PATH
 cd "$project"
 
 set +e
 output=$(
   {
     printf '%s\n' \
-      'import FormalConjectures.ErdosProblems.«505»' \
+      'import Mathlib.Analysis.InnerProductSpace.PiL2' \
+      'import Mathlib.Topology.MetricSpace.Bounded' \
       '/-! # Frozen Canopus verification for Erdos 505, dimension one -/' \
       'open Metric Set Classical' \
       'namespace CanopusFormalErdos505' \
@@ -60,7 +72,7 @@ output=$(
     printf '%s\n' \
       '#print axioms CanopusFormalErdos505.test_dim_one' \
       'end CanopusFormalErdos505'
-  } | "$toolchain/lake" env lean --stdin 2>&1
+  } | "$toolchain/lean" --stdin 2>&1
 )
 status=$?
 set -e

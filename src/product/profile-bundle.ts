@@ -30,6 +30,7 @@ export interface ProfileValidation {
     worker_profile_sha256: string;
     verifier_capsule_sha256: string;
     verifier_image: string;
+    verifier_platform: string;
   }>;
 }
 
@@ -66,6 +67,7 @@ export async function validateProductProfile(name: string): Promise<ProfileValid
       worker_profile_sha256: profile.permission_profile_sha256,
       verifier_capsule_sha256: profile.capsule_sha256,
       verifier_image: profile.verifier_image,
+      verifier_platform: profile.verifier_platform,
     }];
   }))) as ProfileValidation["platforms"];
   return {

@@ -72,6 +72,7 @@ export interface ContainerVerifierSpec extends VerifierSpec {
   capsule_path: string;
   capsule_sha256: string;
   image: string;
+  platform?: "linux/amd64" | "linux/arm64";
 }
 
 export interface WorkerSpec {
@@ -253,7 +254,7 @@ function parseVerifier(value: unknown, container: boolean): VerifierSpec | Conta
   exactKeys(
     object,
     ["argv", "executable_sha256", "cwd", "timeout_ms", "max_output_bytes", "network", "writes"],
-    container ? ["capsule_path", "capsule_sha256", "image"] : [],
+    container ? ["capsule_path", "capsule_sha256", "image", "platform"] : [],
     "mission.verifier",
   );
   const base: VerifierSpec = {
@@ -284,6 +285,15 @@ function parseVerifier(value: unknown, container: boolean): VerifierSpec | Conta
     capsule_path: relativePathAt(object.capsule_path, "mission.verifier.capsule_path"),
     capsule_sha256: sha256At(object.capsule_sha256, "mission.verifier.capsule_sha256"),
     image: sha256At(object.image, "mission.verifier.image"),
+    ...(object.platform === undefined
+      ? {}
+      : {
+          platform: enumAt(
+            object.platform,
+            "mission.verifier.platform",
+            ["linux/amd64", "linux/arm64"] as const,
+          ),
+        }),
   };
 }
 

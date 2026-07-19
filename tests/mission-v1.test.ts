@@ -126,3 +126,16 @@ test("mission v1 validates one portable exact-byte bundle and detects drift", as
   await writeFile(path.join(root, "packet", "target.json"), "{\"problem\":999}\n");
   await assert.rejects(validateMissionBundle(active, root), /target packet drifted/u);
 });
+
+test("Mission v1 accepts only explicit Linux verifier platforms", () => {
+  const active = mission(digest, digest, digest, digest);
+  const bound = structuredClone(active) as MissionV1;
+  bound.verifier.platform = "linux/amd64";
+  const reparsed = parseMission(bound);
+  assert.equal(reparsed.schema, "canopus.mission.v1");
+  assert.equal((reparsed as MissionV1).verifier.platform, "linux/amd64");
+
+  const invalid = structuredClone(bound) as unknown as Record<string, unknown>;
+  (invalid.verifier as Record<string, unknown>).platform = "linux/s390x";
+  assert.throws(() => parseMission(invalid), /mission\.verifier\.platform/u);
+});

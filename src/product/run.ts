@@ -239,6 +239,7 @@ export async function runProduct(options: {
       codexBinary: codexRuntime.binary,
       dockerBinary: dockerRuntime.binary,
       verifierImage: diagnosis.profile.verifier_image,
+      verifierPlatform: diagnosis.profile.verifier_platform,
       outputSchema: packageFile("schemas/engine-output.v0.json"),
       permissionProfile: await packagedWorkerProfile(diagnosis.profile),
       targetPacket: {

@@ -272,7 +272,10 @@ export async function doctorProduct(options: {
       }),
     ]);
     if (image.exitCode !== 0 || repoDigests.exitCode !== 0) {
-      throw new Error(`registered verifier image is unavailable; run docker pull ${profile.verifier_image}`);
+      throw new Error(
+        "registered verifier image is unavailable; run " +
+          `docker pull --platform ${profile.verifier_platform} ${profile.verifier_image}`,
+      );
     }
     if (image.stderr.length !== 0 || repoDigests.stderr.length !== 0) {
       throw new Error("registered verifier image inspection produced unexpected stderr");

@@ -145,7 +145,8 @@
         "writes": { "const": "deny" },
         "capsule_path": { "$ref": "#/$defs/relativePath" },
         "capsule_sha256": { "$ref": "#/$defs/sha256" },
-        "image": { "$ref": "#/$defs/sha256" }
+        "image": { "$ref": "#/$defs/sha256" },
+        "platform": { "enum": ["linux/amd64", "linux/arm64"] }
       }
     },
     "scientific_chain": { "$ref": "#/$defs/scientificChain" },

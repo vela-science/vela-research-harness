@@ -174,6 +174,9 @@ async function runContainerVerifier(options: {
   const argv = [
     options.dockerBinary,
     "run",
+    ...(options.mission.verifier.platform === undefined
+      ? []
+      : ["--platform", options.mission.verifier.platform]),
     "--rm",
     "--init",
     "--read-only",

@@ -24,6 +24,7 @@ export const PROFILE_V1_SCHEMA = "canopus.profile.v1" as const;
 export const PROFILE_SCHEMA = "canopus.profile.v2" as const;
 export const SUPPORTED_PRODUCT_PLATFORMS = ["darwin-arm64", "linux-x86_64"] as const;
 export type ProductPlatform = (typeof SUPPORTED_PRODUCT_PLATFORMS)[number];
+export type VerifierPlatform = "linux/amd64" | "linux/arm64";
 
 export interface PlatformCapsule {
   worker_profile: string;
@@ -31,6 +32,7 @@ export interface PlatformCapsule {
   verifier_capsule: string;
   verifier_capsule_sha256: string;
   verifier_image: string;
+  verifier_platform: VerifierPlatform;
 }
 
 export interface ProductProfile {
@@ -56,6 +58,7 @@ export interface ProductProfile {
   permission_profile: string;
   permission_profile_sha256: string;
   verifier_image: string;
+  verifier_platform: VerifierPlatform;
 }
 
 export interface LegacyProductProfile {
@@ -102,7 +105,11 @@ export async function listProductProfiles(): Promise<string[]> {
   return registeredProfileNames();
 }
 
-function parsePlatformCapsule(value: unknown, at: string): PlatformCapsule {
+function parsePlatformCapsule(
+  value: unknown,
+  at: string,
+  defaultVerifierPlatform: VerifierPlatform,
+): PlatformCapsule {
   const object = objectAt(value, at);
   exactKeys(
     object,
@@ -113,7 +120,7 @@ function parsePlatformCapsule(value: unknown, at: string): PlatformCapsule {
       "verifier_capsule_sha256",
       "verifier_image",
     ],
-    [],
+    ["verifier_platform"],
     at,
   );
   return {
@@ -128,6 +135,13 @@ function parsePlatformCapsule(value: unknown, at: string): PlatformCapsule {
       `${at}.verifier_capsule_sha256`,
     ),
     verifier_image: verifierImageAt(object.verifier_image, `${at}.verifier_image`),
+    verifier_platform: object.verifier_platform === undefined
+      ? defaultVerifierPlatform
+      : stringAt(object.verifier_platform, `${at}.verifier_platform`, {
+          min: 11,
+          max: 11,
+          pattern: /^linux\/(?:amd64|arm64)$/u,
+        }) as VerifierPlatform,
   };
 }
 
@@ -162,7 +176,11 @@ function parseV2(
   const platforms = Object.fromEntries(
     SUPPORTED_PRODUCT_PLATFORMS.map((platform) => [
       platform,
-      parsePlatformCapsule(platformsValue[platform], `profile.platforms.${platform}`),
+      parsePlatformCapsule(
+        platformsValue[platform],
+        `profile.platforms.${platform}`,
+        platform === "darwin-arm64" ? "linux/arm64" : "linux/amd64",
+      ),
     ]),
   ) as unknown as Record<ProductPlatform, PlatformCapsule>;
   const landingValue = objectAt(value.landing, "profile.landing");
@@ -227,6 +245,7 @@ function parseV2(
     permission_profile: selected.worker_profile,
     permission_profile_sha256: selected.worker_profile_sha256,
     verifier_image: selected.verifier_image,
+    verifier_platform: selected.verifier_platform,
   };
   if (parsed.name !== name) throw new Error("profile filename and registered name disagree");
   return parsed;

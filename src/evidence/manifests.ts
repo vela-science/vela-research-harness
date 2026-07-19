@@ -28,19 +28,40 @@ export function engineManifest(engine: EngineResult): SupportingArtifactSpec {
 }
 
 export function verifierManifest(mission: Mission): SupportingArtifactSpec {
-  const value = {
-    schema: "canopus.verifier-manifest.v0",
+  const common = {
     capsule_path: mission.verifier.argv[0],
     executable_sha256: mission.verifier.executable_sha256,
     argv_template: mission.verifier.argv,
     cwd: mission.verifier.cwd,
-    sandbox: {
-      backend: "macos_seatbelt",
-      network: "deny",
-      persistent_writes: "deny",
-      process_fork: "deny",
-    },
-    platform: { os: "darwin", arch: process.arch },
   };
+  const value = mission.schema === "canopus.mission.v1"
+    ? {
+        schema: "canopus.verifier-manifest.v1",
+        ...common,
+        image: mission.verifier.image,
+        sandbox: {
+          backend: "docker",
+          network: "deny",
+          root_filesystem: "read_only",
+          bind_mounts: "exact_inputs_read_only",
+          capabilities: "drop_all",
+          privilege_escalation: "deny",
+        },
+        platform: {
+          os: "linux",
+          arch: mission.verifier.platform?.slice("linux/".length) ?? "unspecified",
+        },
+      }
+    : {
+        schema: "canopus.verifier-manifest.v0",
+        ...common,
+        sandbox: {
+          backend: "macos_seatbelt",
+          network: "deny",
+          persistent_writes: "deny",
+          process_fork: "deny",
+        },
+        platform: { os: "darwin", arch: process.arch },
+      };
   return { path: manifestPath("verifier-manifest", value), kind: "verifier-manifest", value };
 }

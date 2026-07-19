@@ -23,8 +23,12 @@ test(
   async () => {
     await chmod(verifier, 0o755);
     const verifierSource = await readFile(verifier, "utf8");
-    assert.match(verifierSource, /\$toolchain\/lake" env lean --stdin/u);
+    assert.match(verifierSource, /\$toolchain\/lean" --stdin/u);
+    assert.match(verifierSource, /find "\$project" -type d -path '\*\/\.lake\/build\/lib\/lean'/u);
+    assert.doesNotMatch(verifierSource, /\$toolchain\/lake" env lean/u);
     assert.doesNotMatch(verifierSource, /lean \/dev\/stdin/u);
+    assert.match(verifierSource, /grep -Fq 'sorryAx'/u);
+    assert.match(verifierSource, /propext\|Classical\.choice\|Quot\.sound/u);
     const root = await mkdtemp(path.join(os.tmpdir(), "canopus-formal-verifier-"));
 
     const empty = run(await candidate(root, "empty.lean", ""));

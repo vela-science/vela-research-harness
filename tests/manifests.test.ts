@@ -54,3 +54,28 @@ test("engine and verifier manifests coexist under their full content identities"
   changedMission.verifier.argv = ["verify/capsule", "--two"];
   assert.notEqual(verifierManifest(changedMission).path, firstVerifier.path);
 });
+
+test("Mission v1 reports the actual container boundary and bound platform", () => {
+  const mission = {
+    schema: "canopus.mission.v1",
+    verifier: {
+      argv: ["capsule/verifier", "{artifact:proof.lean}"],
+      executable_sha256: digest,
+      cwd: "site",
+      image: digest,
+      platform: "linux/amd64",
+    },
+  } as Mission;
+  const manifest = verifierManifest(mission).value;
+  assert.equal(manifest.schema, "canopus.verifier-manifest.v1");
+  assert.equal(manifest.image, digest);
+  assert.deepEqual(manifest.platform, { os: "linux", arch: "amd64" });
+  assert.deepEqual(manifest.sandbox, {
+    backend: "docker",
+    network: "deny",
+    root_filesystem: "read_only",
+    bind_mounts: "exact_inputs_read_only",
+    capabilities: "drop_all",
+    privilege_escalation: "deny",
+  });
+});

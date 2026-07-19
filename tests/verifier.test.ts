@@ -363,6 +363,7 @@ test("mission v1 verifier uses an exact capsule in a network/write-denied contai
       capsule_path: "verifier.py",
       capsule_sha256: capsuleDigest,
       image: rootDigest,
+      platform: "linux/amd64",
     },
   };
   const calls: string[][] = [];
@@ -392,6 +393,7 @@ test("mission v1 verifier uses an exact capsule in a network/write-denied contai
   assert.equal(outcome.sandbox, "container_network_denied");
   const docker = calls[1] ?? [];
   assert.ok(docker.includes("--network=none"));
+  assert.deepEqual(docker.slice(2, 4), ["--platform", "linux/amd64"]);
   assert.ok(docker.includes("--read-only"));
   assert.ok(docker.includes("--cap-drop=ALL"));
   assert.ok(docker.includes("--security-opt=no-new-privileges"));
