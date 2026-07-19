@@ -79,7 +79,7 @@ test("profile v2 binds exact platform custody and packs only portable contract r
   assert.equal(manifest.schema, "canopus.profile-pack.v1");
   assert.equal(packed.files, 6);
   assert.deepEqual(manifest.files.map((file) => file.path), [
-    "capsules/erdos1056-k15/bin/10428008-10428200/verifier",
+    "capsules/erdos1056-k15/bin/linux-arm64/10428008-10428200/verifier",
     "capsules/erdos1056-k15/bin/linux-x86_64/10428008-10428200/verifier",
     "missions/erdos1056-k15/mission.draft.json",
     `profiles/${name}.json`,

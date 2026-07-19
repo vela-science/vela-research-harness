@@ -14,10 +14,12 @@ aarch64-linux-gnu-g++ -O3 -std=c++20 -static -s \
   -o missions/erdos1056-k15/capsule/verifier
 ```
 
-The release build used `aarch64-linux-gnu-g++ (GCC) 15.2.0`, binary SHA-256
-`b70a2d4da3aa934c1276a038bd69d7041dc5f94e4090e5432500422c59f53b6f`.
-The resulting capsule SHA-256 is
-`aff16eeca0ca689838ee0e0e88a5cfd85e0206ea8aa8bf3201fa1aeea566be33`.
+The packaged Linux ARM64 capsule SHA-256 roots are:
+
+- `aff16eeca0ca689838ee0e0e88a5cfd85e0206ea8aa8bf3201fa1aeea566be33`
+  for `10428008..10428200`;
+- `6144b9d9e217b4a57651b90c157ec9cc17d2c0fdcfc80a24bc9fa694bc16f626`
+  for `10428201..10428400`.
 
 The Linux x86-64 capsules were built in `alpine:3.22.1` for `linux/amd64`,
 pinned at
