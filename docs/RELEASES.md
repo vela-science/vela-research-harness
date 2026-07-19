@@ -196,6 +196,34 @@ order and set. The objective binds the resulting ordered prefix sequence by
 full SHA-256, retains the four exact candidate permutations and the same
 positive-only result contract, and supplies no result from the stopped run.
 
+That corrected run also stopped without a scientific result. The worker
+verified the packet-derived base and launched a compiled implementation, but
+interrupted it before completing even one full registered order. It returned
+`failed`, not `null`, with no artifact. Independently, the harness rejected the
+run because provider-reported usage exceeded the frozen 400,000-token
+postcondition. The verifier and landing edges did not run.
+
+- Run: `run_fcba830b-16d5-429a-b515-b5b2d6cc2677`
+- Frozen source and profile root:
+  `b9e90b6d60cfde8a21e5fe3a3e742ee899154684` and
+  `sha256:26c7863931f192281eae4cbe25d4bce4e01bb3c0a69fdebc88a3dea79a281a11`
+- Mission and failure-record roots:
+  `sha256:15e67ca89b195c61a3c9e4372935647bbd28552034ae6dc7c71e7498757090a2`
+  and
+  `sha256:dad4a9b882f814cdf0623f4a1c6f7f89ffab2b72335229d84b602b89d114d077`
+- Worker event-stream root and activity tip:
+  `sha256:c2bbe3d1df60cd3afbbe677af61ec3787e7cd9463c800867d4cd904061ee1fce`
+  and
+  `sha256:825f009717bddc903d234c0d1d243e43340ee02964aebdb22e7d77d782520bf1`
+- Usage: 560,567 input tokens, including 515,584 cached input tokens;
+  10,858 output tokens; 5,262 reasoning-output tokens; 571,425 observed total
+- The source frontier again remained strict-clean and byte-identical at the
+  same commit, tree, event, snapshot, proposal, and artifact roots.
+
+This exact four-order strategy is now stopped. Raising its budget or repeating
+it would not turn the incomplete computation into evidence. A future Sidon
+attempt needs a demonstrably more tractable algorithm and a new registration.
+
 ## Canopus v0.3.0
 
 This release adds the one-command product path and proposal-scoped producer
