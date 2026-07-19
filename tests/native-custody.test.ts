@@ -8,6 +8,7 @@ import test from "node:test";
 import { runNativeCustodyPreflight } from "../src/product/custody.js";
 import { sha256Bytes } from "../src/util/canonical.js";
 import type { CommandRunner } from "../src/util/command.js";
+import { MAX_EXECUTABLE_BYTES } from "../src/util/files.js";
 
 test("native custody preflight reuses the production boundary with generated canaries", async () => {
   if (process.platform !== "darwin" && process.platform !== "linux") return;
@@ -67,4 +68,8 @@ test("native custody preflight reuses the production boundary with generated can
   } else {
     assert.equal(calls[0]?.[0], await realpath(binary));
   }
+});
+
+test("native custody executable ceiling covers current large Codex distributions", () => {
+  assert.ok(MAX_EXECUTABLE_BYTES > 268_435_456);
 });

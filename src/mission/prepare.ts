@@ -29,7 +29,7 @@ import {
 } from "../contracts/validation.js";
 import { canonicalJson, contentDigest, sha256Bytes } from "../util/canonical.js";
 import { isolatedEnvironment, runCommand, type CommandRunner } from "../util/command.js";
-import { readBoundedRegularFile } from "../util/files.js";
+import { MAX_EXECUTABLE_BYTES, readBoundedRegularFile, sha256RegularFile } from "../util/files.js";
 import { VelaClient } from "../vela/cli.js";
 
 export interface PrepareMissionOptions {
@@ -257,9 +257,7 @@ async function workerIdentity(
   });
   return {
     codex_version: version,
-    codex_sha256: sha256Bytes(
-      await readBoundedRegularFile(binary, 268_435_456),
-    ),
+    codex_sha256: await sha256RegularFile(binary, MAX_EXECUTABLE_BYTES),
   };
 }
 
@@ -284,7 +282,7 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
       ? "."
       : relativePathAt(raw.frontier, "mission.frontier");
     const velaBinary = await realpath(options.velaBinary);
-    const velaSha256 = sha256Bytes(await readBoundedRegularFile(velaBinary, 268_435_456));
+    const velaSha256 = await sha256RegularFile(velaBinary, MAX_EXECUTABLE_BYTES);
     const versionText = await commandText(
       runner,
       [velaBinary, "--version"],

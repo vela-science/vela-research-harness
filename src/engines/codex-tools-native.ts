@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
-import { lstat, mkdir, realpath, rm, writeFile } from "node:fs/promises";
+import { constants } from "node:fs";
+import { chmod, copyFile, lstat, mkdir, realpath, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
@@ -7,7 +8,7 @@ import { assertDraftArtifactsAllowed, parseCandidateDraft } from "../candidate/v
 import type { MissionV1 } from "../contracts/mission.js";
 import { canonicalJson, contentDigest, sha256Bytes } from "../util/canonical.js";
 import { isolatedEnvironment, runCommand, type CommandRunner } from "../util/command.js";
-import { readBoundedRegularFile } from "../util/files.js";
+import { MAX_EXECUTABLE_BYTES, readBoundedRegularFile, sha256RegularFile } from "../util/files.js";
 import { parseCodexEvents, summarizeCodexFailure } from "./codex-events.js";
 import { prepareIsolatedCodexHome, removeIsolatedCodexHome } from "./codex-home.js";
 import type { Engine, EngineContext, EngineResult } from "./engine.js";
@@ -100,13 +101,17 @@ async function prepareTargetPacketWorkspace(
 async function stageLinuxSandboxBinary(
   workspace: string,
   sourceBinary: string,
-  binaryBytes: Buffer,
+  expectedDigest: string,
 ): Promise<string> {
   if (process.platform !== "linux") return sourceBinary;
   const runtimeDirectory = path.join(workspace, ".canopus-runtime");
   await mkdir(runtimeDirectory, { recursive: false, mode: 0o700 });
   const runtimeBinary = path.join(runtimeDirectory, "codex");
-  await writeFile(runtimeBinary, binaryBytes, { flag: "wx", mode: 0o500 });
+  await copyFile(sourceBinary, runtimeBinary, constants.COPYFILE_EXCL);
+  await chmod(runtimeBinary, 0o500);
+  if (await sha256RegularFile(runtimeBinary, MAX_EXECUTABLE_BYTES) !== expectedDigest) {
+    throw new Error("native Codex binary changed while it was staged for the Linux sandbox");
+  }
   return runtimeBinary;
 }
 
@@ -286,13 +291,12 @@ export class CodexToolsNativeEngine implements Engine {
     }
     context.budget.beginAttempt();
     const binary = await realpath(this.#options.binary);
-    const [binaryBytes, profileBytes, schemaBytes, sourceAuthBytes] = await Promise.all([
-      readBoundedRegularFile(binary, 268_435_456),
+    const [binaryDigest, profileBytes, schemaBytes, sourceAuthBytes] = await Promise.all([
+      sha256RegularFile(binary, MAX_EXECUTABLE_BYTES),
       readBoundedRegularFile(this.#options.permissionProfile, 8 * 1024 * 1024),
       readBoundedRegularFile(this.#options.outputSchema, 8 * 1024 * 1024),
       readBoundedRegularFile(path.join(this.#options.authHome, "auth.json"), 2 * 1024 * 1024),
     ]);
-    const binaryDigest = sha256Bytes(binaryBytes);
     const profileDigest = sha256Bytes(profileBytes);
     const schemaDigest = sha256Bytes(schemaBytes);
     if (binaryDigest !== mission.worker.codex_sha256) throw new Error("native Codex binary drifted");
@@ -305,7 +309,7 @@ export class CodexToolsNativeEngine implements Engine {
 
     const workspace = path.join(context.paths.work, "native-worker");
     await prepareTargetPacketWorkspace(context.paths.input, workspace, mission);
-    const runtimeBinary = await stageLinuxSandboxBinary(workspace, binary, binaryBytes);
+    const runtimeBinary = await stageLinuxSandboxBinary(workspace, binary, binaryDigest);
     const canaryDirectory = path.join(context.paths.work, "custody-canary");
     await mkdir(canaryDirectory, { mode: 0o700 });
     const canaryBytes = Buffer.from(`canopus-host-secret-${randomBytes(32).toString("hex")}\n`);

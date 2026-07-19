@@ -23,7 +23,7 @@ import {
   type CommandRunner,
 } from "../util/command.js";
 import { canonicalJcs, sha256Bytes } from "../util/canonical.js";
-import { readBoundedRegularFile } from "../util/files.js";
+import { MAX_EXECUTABLE_BYTES, readBoundedRegularFile, sha256RegularFile } from "../util/files.js";
 import type { LandResult, VelaCommandResponse, VelaInspection } from "./types.js";
 
 export type { CommandRunner } from "../util/command.js";
@@ -553,9 +553,7 @@ export class VelaClient {
   }
 
   public async assertVersion(cwd: string): Promise<string> {
-    const binaryDigest = sha256Bytes(
-      await readBoundedRegularFile(this.#binary, 268_435_456),
-    );
+    const binaryDigest = await sha256RegularFile(this.#binary, MAX_EXECUTABLE_BYTES);
     if (binaryDigest !== this.#expectedSha256) {
       throw new VelaClientError(
         "version_mismatch",

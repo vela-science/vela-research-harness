@@ -3,8 +3,7 @@ import { access, realpath } from "node:fs/promises";
 import path from "node:path";
 
 import { isolatedEnvironment, runCommand, type CommandRunner } from "../util/command.js";
-import { sha256Bytes } from "../util/canonical.js";
-import { readBoundedRegularFile } from "../util/files.js";
+import { MAX_EXECUTABLE_BYTES, sha256RegularFile } from "../util/files.js";
 
 export interface RuntimeIdentity {
   binary: string;
@@ -56,6 +55,6 @@ export async function runtimeIdentity(options: {
   return {
     binary,
     version,
-    sha256: sha256Bytes(await readBoundedRegularFile(binary, 268_435_456)),
+    sha256: await sha256RegularFile(binary, MAX_EXECUTABLE_BYTES),
   };
 }

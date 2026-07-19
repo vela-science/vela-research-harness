@@ -9,7 +9,7 @@ import {
   runCommand,
   type CommandRunner,
 } from "../util/command.js";
-import { readBoundedRegularFile } from "../util/files.js";
+import { MAX_EXECUTABLE_BYTES, readBoundedRegularFile, sha256RegularFile } from "../util/files.js";
 import { parseCodexEvents, summarizeCodexFailure } from "./codex-events.js";
 import { prepareIsolatedCodexHome, removeIsolatedCodexHome } from "./codex-home.js";
 import {
@@ -74,8 +74,7 @@ export class CodexExecEngine implements Engine {
 
   public async run(context: EngineContext): Promise<EngineResult> {
     context.budget.beginAttempt();
-    const binaryBytes = await readBoundedRegularFile(this.#options.binary, 268_435_456);
-    const binaryDigest = sha256Bytes(binaryBytes);
+    const binaryDigest = await sha256RegularFile(this.#options.binary, MAX_EXECUTABLE_BYTES);
     if (binaryDigest !== this.#options.expectedSha256) {
       throw new Error(
         `Codex binary digest mismatch: expected ${this.#options.expectedSha256}, observed ${binaryDigest}`,
