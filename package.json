@@ -10,7 +10,7 @@
     "url": "git+https://github.com/vela-science/vela-research-harness.git"
   },
   "engines": {
-    "node": ">=22 <26"
+    "node": ">=22 <23 || >=24 <25"
   },
   "packageManager": "pnpm@10.33.0",
   "bin": {
