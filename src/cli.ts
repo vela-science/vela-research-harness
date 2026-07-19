@@ -88,7 +88,8 @@ function doctorUsage(): string {
   canopus doctor [frontier]
 
 Checks the compact Vela contract, exact runtimes, first offer, registered
-profile, packaged capsule root, and verifier isolation prerequisites.`;
+profile, packaged capsule root, real native custody boundary, and verifier
+isolation prerequisites.`;
 }
 
 function replayUsage(): string {

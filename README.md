@@ -23,10 +23,12 @@ canopus withdraw /path/to/frontier --run latest --reason "superseded"
 ```
 
 `doctor` discovers and binds Vela, Codex, Git, Docker, the clean frontier roots,
-the first Vela producer offer, and a registered verifier profile. `run` uses the
-first offer unless an exact registered target is requested. It refuses dirty
-frontiers, drifted binaries or roots, missing verifier images, cloud-synced
-output paths, and unregistered targets.
+the first Vela producer offer, and a registered verifier profile. It also runs
+the same generated-canary native custody preflight required by `run`; native
+Windows reports the WSL2 handoff instead of claiming mission readiness. `run`
+uses the first offer unless an exact registered target is requested. It refuses
+dirty frontiers, drifted binaries or roots, missing verifier images,
+cloud-synced output paths, and unregistered targets.
 
 The native Codex worker runs under a bundled default-deny profile with only the
 target workspace and required compiler files exposed. macOS uses Seatbelt;

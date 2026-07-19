@@ -8,9 +8,11 @@ import { sha256Bytes } from "../util/canonical.js";
 import {
   listProductProfiles,
   loadProductProfile,
+  packagedWorkerProfile,
   stageProfileCapsule,
   type ProductProfile,
 } from "./profile.js";
+import { runNativeCustodyPreflight } from "./custody.js";
 import { runtimeIdentity, type RuntimeIdentity } from "./runtime.js";
 
 export interface ProductDoctorResult {
@@ -38,6 +40,14 @@ export interface ProductDoctorResult {
     };
   };
   capsule: { sha256: string; source: "packaged" };
+  worker: {
+    platform: string;
+    mission_runtime: "native" | "wsl2_required";
+    mission_ready: boolean;
+    custody_preflight: "passed" | "wsl2_required";
+    custody_mode: "deterministic_no_model" | "not_applicable";
+    permission_profile_sha256: string;
+  };
   next_action: string;
 }
 
@@ -222,7 +232,25 @@ export async function doctorProduct(options: {
     const integrity = objectAt(status.integrity, "vela status.integrity");
     const staging = path.join(runtime, "capsule-build");
     await mkdir(staging, { mode: 0o700 });
-    const capsule = await stageProfileCapsule({ profile, stagingRoot: staging });
+    const [capsule, permissionProfile] = await Promise.all([
+      stageProfileCapsule({ profile, stagingRoot: staging }),
+      packagedWorkerProfile(profile),
+    ]);
+    const custody = process.platform === "win32"
+      ? undefined
+      : await runNativeCustodyPreflight({
+          binary: codex.binary,
+          permissionProfile,
+          runner,
+        });
+    if (custody !== undefined) {
+      if (custody.codex_version !== codex.version || custody.codex_sha256 !== codex.sha256) {
+        throw new Error("native custody preflight and discovered Codex identity disagree");
+      }
+      if (custody.permission_profile_sha256 !== profile.permission_profile_sha256) {
+        throw new Error("native custody preflight and registered worker profile disagree");
+      }
+    }
     return {
       profile,
       public: {
@@ -258,9 +286,28 @@ export async function doctorProduct(options: {
           sha256: profile.capsule_sha256,
           source: capsule.source,
         },
-        next_action: options.requestedTarget === undefined
-          ? `canopus run ${frontier} --first`
-          : `canopus run ${frontier} --target ${selected.targetId}`,
+        worker: custody === undefined
+          ? {
+              platform: `${process.platform}-${process.arch}`,
+              mission_runtime: "wsl2_required",
+              mission_ready: false,
+              custody_preflight: "wsl2_required",
+              custody_mode: "not_applicable",
+              permission_profile_sha256: profile.permission_profile_sha256,
+            }
+          : {
+              platform: custody.platform,
+              mission_runtime: "native",
+              mission_ready: true,
+              custody_preflight: "passed",
+              custody_mode: custody.mode,
+              permission_profile_sha256: custody.permission_profile_sha256,
+            },
+        next_action: custody === undefined
+          ? "Run tool-using missions inside WSL2; native Windows supports doctor, inspect, and replay only."
+          : options.requestedTarget === undefined
+            ? `canopus run ${frontier} --first`
+            : `canopus run ${frontier} --target ${selected.targetId}`,
       },
     };
   } finally {
