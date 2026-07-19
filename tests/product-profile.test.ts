@@ -88,6 +88,21 @@ test("profile v2 binds exact platform custody and packs only portable contract r
   ]);
 });
 
+test("Linux custody denies host roots and reopens only the exact workspace", async () => {
+  const config = await readFile(
+    path.resolve("runtime/native-worker/config-linux.toml"),
+    "utf8",
+  );
+  assert.match(config, /^"\/home" = "deny"$/mu);
+  assert.match(config, /^"\/root" = "deny"$/mu);
+  assert.match(config, /^"\/tmp" = "deny"$/mu);
+  assert.match(
+    config,
+    /\[permissions\.canopus-worker\.filesystem\.":workspace_roots"\]\n"\." = "write"/u,
+  );
+  assert.doesNotMatch(config, /^"\/" = "write"$/mu);
+});
+
 test("Sidon Permit profile binds one positive result contract and two portable capsules", async () => {
   const mac = await loadProductProfile("sidon-a24-improve", { platform: "darwin-arm64" });
   const linux = await loadProductProfile("sidon-a24-improve", { platform: "linux-x86_64" });

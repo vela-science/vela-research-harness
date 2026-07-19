@@ -26,7 +26,7 @@
     },
     "linux-x86_64": {
       "worker_profile": "runtime/native-worker/config-linux.toml",
-      "worker_profile_sha256": "sha256:f568f62c84f563cc63bb74ec6bbb0c8f596ce7ba9ecd156647c24bb5d5222123",
+      "worker_profile_sha256": "sha256:47ce301ef4d09d1663c72c43c43bcdca56ef40fd99101950d641b8d2e396b2e1",
       "verifier_capsule": "capsules/quantum-10-1-4/verifier.py",
       "verifier_capsule_sha256": "sha256:7070364ac9017b597b7765efd772f68f543008b64217df4b0d43e72719527160",
       "verifier_image": "ghcr.io/vela-science/canopus-verifier@sha256:a6f354862f2a3f7d72eb99244c65fa8583c98b74e17e3d5ce6e31ef48aa16536"

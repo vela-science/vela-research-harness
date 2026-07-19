@@ -4,6 +4,9 @@ allow_login_shell = false
 
 [permissions.canopus-worker.filesystem]
 ":minimal" = "read"
+"/home" = "deny"
+"/root" = "deny"
+"/tmp" = "deny"
 
 [permissions.canopus-worker.filesystem.":workspace_roots"]
 "." = "write"
