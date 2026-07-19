@@ -12,6 +12,10 @@
 - Pin every GitHub Action by immutable commit and move checkout, Node setup,
   and pnpm setup to their maintained Node 24 majors, removing the hosted
   Node 20 compatibility shim from the candidate's platform matrix.
+- Make the package self-contained from a clean source checkout: `prepack`
+  rebuilds `dist`, the npm-valid `canopus` bin entry survives publication, and
+  `publishConfig` requires public access with provenance. Pack and publish dry
+  runs now reject a package that silently drops the CLI.
 
 ## 0.3.0 - 2026-07-17
 

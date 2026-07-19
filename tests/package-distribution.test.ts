@@ -24,7 +24,7 @@ test("published Canopus is one self-contained inert tarball", async () => {
   for (const lifecycle of ["preinstall", "install", "postinstall", "prepare"] as const) {
     assert.equal(manifest.scripts?.[lifecycle], undefined, `${lifecycle} must not execute on install`);
   }
-  assert.equal(manifest.bin?.canopus, "./dist/src/cli.js");
+  assert.equal(manifest.bin?.canopus, "dist/src/cli.js");
   assert.equal(manifest.engines?.node, ">=22 <23 || >=24 <25");
 
   const compiled = await readdir(new URL("../src/", import.meta.url), { recursive: true });
