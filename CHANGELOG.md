@@ -9,6 +9,9 @@
   only bounded event-type counts, boolean verdicts, and content hashes; the
   harness independently verifies an exact shell sentinel rather than trusting
   the model's report.
+- Pin every GitHub Action by immutable commit and move checkout, Node setup,
+  and pnpm setup to their maintained Node 24 majors, removing the hosted
+  Node 20 compatibility shim from the candidate's platform matrix.
 
 ## 0.3.0 - 2026-07-17
 
