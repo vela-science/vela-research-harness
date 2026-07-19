@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
@@ -26,4 +26,11 @@ test("published Canopus is one self-contained inert tarball", async () => {
   }
   assert.equal(manifest.bin?.canopus, "./dist/src/cli.js");
   assert.equal(manifest.engines?.node, ">=22 <23 || >=24 <25");
+
+  const compiled = await readdir(new URL("../src/", import.meta.url), { recursive: true });
+  assert.equal(
+    compiled.some((entry) => entry.endsWith(".map")),
+    false,
+    "published output must not contain maps whose TypeScript sources are absent",
+  );
 });

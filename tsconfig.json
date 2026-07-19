@@ -6,8 +6,8 @@
     "rootDir": ".",
     "outDir": "dist",
     "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
+    "declarationMap": false,
+    "sourceMap": false,
     "strict": true,
     "exactOptionalPropertyTypes": true,
     "noUncheckedIndexedAccess": true,
@@ -22,4 +22,3 @@
   "include": ["src/**/*.ts", "tests/**/*.ts"],
   "exclude": ["dist", "node_modules"]
 }
-
