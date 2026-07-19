@@ -29,6 +29,11 @@ Windows reports the WSL2 handoff instead of claiming mission readiness. `run`
 uses the first offer unless an exact registered target is requested. It refuses
 dirty frontiers, drifted binaries or roots, missing verifier images,
 cloud-synced output paths, and unregistered targets.
+`inspect latest` selects the newest completed or safely stopped run. Failed-run
+projections state whether landing was never attempted or whether retained
+landing-recovery evidence must be inspected; they never infer an unchanged
+frontier from process failure alone. Withdrawal's `latest` selector remains
+limited to completed, proposal-bearing runs.
 
 The native Codex worker runs under a bundled default-deny profile with only the
 target workspace and required compiler files exposed. macOS uses Seatbelt;

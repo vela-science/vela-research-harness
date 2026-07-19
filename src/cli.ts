@@ -11,6 +11,7 @@ import { CodexExecEngine } from "./engines/codex-exec.js";
 import { CodexToolsNativeEngine } from "./engines/codex-tools-native.js";
 import { prepareMission, validateMissionBundle } from "./mission/prepare.js";
 import { parseDiagnosticRunRecord, projectDiagnosticRun } from "./projection/diagnostic.js";
+import { parseFailureRecord, projectFailure } from "./projection/failure.js";
 import { parseRunRecord, projectRun } from "./projection/run.js";
 import { doctorProduct } from "./product/doctor.js";
 import { replayProduct } from "./product/replay.js";
@@ -78,9 +79,11 @@ clones and leaves the source frontier unchanged.`;
 
 function inspectUsage(): string {
   return `Usage:
-  canopus inspect [run.json | latest]
+  canopus inspect [run.json | failure.json | latest]
 
-Projects one completed non-authoritative run record without mutating Vela.`;
+Projects the newest completed or safely stopped non-authoritative run record
+without mutating Vela. A failed run never implies that landing was unchanged;
+inspect reports whether retained landing-recovery evidence is required.`;
 }
 
 function doctorUsage(): string {
@@ -414,16 +417,40 @@ async function latestRunFile(): Promise<string> {
   return ranked[0]?.file ?? (() => { throw new Error("no completed Canopus product run was found"); })();
 }
 
+async function latestInspectionFile(): Promise<string> {
+  const root = path.join(os.homedir(), ".canopus", "runs");
+  const entries = await readdir(root, { recursive: true });
+  const candidates = entries
+    .filter((entry) =>
+      entry.endsWith(`${path.sep}run${path.sep}run.json`) ||
+      entry === path.join("run", "run.json") ||
+      entry.endsWith(`${path.sep}run${path.sep}failure.json`) ||
+      entry === path.join("run", "failure.json"),
+    )
+    .map((entry) => path.join(root, entry));
+  if (candidates.length === 0) throw new Error("no inspectable Canopus product run was found");
+  const ranked = await Promise.all(candidates.map(async (file) => ({
+    file,
+    modified: (await stat(file)).mtimeMs,
+  })));
+  ranked.sort((left, right) => right.modified - left.modified || left.file.localeCompare(right.file));
+  return ranked[0]?.file ?? (() => { throw new Error("no inspectable Canopus product run was found"); })();
+}
+
 async function inspectCommand(value: string | undefined, rest: string[]): Promise<void> {
   if (rest.length !== 0) throw new Error("inspect accepts at most one run file");
-  const file = value === undefined || value === "latest" ? await latestRunFile() : path.resolve(value);
+  const file = value === undefined || value === "latest"
+    ? await latestInspectionFile()
+    : path.resolve(value);
   const raw = await jsonFile(file);
   const schema = typeof raw === "object" && raw !== null && !Array.isArray(raw)
     ? (raw as Record<string, unknown>).schema
     : undefined;
   const projection = schema === "canopus.diagnostic-run.v1"
     ? projectDiagnosticRun(parseDiagnosticRunRecord(raw))
-    : projectRun(parseRunRecord(raw));
+    : schema === "canopus.failure.v0"
+      ? projectFailure(parseFailureRecord(raw))
+      : projectRun(parseRunRecord(raw));
   const withdrawal = "proposal_id" in projection
     ? await withdrawalCapabilityStatus(projection.proposal_id)
     : { state: "not_applicable", available: false };

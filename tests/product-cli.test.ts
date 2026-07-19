@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import test from "node:test";
@@ -60,4 +63,36 @@ test("profile help and validation retain the advanced closed interface", async (
     await help("profile", "validate", "formal-erdos-505-test-dim-one"),
   ) as { validation: { schema: string } };
   assert.equal(formal.validation.schema, "canopus.profile-validation.v1");
+});
+
+test("inspect latest reports the newest safely stopped run", async () => {
+  const home = await mkdtemp(path.join(os.tmpdir(), "canopus-inspect-home-"));
+  const run = path.join(home, ".canopus", "runs", "formal", "latest", "run");
+  await mkdir(run, { recursive: true });
+  const failure = {
+    schema: "canopus.failure.v0",
+    run_id: "run_stopped",
+    error: "worker returned null; verifier and landing were not run",
+    phase: "engine_non_success",
+    landing_observed: false,
+    landing_recovery: null,
+    activity_tip: `sha256:${"a".repeat(64)}`,
+    authority: "non_authoritative",
+  };
+  await writeFile(path.join(run, "failure.json"), `${JSON.stringify(failure)}\n`);
+  const result = await execute(process.execPath, [cli, "inspect", "latest"], {
+    encoding: "utf8",
+    timeout: 30_000,
+    maxBuffer: 1024 * 1024,
+    env: { ...process.env, HOME: home, USERPROFILE: home },
+  });
+  assert.equal(result.stderr, "");
+  const output = JSON.parse(result.stdout) as {
+    run_file: string;
+    projection: { schema: string; run_id: string; landing_status: string };
+  };
+  assert.equal(output.run_file, path.join(run, "failure.json"));
+  assert.equal(output.projection.schema, "canopus.failure-projection.v0");
+  assert.equal(output.projection.run_id, "run_stopped");
+  assert.equal(output.projection.landing_status, "not_attempted");
 });

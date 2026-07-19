@@ -46,6 +46,10 @@ verifier pass, Canopus publishes exactly the frozen artifact sources in one
 unsigned non-authoritative Git commit and then calls `vela land`.
 The frozen verifier manifest reports the actual Docker boundary and bound Linux
 architecture; the older macOS-Seatbelt manifest remains only for Mission v0.
+`canopus inspect latest` includes safely stopped runs as well as completed runs;
+its failure projection distinguishes no landing attempt from an observed Vela
+effect that requires the retained landing-recovery evidence. Withdrawal's
+`latest` selector remains limited to completed, proposal-bearing runs.
 
 Defer-only Mission v1 bundles preserve their original zero-delta behavior. A
 profile may register `permit` only when it also freezes one closed positive
