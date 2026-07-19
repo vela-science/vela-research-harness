@@ -206,6 +206,8 @@ export async function assertNativeRuntimeProfile(options: {
       "canopus-worker",
       "-C",
       options.cwd,
+      "--sandbox-state-readable-root",
+      options.binary,
       "--",
       "/bin/sh",
       "-c",

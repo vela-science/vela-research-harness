@@ -219,6 +219,13 @@ test("native tool worker pins Codex and permission-profile identities", async ()
   assert.equal(result.engine.binary_sha256, active.worker.codex_sha256);
   const preflight = calls[1] ?? [];
   assert.equal(preflight[1], "sandbox");
+  assert.deepEqual(
+    preflight.slice(
+      preflight.indexOf("--sandbox-state-readable-root"),
+      preflight.indexOf("--sandbox-state-readable-root") + 2,
+    ),
+    ["--sandbox-state-readable-root", calls[0]?.[0]],
+  );
   assert.ok(preflight.includes(path.join(authHome, "auth.json")));
   assert.ok(preflight.includes(path.join(paths.input, "packet.json")));
   assert.ok(preflight.includes(path.join(paths.landing, ".git", "HEAD")));
