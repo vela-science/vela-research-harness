@@ -163,6 +163,39 @@ Repeating the same one-point-extension strategy would add no useful evidence.
 The positive Permit gate remains unmet and requires a materially different,
 preregistered construction or search strategy plus frozen-verifier success.
 
+The first materially different multi-start lift registration then stopped
+safely before the bounded search, verification, or landing. Its objective
+named the tracked `witnesses/sidon-a23.witness.json`, but Mission v1
+deliberately exposes only the exact target packet to the worker. The worker
+found no such staged file and returned `failed` rather than substituting an
+unbound input. This is a registration-input mismatch, not a scientific null
+result or a Canopus custody failure.
+
+- Run: `run_9f58231f-bfb8-4c21-859d-e0ba4cceb1ae`
+- Frozen source and profile root:
+  `bea1156fb5b607b6e5e32f26a9fb329b34a6ca84` and
+  `sha256:8eebb1f76b7b40560946c1abe5a0218dc15645851a44c415e9f04f209f00ff43`
+- Mission and failure-record roots:
+  `sha256:1258a4933207eb52853d09360766277e53cd38cb617f9899b7ba0b9220db1b8b`
+  and
+  `sha256:d12fb568a3a16fac4f99187dcfc0788513321e3038c0061aac3ae322fadf6f81`
+- Worker event-stream root and activity tip:
+  `sha256:c72b09c495c292aefff92d97059ad84b245ac4da50e0e2c775a11917c0b5025f`
+  and
+  `sha256:eccb6c4574fc760d873c0e50fdf4caeaafe3a8b013addd8941e62f168cd5874f`
+- Usage: 180,093 input tokens, including 142,336 cached input tokens;
+  4,399 output tokens; 2,470 reasoning-output tokens; 122,261 ms
+- The source frontier remained at commit
+  `f557bb3f63c409c725df4944391c52ae7995fcca` with strict replay passing,
+  zero blockers, and unchanged event and snapshot roots.
+
+The corrected registration does not broaden the worker input. It derives the
+same 5,179-point n=23 base from the packet's already bound 7,192-point seed:
+the even subsequence, shifted right once, equals the tracked witness in both
+order and set. The objective binds the resulting ordered prefix sequence by
+full SHA-256, retains the four exact candidate permutations and the same
+positive-only result contract, and supplies no result from the stopped run.
+
 ## Canopus v0.3.0
 
 This release adds the one-command product path and proposal-scoped producer
