@@ -64,8 +64,6 @@ export interface LegacyProductProfile {
   target: string;
 }
 
-const DEFAULT_PROFILE = "erdos1056-k15-10428401-10428600";
-
 export function productPackageRoot(): string {
   return fileURLToPath(new URL("../../../", import.meta.url));
 }
@@ -95,7 +93,8 @@ export function verifierImageAt(value: unknown, at = "verifier_image"): string {
   return stringAt(value, at, {
     min: 100,
     max: 200,
-    pattern: /^ghcr\.io\/vela-science\/canopus-verifier@sha256:[0-9a-f]{64}$/u,
+    pattern:
+      /^ghcr\.io\/vela-science\/(?:canopus-verifier|canopus-formal-verifier)@sha256:[0-9a-f]{64}$/u,
   });
 }
 
@@ -234,7 +233,7 @@ function parseV2(
 }
 
 export function loadProductProfile(
-  name?: string,
+  name: string,
   options?: { allowLegacy?: false; platform?: ProductPlatform },
 ): Promise<ProductProfile>;
 export function loadProductProfile(
@@ -242,7 +241,7 @@ export function loadProductProfile(
   options: { allowLegacy: true; platform?: ProductPlatform },
 ): Promise<ProductProfile | LegacyProductProfile>;
 export async function loadProductProfile(
-  name = DEFAULT_PROFILE,
+  name: string,
   options: { allowLegacy?: boolean; platform?: ProductPlatform } = {},
 ): Promise<ProductProfile | LegacyProductProfile> {
   if (!(await registeredProfileNames()).includes(name)) {

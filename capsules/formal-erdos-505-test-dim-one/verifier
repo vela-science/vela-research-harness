@@ -60,7 +60,7 @@ output=$(
     printf '%s\n' \
       '#print axioms CanopusFormalErdos505.test_dim_one' \
       'end CanopusFormalErdos505'
-  } | "$toolchain/lake" env lean /dev/stdin 2>&1
+  } | "$toolchain/lake" env lean --stdin 2>&1
 )
 status=$?
 set -e

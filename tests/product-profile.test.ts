@@ -38,7 +38,19 @@ test("registered product profiles stage exact distinct capsules and bounded Miss
   }
 });
 
-test("portable verifier images require the exact public repository and full digest", () => {
+test("portable verifier images require a closed public repository and full digest", () => {
+  assert.equal(
+    verifierImageAt(
+      `ghcr.io/vela-science/canopus-verifier@sha256:${"a".repeat(64)}`,
+    ),
+    `ghcr.io/vela-science/canopus-verifier@sha256:${"a".repeat(64)}`,
+  );
+  assert.equal(
+    verifierImageAt(
+      `ghcr.io/vela-science/canopus-formal-verifier@sha256:${"b".repeat(64)}`,
+    ),
+    `ghcr.io/vela-science/canopus-formal-verifier@sha256:${"b".repeat(64)}`,
+  );
   assert.throws(() => verifierImageAt(`sha256:${"a".repeat(64)}`), /length|invalid format/u);
   assert.throws(
     () => verifierImageAt(`ghcr.io/other/canopus-verifier@sha256:${"a".repeat(64)}`),
@@ -47,6 +59,13 @@ test("portable verifier images require the exact public repository and full dige
   assert.throws(
     () => verifierImageAt("ghcr.io/vela-science/canopus-verifier:latest"),
     /length|invalid format/u,
+  );
+  assert.throws(
+    () =>
+      verifierImageAt(
+        `ghcr.io/vela-science/canopus-unregistered-verifier@sha256:${"a".repeat(64)}`,
+      ),
+    /invalid format/u,
   );
 });
 
