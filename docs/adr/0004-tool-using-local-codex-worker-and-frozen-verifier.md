@@ -119,6 +119,13 @@ The capsule SHA-256 must equal both its registered capsule root and executable
 digest. Artifacts are rehashed before and after verification. A nonzero verifier
 result is an honest failure, not a success candidate.
 
+The worker's `success` status means only that it produced the complete candidate
+bytes required by the output contract. It must not claim verifier or scientific
+success. `null` means no candidate was produced; `failed` means the producer
+could not produce a contract-complete candidate or observed disqualifying
+evidence. This distinction lets an isolated producer hand uncertain candidate
+bytes to the separate verifier without collapsing the two trust roles.
+
 ## Landing and authority
 
 Only a verifier-passing candidate reaches `vela land`, using an `agent:` actor.

@@ -189,6 +189,9 @@ test("native tool worker pins Codex and permission-profile identities", async ()
     const prompt = String(options.stdin);
     assert.match(prompt, /packet\.json/u);
     assert.match(prompt, /repair_context object/u);
+    assert.match(prompt, /Worker status reports producer completion, not verifier or scientific standing/u);
+    assert.match(prompt, /Return status success when you produced all artifact bytes required by the output contract/u);
+    assert.match(prompt, /Canopus will freeze the bytes and run the verifier after you exit/u);
     assert.doesNotMatch(prompt, /WORK_BRIEFING_MUST_NOT_ENTER_MODEL_CONTEXT/u);
     const runtimeConfig = await readFile(path.join(options.env.CODEX_HOME ?? "", "config.toml"));
     assert.deepEqual(runtimeConfig, await readFile(permissionProfile));

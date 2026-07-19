@@ -41,8 +41,12 @@ checkout, Vela home, host home, and authentication file remain outside
 command-readable paths. Provider transport is available only to the Codex
 process. Shell commands have no network access.
 
-Only a `success` draft with the declared artifact proceeds to the separate
-network-denied verifier. `null` and `failed` drafts are preserved in
+Worker status is producer completion, not verifier or scientific standing.
+`success` means the worker supplied every artifact byte required by the output
+contract and explicitly leaves verification pending. Only such a draft proceeds
+to the separate network-denied verifier. `null` means the bounded work produced
+no candidate; `failed` means the worker could not produce a contract-complete
+candidate or observed disqualifying evidence. Both are preserved in
 `engine-result.json` and stop before verification or Receipt landing. After a
 verifier pass, Canopus publishes exactly the frozen artifact sources in one
 unsigned non-authoritative Git commit and then calls `vela land`.
