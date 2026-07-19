@@ -58,6 +58,15 @@ substitute for the missing inner boundary. The fixture independently verifies
 an exact generated workspace sentinel and records only structural event counts,
 boolean verdicts, and content hashes on failure.
 
+The first-party model-mediated Ubuntu x86-64 fixture passed on a disposable
+full-system QEMU guest at candidate commit
+`ab132389bdf0522fc257ee81a9d1cc527052b31a`; its bounded evidence is recorded
+in
+`benchmarks/results/hostile-native-custody-ubuntu-x86_64-2026-07-19/result.json`.
+This satisfies the Ubuntu half of the cross-platform custody gate only. The
+WSL2 fixture, npm provenance, and final release evidence remain required, so
+this ADR stays Proposed.
+
 Historical benchmark sources and immutable registrations stay in Git and
 source archives but leave ordinary help and the installed npm payload.
 
