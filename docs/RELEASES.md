@@ -21,6 +21,26 @@ the build-directory prefix and that the CLI lacked a direct version probe.
 verify both npm SLSA provenance and a GitHub build attestation before creating
 the matching GitHub release.
 
+The corrected public release closed those gates:
+
+- Source/tag: `f461a0d184f2076c4b451e524e5e949abdee621e` / `v0.4.3`
+- Cross-platform main CI:
+  [run 29694331128](https://github.com/vela-science/vela-research-harness/actions/runs/29694331128)
+- OIDC release, provenance audit, and GitHub release:
+  [run 29694403709](https://github.com/vela-science/vela-research-harness/actions/runs/29694403709)
+- Package SHA-256:
+  `e2fea4f9d8c9a49cc7a73d4d006622065363b7f4a5516e5d0e4347b6087ef0d2`
+- npm integrity:
+  `sha512-RIyHYMvFHXDUdTBRugpDzk1Of1o8ReuKlkD6OCn3Gd0xxuz59M1ATd/+pNvJNKiGFsHC8QdtdyZPiyO9jgT4ug==`
+- npm shasum: `50cc876b3adc085450e1c5c38233471b664df678`
+- npm verification returned no invalid or missing signatures and verified both
+  the npm publish predicate and SLSA provenance v1.
+- A clean registry install under Node `v24.18.0` returned `canopus 0.4.3` and
+  listed both packaged profiles. The registry and GitHub release tarballs were
+  byte-identical.
+- npm `latest` points to `0.4.3`; `next` intentionally retains the historical
+  `0.4.0-rc.1` namespace bootstrap.
+
 The first registered quantum mission stopped safely before verification or
 landing because provider-reported usage exceeded its frozen 100,000-token
 postcondition. The stopped run is not a scientific result. It accessed no
