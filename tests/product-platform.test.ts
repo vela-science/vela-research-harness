@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { chmod, mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, realpath, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -36,7 +36,7 @@ test("active Windows executable discovery resolves a PATHEXT command", {
   await chmod(executable, 0o700);
   assert.equal(
     (await findExecutable("vela", root, { platform: "win32", pathExt: ".EXE;.CMD" })).toLowerCase(),
-    executable.toLowerCase(),
+    (await realpath(executable)).toLowerCase(),
   );
 });
 
