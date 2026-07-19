@@ -107,9 +107,30 @@ The source authentication copy and fixture runtime were removed immediately
 after the pass. The retained bounded record is
 [`result.json`](../benchmarks/results/hostile-native-custody-ubuntu-x86_64-2026-07-19/result.json).
 
-This closes the first-party model-mediated Ubuntu x86-64 custody gate. It does
-not claim WSL2 coverage, independence, npm provenance, or release status, and
-it ran no research, frontier, verifier-authority, or human-key action.
+This closes the first-party model-mediated Ubuntu x86-64 custody gate. By
+itself it does not claim WSL2 coverage, independence, npm provenance, or
+release status, and it ran no research, frontier, verifier-authority, or
+human-key action.
+
+The corresponding WSL2 path then passed on a disposable Standard-security
+Windows 11 24H2 x86-64 guest running WSL `2.7.10.0` and Ubuntu 24.04.4. The
+credential-free deterministic preflight passed before authentication was
+copied into the guest. The live `gpt-5.6-sol` worker executed the exact
+sentinel while source and runtime authentication, a WSL canary, and a canary
+on the Windows host mount at `/mnt/c` remained unreadable. Outside writes,
+command network, and `/proc/1/environ` authentication exposure were also
+denied. The safe event-stream, stderr, and final roots are
+`sha256:486eaede471c3fef8ed75dab3ebfdeb1db7e33bcf49195916ae83b4e2b50c344`,
+`sha256:421d2f15596c55cbd51f11ab5d2dcc3fcfdaed2889e640eb2b71829b38832acc`,
+and
+`sha256:1b4ecccdcf11cf9c757450317e024af0b5fe27017a2796025dff57b923d5cc43`.
+Authentication, the host canary, and the fixture runtime were removed, and the
+disposable VM was deallocated and deleted. The retained bounded record is
+[`result.json`](../benchmarks/results/hostile-native-custody-wsl2-x86_64-2026-07-19/result.json).
+
+This closes the first-party model-mediated WSL2 x86-64 custody gate. It claims
+neither independence nor release status, ran no research or authority action,
+and does not substitute for npm trusted-publishing provenance.
 
 A Docker Desktop Ubuntu 24.04 x86-64 guest was explicitly rejected as a
 substitute. Three model-mediated diagnostic attempts stopped without a shell

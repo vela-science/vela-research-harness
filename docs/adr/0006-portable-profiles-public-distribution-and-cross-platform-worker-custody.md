@@ -63,9 +63,16 @@ full-system QEMU guest at candidate commit
 `ab132389bdf0522fc257ee81a9d1cc527052b31a`; its bounded evidence is recorded
 in
 `benchmarks/results/hostile-native-custody-ubuntu-x86_64-2026-07-19/result.json`.
-This satisfies the Ubuntu half of the cross-platform custody gate only. The
-WSL2 fixture, npm provenance, and final release evidence remain required, so
-this ADR stays Proposed.
+The first-party model-mediated WSL2 x86-64 fixture subsequently passed on a
+disposable Windows 11 24H2 guest at candidate commit
+`cef2bf740d57aef31238ec112dbe48d98c33cee2`; its bounded evidence is recorded
+in
+`benchmarks/results/hostile-native-custody-wsl2-x86_64-2026-07-19/result.json`.
+The hostile unrelated-data probe was placed on the Windows host mount rather
+than only inside the Linux guest. Both platform fixtures ran no research or
+authority action and claim no independent credit. They satisfy the Ubuntu and
+WSL2 custody portions of the gate. npm trusted-publishing provenance and final
+release evidence remain required, so this ADR stays Proposed.
 
 Historical benchmark sources and immutable registrations stay in Git and
 source archives but leave ordinary help and the installed npm payload.
