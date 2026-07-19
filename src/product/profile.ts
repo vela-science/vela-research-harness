@@ -64,7 +64,7 @@ export interface LegacyProductProfile {
   target: string;
 }
 
-const DEFAULT_PROFILE = "erdos1056-k15-10428008-10428200";
+const DEFAULT_PROFILE = "erdos1056-k15-10428401-10428600";
 
 export function productPackageRoot(): string {
   return fileURLToPath(new URL("../../../", import.meta.url));

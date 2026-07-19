@@ -69,7 +69,7 @@ test("native Windows doctor remains read-only and does not probe worker runtimes
     const result = await doctorProduct({
       frontier,
       platform: "win32",
-      profileName: "quantum-10-1-4-stabilizer-retry",
+      profileName: "erdos1056-k15-10428401-10428600",
       runner: async (options) => {
         const executable = path.basename(options.argv[0] ?? "");
         observed.push(`${executable} ${options.argv.slice(1).join(" ")}`);
@@ -90,7 +90,7 @@ test("native Windows doctor remains read-only and does not probe worker runtimes
         if (executable === "vela" && options.argv[1] === "next") {
           return commandResult(options, JSON.stringify({
             schema: "vela.offer.v1",
-            targets: [{ rank: 1, target_id: "quantum:[[10,1,4]]" }],
+            targets: [{ rank: 1, target_id: "erdos:1056" }],
           }));
         }
         if (executable === "git" && options.argv[1] === "status") {

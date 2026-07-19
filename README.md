@@ -59,14 +59,15 @@ explicit, runs in a disposable exact-head clone, proves the accepted scientific
 projection unchanged, fast-forwards the clean source, and then deletes the
 secret. A later human decision also consumes the now-useless secret.
 
-The packaged Erdős profiles cover these exact inclusive ranges:
+The installed product contains only the current active Erdős profile:
 
-- `erdos1056-k15-10428008-10428200`
-- `erdos1056-k15-10428201-10428400`
+- `erdos1056-k15-10428401-10428600`
 
-Both capsules are content-addressed static Linux binaries for arm64 and x86-64.
-Their source and pinned build provenance are retained for audit and reproducible
-rebuilding, but an installed product run does not require a cross-compiler.
+Its capsule is a content-addressed static Linux binary for arm64 and x86-64.
+Completed and stopped profile registrations remain in Git and release evidence,
+not in default discovery or the installed package. The shared source and pinned
+build provenance remain available for reproducible rebuilding, but an installed
+product run does not require a cross-compiler.
 
 ## Advanced and historical interfaces
 
@@ -84,9 +85,9 @@ Closed profile v2 contracts have a separate advanced lifecycle:
 
 ```bash
 canopus profile list
-canopus profile show erdos1056-k15-10428008-10428200
-canopus profile validate erdos1056-k15-10428008-10428200
-canopus profile pack erdos1056-k15-10428008-10428200 --output /new/profile-pack
+canopus profile show erdos1056-k15-10428401-10428600
+canopus profile validate erdos1056-k15-10428401-10428600
+canopus profile pack erdos1056-k15-10428401-10428600 --output /new/profile-pack
 ```
 
 Mission v0 and the stopped cold-use registrations remain available in Git for

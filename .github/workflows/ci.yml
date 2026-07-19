@@ -113,10 +113,7 @@ jobs:
           canopus="$RUNNER_TEMP/canopus-install/bin/canopus"
           "$canopus" --help
           "$canopus" profile list
-          "$canopus" profile validate quantum-10-1-4-stabilizer-retry
-          "$canopus" profile validate erdos1056-k15-10428008-10428200
-          "$canopus" profile validate erdos1056-k15-10428201-10428400
-          "$canopus" profile validate sidon-a24-improve
+          "$canopus" profile validate erdos1056-k15-10428401-10428600
 
   windows-read-only:
     runs-on: windows-2025
@@ -153,7 +150,4 @@ jobs:
           npm install --global --prefix "$env:RUNNER_TEMP\canopus" $package.FullName
           & "$env:RUNNER_TEMP\canopus\canopus.cmd" --help
           & "$env:RUNNER_TEMP\canopus\canopus.cmd" profile list
-          & "$env:RUNNER_TEMP\canopus\canopus.cmd" profile validate quantum-10-1-4-stabilizer-retry
-          & "$env:RUNNER_TEMP\canopus\canopus.cmd" profile validate erdos1056-k15-10428008-10428200
-          & "$env:RUNNER_TEMP\canopus\canopus.cmd" profile validate erdos1056-k15-10428201-10428400
-          & "$env:RUNNER_TEMP\canopus\canopus.cmd" profile validate sidon-a24-improve
+          & "$env:RUNNER_TEMP\canopus\canopus.cmd" profile validate erdos1056-k15-10428401-10428600

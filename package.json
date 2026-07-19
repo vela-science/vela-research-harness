@@ -49,7 +49,7 @@
     "dist/src/run.js",
     "dist/src/run.d.ts",
     "schemas",
-    "capsules",
+    "capsules/erdos1056-k15",
     "containers",
     "missions",
     "profiles",

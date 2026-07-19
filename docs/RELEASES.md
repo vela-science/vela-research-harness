@@ -224,6 +224,30 @@ This exact four-order strategy is now stopped. Raising its budget or repeating
 it would not turn the incomplete computation into evidence. A future Sidon
 attempt needs a demonstrably more tractable algorithm and a new registration.
 
+The active product catalogue now contains exactly one runnable registration:
+the next non-overlapping Erdős 1056 range `10428401..10428600`. Live Vela ranks
+`erdos:1056` first again at source commit
+`fde5e1da5816445e3f7a71f3d5a3cc3167b0b2c0`, and `canopus doctor` resolves the
+profile without an override. Completed Erdős and quantum missions and the
+stopped Sidon mission remain in Git and release evidence but are absent from
+default discovery and the npm payload. Their verifier sources remain in the
+repository only where current regression tests still exercise them.
+
+- Active profile root:
+  `sha256:012702a71520356b80f58c120f2e5348db7771b2102b80dc4799b2eed3a0f03b`
+- Target packet root:
+  `sha256:d724686d60ffbb61e5e24eab9084b34f1a797381bfb2731a2fa81e14d7ee652e`
+- Linux arm64 capsule root:
+  `sha256:a6fc0d2ad4dd8e665474d6efd530e8a574880b7191d246b1c245d8cf4db175aa`
+- Linux x86-64 capsule root:
+  `sha256:3cdcb487db4907b63230548a7c7fd94d4be6acf003ca532971f9cf1650f19546`
+- Build inputs: shared `verifier.cpp`, `aarch64-linux-gnu-g++ 15.2.0`, and
+  exact Alpine `g++ 14.2.0-r6` inside image
+  `sha256:4bcff63911fcb4448bd4fdacec207030997caf25e9bea4045fa6c8c44de311d1`
+- Local gate: 116 passes, zero failures, and three intentional skips; installed
+  profile validation and hosted platform checks remain required after the
+  registration commit.
+
 ## Canopus v0.3.0
 
 This release adds the one-command product path and proposal-scoped producer

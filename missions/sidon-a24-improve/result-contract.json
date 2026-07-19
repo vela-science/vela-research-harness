@@ -1,1 +1,0 @@
-{"candidate_status":"success","claim_exact":"There exists a Sidon subset of {0,1}^24 with at least 7,193 elements.","claim_type":"computational","replayability":"exact","required_artifact_kinds":["vela-witness"],"schema":"canopus.result-contract.v1","target":"sidon:a24-improve","verifier_status":"passed"}

@@ -1,35 +1,34 @@
 # Erdős 1056 k=15 capsule
 
 This non-authoritative verifier independently recomputes the exact inclusive
-prime range `10428008..10428200`. It accepts one byte-exact artifact describing
+prime range selected by its compile-time bounds. The active build covers
+`10428401..10428600`. It accepts one byte-exact artifact describing
 either the first 16-cut factorial-residue witness in that range or the complete
 negative scan. A negative result is only about this finite range.
 
-Build the static Linux ARM64 capsule with the pinned cross-compiler:
+Build the active static Linux ARM64 capsule with
+`aarch64-linux-gnu-g++ (GCC) 15.2.0`:
 
 ```bash
-mkdir -p missions/erdos1056-k15/capsule
+mkdir -p capsules/erdos1056-k15/bin/linux-arm64/10428401-10428600
 aarch64-linux-gnu-g++ -O3 -std=c++20 -static -s \
+  -DCANOPUS_RANGE_START=10428401 -DCANOPUS_RANGE_END=10428600 \
   capsules/erdos1056-k15/verifier.cpp \
-  -o missions/erdos1056-k15/capsule/verifier
+  -o capsules/erdos1056-k15/bin/linux-arm64/10428401-10428600/verifier
 ```
 
-The packaged Linux ARM64 capsule SHA-256 roots are:
+The active Linux ARM64 capsule SHA-256 root is
+`a6fc0d2ad4dd8e665474d6efd530e8a574880b7191d246b1c245d8cf4db175aa`.
 
-- `aff16eeca0ca689838ee0e0e88a5cfd85e0206ea8aa8bf3201fa1aeea566be33`
-  for `10428008..10428200`;
-- `6144b9d9e217b4a57651b90c157ec9cc17d2c0fdcfc80a24bc9fa694bc16f626`
-  for `10428201..10428400`.
-
-The Linux x86-64 capsules were built in `alpine:3.22.1` for `linux/amd64`,
+The Linux x86-64 capsule was built in `alpine:3.22.1` for `linux/amd64`,
 pinned at
 `sha256:4bcff63911fcb4448bd4fdacec207030997caf25e9bea4045fa6c8c44de311d1`,
-using `g++ (Alpine 14.2.0) 14.2.0` with the same flags. Their SHA-256 roots are:
+using exact package `g++ 14.2.0-r6` with the same flags. Its SHA-256 root is
+`3cdcb487db4907b63230548a7c7fd94d4be6acf003ca532971f9cf1650f19546`.
 
-- `492fb533a2f7aea608b89517c92acdf4d11ae5314ad8fe5e951a88ade9c5bd6c`
-  for `10428008..10428200`;
-- `1dca7ecc03bd2dcdeca378de1239f63fc1c2f753846772150fd521606a2ae5de`
-  for `10428201..10428400`.
+Completed range binaries and registrations remain recoverable from their
+recorded Git commits and release evidence; they are intentionally absent from
+the active package.
 
 The prepared mission copies the executable into its content-addressed bundle.
 The separate verifier container has no network and no writable persistent
