@@ -94,6 +94,11 @@ byte-identical.
 - Result: macOS, Ubuntu 24.04, and Windows read-only product checks passed;
   Ubuntu passed the real large-binary custody preflight and anonymous exact-
   digest verifier pull.
+- Installed-package CI:
+  [run 29667312366](https://github.com/vela-science/vela-research-harness/actions/runs/29667312366)
+- Installed-package result: fresh tarball installs on macOS, Ubuntu 24.04, and
+  Windows exposed the compact help surface, listed the exact four packaged
+  profiles, and validated every profile from installed bytes.
 
 ## Canopus v0.5.0 candidate preflight
 
