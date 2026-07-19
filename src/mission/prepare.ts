@@ -46,6 +46,7 @@ export interface PrepareMissionOptions {
   permissionProfile: string;
   targetPacket?: { target: string; schema: string };
   landing?: LandingSpec;
+  profileName?: string;
   profileRoot?: string;
   resultContract?: PositiveResultContractV1;
   runner?: CommandRunner;
@@ -417,6 +418,14 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
         writes: "deny",
       },
       landing: options.landing ?? { expected_routes: ["defer"], max_accepted_delta: 0 },
+      ...(options.profileName === undefined || options.profileRoot === undefined
+        ? {}
+        : {
+            profile: {
+              name: options.profileName,
+              root: sha256At(options.profileRoot, "profile root"),
+            },
+          }),
       ...(options.profileRoot === undefined || options.resultContract === undefined
         ? {}
         : {
@@ -430,8 +439,11 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
             result_contract: options.resultContract,
           }),
     });
-    if ((options.profileRoot === undefined) !== (options.resultContract === undefined)) {
-      throw new Error("mission preparation requires profile root and result contract together");
+    if ((options.profileName === undefined) !== (options.profileRoot === undefined)) {
+      throw new Error("mission preparation requires profile name and root together");
+    }
+    if (options.resultContract !== undefined && options.profileRoot === undefined) {
+      throw new Error("mission result contract requires a profile root");
     }
     if (prepared.schema !== "canopus.mission.v1") {
       throw new Error("prepared mission did not produce mission v1");

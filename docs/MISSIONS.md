@@ -30,7 +30,9 @@ structured-output schema, and verifier capsule into a portable bundle. The
 Codex binary, model, verifier image, exact Linux verifier platform, resource
 ceilings, and every copied byte are hash-pinned. Historical Mission v1 records
 without a platform retain their old replay behavior; newly prepared missions
-always bind one.
+always bind one. Product-prepared missions also retain the selected profile's
+exact name and full root, including Defer-only runs; older Mission v1 records
+without that non-protocol field replay unchanged.
 
 The producer runs through the native Codex CLI under a default-deny platform
 profile: Seatbelt on macOS and Codex's Bubblewrap sandbox on Linux or WSL2. The

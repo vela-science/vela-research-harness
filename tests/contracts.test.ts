@@ -139,6 +139,7 @@ function missionV1(): Record<string, unknown> {
 
 function permitMissionV1(): Record<string, unknown> {
   const input = missionV1();
+  const profileRoot = `sha256:${"b".repeat(64)}`;
   const resultContract = {
     schema: "canopus.result-contract.v1",
     target: "target-1",
@@ -150,11 +151,12 @@ function permitMissionV1(): Record<string, unknown> {
     required_artifact_kinds: ["witness"],
   };
   input.landing = { expected_routes: ["permit"], max_accepted_delta: 1 };
+  input.profile = { name: "sidon-a24-improve", root: profileRoot };
   input.result_contract = resultContract;
   input.execution_binding = {
     schema: "vela.execution-binding.v1",
     packet_root: digest,
-    profile_root: `sha256:${"b".repeat(64)}`,
+    profile_root: profileRoot,
     verifier_capsule_root: digest,
     result_contract_root: contentDigest(resultContract),
   };
@@ -167,6 +169,15 @@ test("mission v0 round-trips a bounded exact-root contract", () => {
 
 test("mission v1 round-trips a zero-delta tool-worker contract", () => {
   assert.deepEqual(parseMission(missionV1()), missionV1());
+});
+
+test("mission v1 optionally binds the exact producer profile for old-record replay", () => {
+  const historical = missionV1();
+  assert.equal((parseMission(historical) as { profile?: unknown }).profile, undefined);
+
+  const current = missionV1();
+  current.profile = { name: "formal-erdos-505", root: digest };
+  assert.deepEqual(parseMission(current), current);
 });
 
 test("mission v1 rejects unregistered strict debt and unbound Permit", () => {
@@ -196,6 +207,10 @@ test("mission v1 Permit is exact-root-bound and substitution fails closed", () =
   const contract = structuredClone(intended);
   (contract.result_contract as { target: string }).target = "target-2";
   assert.throws(() => parseMission(contract), /does not match its retained packet/u);
+
+  const profile = structuredClone(intended);
+  (profile.profile as { root: string }).root = `sha256:${"e".repeat(64)}`;
+  assert.throws(() => parseMission(profile), /retained producer profile/u);
 });
 
 test("mission v1 rejects missing capsules and widened worker tools", () => {

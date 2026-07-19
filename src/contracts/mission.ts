@@ -94,6 +94,11 @@ export interface TargetPacketSpec {
   sha256: string;
 }
 
+export interface ProducerProfileSpec {
+  name: string;
+  root: string;
+}
+
 export interface StrictRuleCount {
   rule: string;
   count: number;
@@ -163,6 +168,7 @@ export interface MissionV0 extends MissionBase {
 export interface MissionV1 extends MissionBase {
   schema: typeof MISSION_V1_SCHEMA;
   target_packet: TargetPacketSpec;
+  profile?: ProducerProfileSpec;
   strict_baseline: StrictBaseline;
   worker: WorkerSpec;
   verifier: ContainerVerifierSpec;
@@ -428,6 +434,19 @@ function parseLanding(value: unknown): LandingSpec {
   };
 }
 
+function parseProducerProfile(value: unknown): ProducerProfileSpec {
+  const object = objectAt(value, "mission.profile");
+  exactKeys(object, ["name", "root"], [], "mission.profile");
+  return {
+    name: stringAt(object.name, "mission.profile.name", {
+      min: 1,
+      max: 128,
+      pattern: /^[a-z0-9][a-z0-9._-]*$/u,
+    }),
+    root: sha256At(object.root, "mission.profile.root"),
+  };
+}
+
 function parseExecutionBinding(value: unknown): ExecutionBindingV1 {
   const object = objectAt(value, "mission.execution_binding");
   exactKeys(
@@ -575,6 +594,7 @@ export function parseMission(value: unknown): Mission {
           "parent_candidate",
           "repair_reason",
           "target_packet",
+          "profile",
           "strict_baseline",
           "worker",
           "execution_binding",
@@ -657,6 +677,9 @@ export function parseMission(value: unknown): Mission {
   const versioned = isV1
     ? (() => {
         const targetPacket = parseTargetPacket(object.target_packet);
+        const profile = object.profile === undefined
+          ? undefined
+          : parseProducerProfile(object.profile);
         const executionBinding = object.execution_binding === undefined
           ? undefined
           : parseExecutionBinding(object.execution_binding);
@@ -685,11 +708,17 @@ export function parseMission(value: unknown): Mission {
               "mission execution binding does not match its retained packet, capsule, result contract, or target",
             );
           }
+          if (profile !== undefined && executionBinding.profile_root !== profile.root) {
+            throw new ContractError(
+              "mission execution binding does not match its retained producer profile",
+            );
+          }
         }
         return {
         ...base,
         schema: MISSION_V1_SCHEMA,
         target_packet: targetPacket,
+        ...(profile === undefined ? {} : { profile }),
         strict_baseline: parseStrictBaseline(object.strict_baseline),
         worker: parseWorker(object.worker),
         verifier: verifier as ContainerVerifierSpec,

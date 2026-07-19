@@ -247,10 +247,11 @@ export async function runProduct(options: {
         schema: diagnosis.profile.target_packet_schema,
       },
       landing: diagnosis.profile.landing,
+      profileName: diagnosis.profile.name,
+      profileRoot: diagnosis.profile.profile_sha256,
       ...(resultContract === undefined
         ? {}
         : {
-            profileRoot: diagnosis.profile.profile_sha256,
             resultContract,
           }),
       runner,
