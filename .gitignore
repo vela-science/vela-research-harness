@@ -5,6 +5,7 @@ node_modules/
 .artifacts/
 *.log
 capsules/*/verifier
+!capsules/formal-erdos-505-test-dim-one/verifier
 missions/*/capsule/verifier
 .DS_Store
 __pycache__/
