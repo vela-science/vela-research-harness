@@ -192,6 +192,10 @@ test("native tool worker pins Codex and permission-profile identities", async ()
     assert.match(prompt, /Worker status reports producer completion, not verifier or scientific standing/u);
     assert.match(prompt, /Return status success when you produced all artifact bytes required by the output contract/u);
     assert.match(prompt, /Canopus will freeze the bytes and run the verifier after you exit/u);
+    assert.match(prompt, /exactly one packet file/u);
+    assert.match(prompt, /read only repair_context, source\.statement, and output_contract/u);
+    assert.match(prompt, /Return the artifact path and kind exactly as output_contract specifies/u);
+    assert.match(prompt, /Use at most four shell or patch tool calls/u);
     assert.doesNotMatch(prompt, /WORK_BRIEFING_MUST_NOT_ENTER_MODEL_CONTEXT/u);
     const runtimeConfig = await readFile(path.join(options.env.CODEX_HOME ?? "", "config.toml"));
     assert.deepEqual(runtimeConfig, await readFile(permissionProfile));
@@ -202,6 +206,7 @@ test("native tool worker pins Codex and permission-profile identities", async ()
     };
   };
   const active = mission();
+  active.target = "formal:erdos-505-test-dim-one";
   active.target_packet.sha256 = sha256Bytes(await readFile(path.join(paths.input, "packet.json")));
   active.worker.codex_sha256 = sha256Bytes(await readFile(binary));
   active.worker.output_schema_sha256 = sha256Bytes(await readFile(outputSchema));

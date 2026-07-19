@@ -58,7 +58,15 @@ function prompt(mission: MissionV1): string {
         "For each prime choose the greatest count and then smallest residue. Across primes replace the best only on a strictly greater count, preserving the earliest prime on ties. After choosing the best prime/residue, recompute its increasing cut list from scratch.",
         "Use at most six shell or patch tool calls. A token-efficient correct computation is part of this mission's product contract.",
       ]
-    : [];
+    : mission.target === "formal:erdos-505-test-dim-one"
+      ? [
+          "This registered formal mission exposes exactly one packet file. Do not enumerate the workspace or use rg, find, Python, package managers, or external tools.",
+          `Use one narrow jq command to read only repair_context, source.statement, and output_contract from ${mission.target_packet.path}.`,
+          "Then write the single raw Lean term with apply_patch. An optional wc -c check is the only useful shell follow-up; do not print the finished artifact.",
+          "Return the artifact path and kind exactly as output_contract specifies. Status success means only that those complete candidate bytes exist; the separate frozen Lean capsule owns elaboration and the axiom audit.",
+          "Use at most four shell or patch tool calls. A token-efficient handoff is part of this mission's product contract.",
+        ]
+      : [];
   return [
     "Execute one bounded Canopus research mission inside a fresh writable workspace containing only the exact hash-verified target packet.",
     "Use shell and apply_patch only when useful. Browser, web search, MCP, apps, memories, computer use, delegation, signing, and human keys are forbidden.",
