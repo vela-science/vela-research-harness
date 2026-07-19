@@ -32,3 +32,20 @@ test("workflow actions are immutable and Node tooling uses maintained runtimes",
     assert.deepEqual(observedNodePins.get(action), new Set([expected]), `${action} pin drifted`);
   }
 });
+
+test("release validates macOS-only history before the portable OIDC publisher", async () => {
+  const value = await readFile(new URL("release.yml", workflows), "utf8");
+  const validateStart = value.indexOf("  validate:\n");
+  const publishStart = value.indexOf("  publish:\n");
+  assert.ok(validateStart >= 0, "release validate job is missing");
+  assert.ok(publishStart > validateStart, "release publish job must follow validation");
+
+  const validate = value.slice(validateStart, publishStart);
+  const publish = value.slice(publishStart);
+  assert.match(validate, /runs-on: macos-15/u);
+  assert.match(validate, /- run: pnpm check/u);
+  assert.match(publish, /needs: validate/u);
+  assert.doesNotMatch(publish, /- run: pnpm check/u);
+  assert.match(publish, /pnpm typecheck/u);
+  assert.match(publish, /dist\/tests\/release-contract\.test\.js/u);
+});

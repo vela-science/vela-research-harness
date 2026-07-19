@@ -1,12 +1,16 @@
 # Release evidence
 
-## Canopus v0.4.0
+## Canopus v0.4.1
 
 The source package advertises `0.4.0`. The public npm namespace was bootstrapped
 once with `0.4.0-rc.1` under the `next` tag so the package could bind its exact
 GitHub Actions trusted publisher. That bootstrap used interactive human 2FA,
 has no provenance attestation, and earns no release credit. Package publishing
-now disallows reusable npm tokens. The exact `v0.4.0` tag/version pair is
+now disallows reusable npm tokens. The first stable tag, `v0.4.0`, stopped in
+its Ubuntu validation step before packing, attestation, npm publication, or a
+GitHub release because the job selected historical macOS-only tests. The tag is
+retained as failure evidence and is not moved. The corrected exact `v0.4.1`
+tag/version pair is
 published only by `.github/workflows/release.yml` in environment `npm`; the
 workflow must produce and verify both npm SLSA provenance and a GitHub build
 attestation before creating the matching GitHub release.
