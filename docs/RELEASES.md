@@ -248,6 +248,48 @@ repository only where current regression tests still exercise them.
   profile validation and hosted platform checks remain required after the
   registration commit.
 
+The registration then completed through the ordinary `canopus run --first`
+path with no profile or target override. The producer exhaustively scanned all
+15 primes in the exact range and returned a bounded negative result. The
+separate frozen capsule byte-matched it, Vela routed the Receipt to Defer with
+accepted-state delta zero, and clean-clone replay matched. This says nothing
+about primes outside the registered range.
+
+- Hosted registration gate:
+  [run 29669037494](https://github.com/vela-science/vela-research-harness/actions/runs/29669037494),
+  green on macOS, Ubuntu 24.04, and native-Windows read-only paths
+- Run: `run_eb6bcd46-cffd-4ae8-b630-2681bd84da71`
+- Result: 15 primes tested; maximum multiplicity 12 at `p=10428581`, residue
+  `5141590`
+- Artifact root:
+  `sha256:79370d5243095f28e65c218f3d5dc4710802e4dbe462fcfff1a35a8697a6f225`
+- Verifier stdout and executable roots:
+  `sha256:d41255553fec7b82e0c31da929c72a0937d8280c0035351de6d6715b0ca60ac2`
+  and
+  `sha256:a6fc0d2ad4dd8e665474d6efd530e8a574880b7191d246b1c245d8cf4db175aa`
+- Mission and run-evidence roots:
+  `sha256:184719717253a80c7731dfa669c179698be50893d3b4abf88a1c0542bca1683d`
+  and
+  `sha256:f66fcab97fe17724148f69f72c9ab707d04db9f22f55299d6908daa0ef1767b3`
+- Usage: 50,442 observed tokens, seven research processes, and 94,770 ms
+- Receipt and pending proposal:
+  `sha256:263506aae0144fb2aa4784ff9c145c6c41886b2956191c6458214cedd0bfd4aa`
+  and `vpr_501cbeec70cd719c`
+- Final commit and tree:
+  `807f0a8f770cfed05ac0dff00b952dc41052a720` and
+  `bf34943ac401ec6cef9325572e15638241a9b6c7`
+- Final event, snapshot, and proposal roots:
+  `sha256:a06797bc0d1b0e3c88a2f97507fe0832661e3992d8df41187a0aa6d3ceee9bde`,
+  `sha256:1faedc24f040a60a22177b456c74b969a61ce8836082297b1835797a57b4fa56`,
+  and
+  `sha256:e69b38037814f2e8ca826942cfc50ab370993889be2913cac1c0b3e77711160f`
+- Strict state: the historical 1,511 `missing_conditions` plus 81
+  `unsigned_registered_actor` blockers are unchanged; 38 of 38 frozen frontier
+  witnesses reproduce.
+
+The proposal remains pending and acceptance is blocked by the ordinary Engine
+gate. Verifier success and publication are evidence, not scientific acceptance.
+
 ## Canopus v0.3.0
 
 This release adds the one-command product path and proposal-scoped producer
