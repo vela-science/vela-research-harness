@@ -2,6 +2,12 @@
 
 ## Canopus v0.4.0 candidate
 
+The source package advertises `0.4.0-rc.1` while this train remains
+unreleased. The prerelease identity prevents candidate tarballs from being
+mistaken for released `v0.3.0`; it grants no release or provenance credit.
+Final publication still requires the exact `v0.4.0` tag/version pair and the
+gates below.
+
 The first registered quantum mission stopped safely before verification or
 landing because provider-reported usage exceeded its frozen 100,000-token
 postcondition. The stopped run is not a scientific result. It accessed no

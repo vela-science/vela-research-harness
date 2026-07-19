@@ -14,6 +14,7 @@ import {
 } from "./profile.js";
 import { runNativeCustodyPreflight } from "./custody.js";
 import { runtimeIdentity, type RuntimeIdentity } from "./runtime.js";
+import { CANOPUS_VERSION } from "./version.js";
 
 export interface ProductDoctorResult {
   schema: "canopus.doctor.v1";
@@ -178,7 +179,7 @@ export async function doctorProduct(options: {
       runtimeIdentity({ name: "git", cwd: frontier, home: runtime, runner }),
     ]);
     if (vela.version !== "vela 0.901.0") {
-      throw new Error(`Canopus v0.3.0 requires vela 0.901.0, observed ${vela.version}`);
+      throw new Error(`Canopus ${CANOPUS_VERSION} requires vela 0.901.0, observed ${vela.version}`);
     }
     const [status, offer, gitStatus] = await Promise.all([
       jsonCommand({ runner, argv: [vela.binary, "status", ".", "--json"], cwd: frontier, home: runtime, label: "vela status" }),
