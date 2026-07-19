@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0-rc.1 - Unreleased
+
+- Require the live Linux custody fixture to pass the exact deterministic Codex
+  sandbox boundary before it reads staged authentication or makes a model call.
+  Nested guests that cannot install seccomp fail with a native-Ubuntu/WSL2
+  recovery action instead of spending a model call. Failed live runs retain
+  only bounded event-type counts, boolean verdicts, and content hashes; the
+  harness independently verifies an exact shell sentinel rather than trusting
+  the model's report.
+
 ## 0.3.0 - 2026-07-17
 
 - Add the compact `doctor`, `run`, `inspect`, `replay`, and explicit `withdraw`

@@ -25,6 +25,77 @@ export interface CodexEventSummary {
   actionTypes: string[];
 }
 
+export interface CodexStructuralSummary {
+  lines: number;
+  parsed_lines: number;
+  invalid_lines: number;
+  event_types: Record<string, number>;
+  item_types: Record<string, number>;
+}
+
+function safeEventLabel(value: unknown): string {
+  return typeof value === "string" &&
+      (EVENT_TYPES.has(value) || value === "error" || value === "turn.failed")
+    ? value
+    : "other";
+}
+
+function safeItemLabel(value: unknown): string {
+  return typeof value === "string" &&
+      (PASSIVE_ITEMS.has(value) || ACTION_ITEMS.has(value) || value === "error")
+    ? value
+    : "other";
+}
+
+function increment(counts: Record<string, number>, label: string): void {
+  counts[label] = (counts[label] ?? 0) + 1;
+}
+
+/**
+ * Describe only the shape of a Codex JSONL stream. Values that could contain
+ * prompts, paths, commands, host data, or credentials are never returned.
+ */
+export function summarizeCodexStructure(value: string): CodexStructuralSummary {
+  const summary: CodexStructuralSummary = {
+    lines: 0,
+    parsed_lines: 0,
+    invalid_lines: 0,
+    event_types: {},
+    item_types: {},
+  };
+  for (const line of value.split("\n")) {
+    if (line.length === 0) continue;
+    summary.lines += 1;
+    if (Buffer.byteLength(line) > 1_048_576) {
+      summary.invalid_lines += 1;
+      continue;
+    }
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(line) as unknown;
+    } catch {
+      summary.invalid_lines += 1;
+      continue;
+    }
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      summary.invalid_lines += 1;
+      continue;
+    }
+    const event = parsed as Record<string, unknown>;
+    summary.parsed_lines += 1;
+    increment(summary.event_types, safeEventLabel(event.type));
+    if (typeof event.item === "object" && event.item !== null && !Array.isArray(event.item)) {
+      increment(
+        summary.item_types,
+        safeItemLabel((event.item as Record<string, unknown>).type),
+      );
+    }
+  }
+  summary.event_types = Object.fromEntries(Object.entries(summary.event_types).sort());
+  summary.item_types = Object.fromEntries(Object.entries(summary.item_types).sort());
+  return summary;
+}
+
 function safeDiagnostic(value: string): string {
   const normalized = value
     .replace(/[\u0000-\u001f\u007f]+/gu, " ")

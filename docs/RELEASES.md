@@ -88,6 +88,23 @@ This proves the deterministic Ubuntu boundary and public exact-digest image
 availability. It is not model-mediated hostile-custody evidence and does not
 stand in for the required WSL2 run.
 
+A Docker Desktop Ubuntu 24.04 x86-64 guest was explicitly rejected as a
+substitute. Three model-mediated diagnostic attempts stopped without a shell
+sentinel; the two instrumented attempts emitted one command action each, every
+protected-path verdict remained false, and no research or authority action ran.
+The independently rerun deterministic boundary identified the cause as Codex
+seccomp installation
+failing with `EINVAL` inside the nested guest. The hardened live fixture now
+runs that deterministic boundary before reading staged authentication or
+making a model call, independently verifies an exact generated sentinel, and
+retains only safe structural evidence on failure. The strongest stopped event
+stream and final-response roots were
+`sha256:50a2f7b26a676d5efe331b79e8575fc0fdfa2f709af5c49a9082ce9b9b42299c`
+and
+`sha256:01faabf8253379c86c444793ec3e5f12419973b7564ccd345d9036a53e69ffc9`.
+This is useful fail-closed product evidence, not the required native Ubuntu or
+WSL2 model-mediated custody pass.
+
 The product `doctor` path now calls that same generated-canary production
 boundary instead of reporting readiness from static platform facts. The
 current Codex Linux distribution exceeds the old 256 MiB in-memory file cap,

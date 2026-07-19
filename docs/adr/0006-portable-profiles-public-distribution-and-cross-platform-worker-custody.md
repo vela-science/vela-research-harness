@@ -50,6 +50,13 @@ binary and permission profile hide source and runtime authentication canaries,
 sealed inputs, unrelated files, and host canaries; deny outside writes and
 command network; and scrub authentication-shaped environment state. It does
 not replace or earn credit for the model-mediated hostile custody fixture.
+The live fixture must run the same deterministic boundary before reading the
+staged Codex authentication file or making a model call. A nested container or
+VM that cannot install Codex's seccomp filter is unsupported and must stop with
+an exact native-Ubuntu/WSL2 recovery action; outer privilege is not a permitted
+substitute for the missing inner boundary. The fixture independently verifies
+an exact generated workspace sentinel and records only structural event counts,
+boolean verdicts, and content hashes on failure.
 
 Historical benchmark sources and immutable registrations stay in Git and
 source archives but leave ordinary help and the installed npm payload.

@@ -9,7 +9,11 @@ import test from "node:test";
 import { BudgetTracker } from "../src/budget/enforce.js";
 import type { Mission } from "../src/contracts/mission.js";
 import { CodexExecEngine } from "../src/engines/codex-exec.js";
-import { parseCodexEvents, summarizeCodexFailure } from "../src/engines/codex-events.js";
+import {
+  parseCodexEvents,
+  summarizeCodexFailure,
+  summarizeCodexStructure,
+} from "../src/engines/codex-events.js";
 import { FakeEngine } from "../src/engines/fake.js";
 import type { CandidateDraft } from "../src/engines/engine.js";
 import type { CommandRunner } from "../src/util/command.js";
@@ -165,6 +169,28 @@ test("Codex failure diagnostics are structured, bounded, and secret-redacted", (
   assert.doesNotMatch(diagnostic, /token=private/u);
   assert.equal(summarizeCodexFailure("not json\n"), "no structured Codex failure event");
   assert.ok(diagnostic.length <= 512);
+});
+
+test("Codex structural diagnostics expose no event or item content", () => {
+  const secret = "secret-that-must-not-appear";
+  const stream = [
+    JSON.stringify({ type: "thread.started", thread_id: secret }),
+    JSON.stringify({
+      type: "item.completed",
+      item: { id: secret, type: "command_execution", command: `print ${secret}` },
+    }),
+    JSON.stringify({ type: secret, item: { type: secret } }),
+    "not json",
+  ].join("\n");
+  const summary = summarizeCodexStructure(stream);
+  assert.deepEqual(summary, {
+    lines: 4,
+    parsed_lines: 3,
+    invalid_lines: 1,
+    event_types: { "item.completed": 1, other: 1, "thread.started": 1 },
+    item_types: { command_execution: 1, other: 1 },
+  });
+  assert.doesNotMatch(JSON.stringify(summary), new RegExp(secret, "u"));
 });
 
 test("Codex engine reports only structured failure diagnostics and output digests", async () => {
