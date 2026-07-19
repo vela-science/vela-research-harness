@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, symlink } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -17,6 +17,22 @@ import {
 } from "../src/product/profile-bundle.js";
 import { resolveProductProfile, selectProductOffer } from "../src/product/doctor.js";
 import { contentDigest } from "../src/util/canonical.js";
+import { assertVerifierWorkingDirectory } from "../src/mission/prepare.js";
+
+test("verifier cwd must exist below the sealed source before a model call", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "canopus-verifier-cwd-"));
+  await mkdir(path.join(root, "targets"));
+  await assertVerifierWorkingDirectory(root, "targets");
+  await assert.rejects(
+    assertVerifierWorkingDirectory(root, "site"),
+    /does not exist in the sealed source checkout/u,
+  );
+  await symlink(os.tmpdir(), path.join(root, "escape"));
+  await assert.rejects(
+    assertVerifierWorkingDirectory(root, "escape"),
+    /not a real directory below the sealed source checkout/u,
+  );
+});
 
 test("registered product profiles stage exact distinct capsules and bounded Mission v1 drafts", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "canopus-product-profiles-"));
@@ -40,6 +56,10 @@ test("registered product profiles stage exact distinct capsules and bounded Miss
     contentDigest(await loadProfileDraft(profiles[2]!)),
     contentDigest(await loadProfileDraft(profiles[3]!)),
   );
+  const formalDraft = await loadProfileDraft(profiles[2]!) as {
+    verifier: { cwd: string };
+  };
+  assert.equal(formalDraft.verifier.cwd, "targets");
   for (const [index, profile] of profiles.entries()) {
     const staging = path.join(root, `${profile.name}-${index}`);
     await mkdir(staging);

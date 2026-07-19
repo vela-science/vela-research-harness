@@ -59,6 +59,25 @@ export interface PreparedMission {
   manifestPath: string;
 }
 
+export async function assertVerifierWorkingDirectory(
+  sourceRepo: string,
+  declaredCwd: string,
+): Promise<void> {
+  const root = await realpath(sourceRepo);
+  const relative = relativePathAt(declaredCwd, "mission.verifier.cwd");
+  const candidate = path.resolve(root, relative);
+  let resolved: string;
+  let stat: Awaited<ReturnType<typeof lstat>>;
+  try {
+    [resolved, stat] = await Promise.all([realpath(candidate), lstat(candidate)]);
+  } catch {
+    throw new Error(`mission verifier cwd does not exist in the sealed source checkout: ${relative}`);
+  }
+  if (!resolved.startsWith(`${root}${path.sep}`) || !stat.isDirectory() || stat.isSymbolicLink()) {
+    throw new Error(`mission verifier cwd is not a real directory below the sealed source checkout: ${relative}`);
+  }
+}
+
 export async function validateMissionBundle(
   mission: MissionV1,
   bundleRoot: string,
@@ -448,6 +467,7 @@ export async function prepareMission(options: PrepareMissionOptions): Promise<Pr
     if (prepared.schema !== "canopus.mission.v1") {
       throw new Error("prepared mission did not produce mission v1");
     }
+    await assertVerifierWorkingDirectory(sourceRepo, prepared.verifier.cwd);
 
     const capsuleTarget = path.join(outputRoot, "capsule", "verifier");
     const packetTarget = path.join(outputRoot, "packet", "target.json");

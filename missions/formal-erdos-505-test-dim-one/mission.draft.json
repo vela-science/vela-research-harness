@@ -28,7 +28,7 @@
       "capsule/verifier",
       "{artifact:artifacts/erdos505-test-dim-one-proof.lean}"
     ],
-    "cwd": "site",
+    "cwd": "targets",
     "timeout_ms": 600000,
     "max_output_bytes": 65536,
     "capsule_path": "capsule/verifier"

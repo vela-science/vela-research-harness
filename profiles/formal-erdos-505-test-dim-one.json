@@ -4,7 +4,7 @@
   "target": "formal:erdos-505-test-dim-one",
   "target_packet_schema": "formal-conjectures.lean-proof-work.v1",
   "draft": "missions/formal-erdos-505-test-dim-one/mission.draft.json",
-  "draft_sha256": "sha256:aad32056460f2df9710e7ae69598eb643c64bbc6bf861aeb69be6b8911ac123f",
+  "draft_sha256": "sha256:93c19a6856ebad4781710e88d042bc69092b33645f5b0139298b649d877af074",
   "objective_sha256": "sha256:d9b480cf26a5d4481a00eb6da15b6805fe49dd00154e9906943fbd1dcb3667fb",
   "completion_condition_sha256": "sha256:75a9c7ce1f44f24e594b068beea5d4b26544331546435592a90b32c4363672fb",
   "allowed_artifacts_sha256": "sha256:6c95468a5b24366edf539b156bbf3651cff55c1b1aad2a752522d316e88882db",
