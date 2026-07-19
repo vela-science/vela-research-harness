@@ -59,11 +59,15 @@ explicit, runs in a disposable exact-head clone, proves the accepted scientific
 projection unchanged, fast-forwards the clean source, and then deletes the
 secret. A later human decision also consumes the now-useless secret.
 
-The installed product contains only the current active Erdős profile:
+The installed product contains only the current active producer profiles:
 
 - `erdos1056-k15-10428401-10428600`
+- `formal-erdos-505-test-dim-one`
 
-Its capsule is a content-addressed static Linux binary for arm64 and x86-64.
+The Erdős capsule is a content-addressed static Linux binary for arm64 and
+x86-64. The formal capsule is a small reviewed shell edge over an immutable
+Linux-amd64 Lean image; Apple-silicon hosts bind Docker's exact amd64 emulation
+instead of relying on implicit platform selection.
 Completed and stopped profile registrations remain in Git and release evidence,
 not in default discovery or the installed package. The shared source and pinned
 build provenance remain available for reproducible rebuilding, but an installed
@@ -88,6 +92,7 @@ canopus profile list
 canopus profile show erdos1056-k15-10428401-10428600
 canopus profile validate erdos1056-k15-10428401-10428600
 canopus profile pack erdos1056-k15-10428401-10428600 --output /new/profile-pack
+canopus profile validate formal-erdos-505-test-dim-one
 ```
 
 Mission v0 and the stopped cold-use registrations remain available in Git for

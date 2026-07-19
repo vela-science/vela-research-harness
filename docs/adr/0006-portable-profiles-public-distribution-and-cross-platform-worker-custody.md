@@ -33,6 +33,11 @@ change.
    equivalent native custody fixture passes.
 5. Keep verification in a distinct multi-architecture, network-denied,
    read-only container. The producer cannot invoke it as an oracle.
+6. Bind the exact Linux verifier platform as well as the image digest. Older
+   Mission v1 records without that optional field replay unchanged; every new
+   profile resolves it explicitly. A verifier manifest for Mission v1 reports
+   the actual Docker, read-only-root, exact-bind, dropped-capability boundary
+   rather than reusing the historical Mission v0 macOS-Seatbelt description.
 
 No platform may fall back to an unsandboxed worker. The same hostile fixture
 must prove authentication, human keys, host canaries, unrelated repositories,

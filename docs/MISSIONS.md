@@ -27,8 +27,10 @@ tool-enabled local worker. `mission prepare` selects the first ranked attack,
 derives the clean Git and Vela roots, registers the complete pre-existing
 strict blocker set, and copies the exact packet, native permission profile,
 structured-output schema, and verifier capsule into a portable bundle. The
-Codex binary, model, verifier image, resource ceilings, and every copied byte
-are hash-pinned.
+Codex binary, model, verifier image, exact Linux verifier platform, resource
+ceilings, and every copied byte are hash-pinned. Historical Mission v1 records
+without a platform retain their old replay behavior; newly prepared missions
+always bind one.
 
 The producer runs through the native Codex CLI under a default-deny platform
 profile: Seatbelt on macOS and Codex's Bubblewrap sandbox on Linux or WSL2. The
@@ -42,6 +44,8 @@ network-denied verifier. `null` and `failed` drafts are preserved in
 `engine-result.json` and stop before verification or Receipt landing. After a
 verifier pass, Canopus publishes exactly the frozen artifact sources in one
 unsigned non-authoritative Git commit and then calls `vela land`.
+The frozen verifier manifest reports the actual Docker boundary and bound Linux
+architecture; the older macOS-Seatbelt manifest remains only for Mission v0.
 
 Defer-only Mission v1 bundles preserve their original zero-delta behavior. A
 profile may register `permit` only when it also freezes one closed positive
