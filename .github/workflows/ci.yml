@@ -103,7 +103,20 @@ jobs:
           docker pull "$VERIFIER_IMAGE"
           docker image inspect --format '{{json .RepoDigests}}' "$VERIFIER_IMAGE" \
             | grep -F 'ghcr.io/vela-science/canopus-verifier@sha256:a6f354862f2a3f7d72eb99244c65fa8583c98b74e17e3d5ce6e31ef48aa16536'
-      - run: pnpm pack:check
+      - name: Install and smoke the packed product
+        run: |
+          mkdir "$RUNNER_TEMP/canopus-package"
+          pnpm pack --pack-destination "$RUNNER_TEMP/canopus-package"
+          set -- "$RUNNER_TEMP"/canopus-package/*.tgz
+          test "$#" -eq 1
+          npm install --global --prefix "$RUNNER_TEMP/canopus-install" "$1"
+          canopus="$RUNNER_TEMP/canopus-install/bin/canopus"
+          "$canopus" --help
+          "$canopus" profile list
+          "$canopus" profile validate quantum-10-1-4-stabilizer-retry
+          "$canopus" profile validate erdos1056-k15-10428008-10428200
+          "$canopus" profile validate erdos1056-k15-10428201-10428400
+          "$canopus" profile validate sidon-a24-improve
 
   windows-read-only:
     runs-on: windows-2025
@@ -137,4 +150,8 @@ jobs:
           $package = Get-ChildItem "$env:RUNNER_TEMP\vela-science-canopus-*.tgz" | Select-Object -First 1
           npm install --global --prefix "$env:RUNNER_TEMP\canopus" $package.FullName
           & "$env:RUNNER_TEMP\canopus\canopus.cmd" --help
+          & "$env:RUNNER_TEMP\canopus\canopus.cmd" profile list
+          & "$env:RUNNER_TEMP\canopus\canopus.cmd" profile validate quantum-10-1-4-stabilizer-retry
           & "$env:RUNNER_TEMP\canopus\canopus.cmd" profile validate erdos1056-k15-10428008-10428200
+          & "$env:RUNNER_TEMP\canopus\canopus.cmd" profile validate erdos1056-k15-10428201-10428400
+          & "$env:RUNNER_TEMP\canopus\canopus.cmd" profile validate sidon-a24-improve

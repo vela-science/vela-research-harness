@@ -82,6 +82,19 @@ This proves the deterministic Ubuntu boundary and public exact-digest image
 availability. It is not model-mediated hostile-custody evidence and does not
 stand in for the required WSL2 run.
 
+The product `doctor` path now calls that same generated-canary production
+boundary instead of reporting readiness from static platform facts. The
+current Codex Linux distribution exceeds the old 256 MiB in-memory file cap,
+so executable identity is streamed and the Linux sandbox copy is rehashed
+before execution. Historical preregistered benchmark runner sources remain
+byte-identical.
+
+- Canopus source: `f4e7ab9fd920e43406ceeb22808106fd9e89a86e`
+- Hosted CI: [run 29667222735](https://github.com/vela-science/vela-research-harness/actions/runs/29667222735)
+- Result: macOS, Ubuntu 24.04, and Windows read-only product checks passed;
+  Ubuntu passed the real large-binary custody preflight and anonymous exact-
+  digest verifier pull.
+
 ## Canopus v0.5.0 candidate preflight
 
 The first exact Sidon no-land preflight stopped safely with a null producer
