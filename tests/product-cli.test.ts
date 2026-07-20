@@ -59,6 +59,7 @@ test("profile help and validation retain the advanced closed interface", async (
   assert.deepEqual(list.profiles, [
     "erdos1056-k15-10428401-10428600",
     "formal-erdos-505-test-dim-one-gpt56",
+    "sidon-a24-at-least-7194-gpt56",
   ]);
   const validation = JSON.parse(
     await help("profile", "validate", "erdos1056-k15-10428401-10428600"),
@@ -68,6 +69,10 @@ test("profile help and validation retain the advanced closed interface", async (
     await help("profile", "validate", "formal-erdos-505-test-dim-one-gpt56"),
   ) as { validation: { schema: string } };
   assert.equal(formal.validation.schema, "canopus.profile-validation.v1");
+  const sidon = JSON.parse(
+    await help("profile", "validate", "sidon-a24-at-least-7194-gpt56"),
+  ) as { validation: { schema: string } };
+  assert.equal(sidon.validation.schema, "canopus.profile-validation.v1");
 });
 
 test("inspect latest reports the newest safely stopped run", async () => {

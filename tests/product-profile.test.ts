@@ -41,6 +41,8 @@ test("registered product profiles stage exact distinct capsules and bounded Miss
     await loadProductProfile("erdos1056-k15-10428401-10428600", { platform: "linux-x86_64" }),
     await loadProductProfile("formal-erdos-505-test-dim-one-gpt56", { platform: "darwin-arm64" }),
     await loadProductProfile("formal-erdos-505-test-dim-one-gpt56", { platform: "linux-x86_64" }),
+    await loadProductProfile("sidon-a24-at-least-7194-gpt56", { platform: "darwin-arm64" }),
+    await loadProductProfile("sidon-a24-at-least-7194-gpt56", { platform: "linux-x86_64" }),
   ];
   assert.equal(profiles[0]?.target, "erdos:1056");
   assert.notEqual(profiles[0]?.capsule_sha256, profiles[1]?.capsule_sha256);
@@ -60,6 +62,14 @@ test("registered product profiles stage exact distinct capsules and bounded Miss
     verifier: { cwd: string };
   };
   assert.equal(formalDraft.verifier.cwd, "targets");
+  assert.equal(profiles[4]?.target, "sidon:a24-improve");
+  assert.notEqual(profiles[4]?.capsule_sha256, profiles[5]?.capsule_sha256);
+  assert.equal(profiles[4]?.verifier_platform, "linux/arm64");
+  assert.equal(profiles[5]?.verifier_platform, "linux/amd64");
+  assert.equal(
+    contentDigest(await loadProfileDraft(profiles[4]!)),
+    contentDigest(await loadProfileDraft(profiles[5]!)),
+  );
   for (const [index, profile] of profiles.entries()) {
     const staging = path.join(root, `${profile.name}-${index}`);
     await mkdir(staging);
@@ -102,7 +112,11 @@ test("portable verifier images require a closed public repository and full diges
 test("profile v2 binds exact platform custody and packs only portable contract resources", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "canopus-profile-pack-parent-"));
   const name = "erdos1056-k15-10428401-10428600";
-  assert.deepEqual(await listProductProfiles(), [name, "formal-erdos-505-test-dim-one-gpt56"]);
+  assert.deepEqual(await listProductProfiles(), [
+    name,
+    "formal-erdos-505-test-dim-one-gpt56",
+    "sidon-a24-at-least-7194-gpt56",
+  ]);
   const mac = await loadProductProfile(name, { platform: "darwin-arm64" });
   const linux = await loadProductProfile(name, { platform: "linux-x86_64" });
   assert.equal(mac.target_packet_schema, "erdos-frontier.problem-work.v1");
