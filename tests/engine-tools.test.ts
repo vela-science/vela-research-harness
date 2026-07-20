@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, symlink, writeFile } from "node:fs/promises";
+import { link, mkdir, mkdtemp, readFile, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -9,12 +9,14 @@ import type { MissionV1 } from "../src/contracts/mission.js";
 import {
   assertNativeRuntimeProfile,
   CodexToolsNativeEngine,
+  hydrateWorkspaceArtifacts,
 } from "../src/engines/codex-tools-native.js";
+import type { CandidateDraft } from "../src/engines/engine.js";
 import type { CommandRunner } from "../src/util/command.js";
 import { sha256Bytes } from "../src/util/canonical.js";
 
 const digest = `sha256:${"a".repeat(64)}`;
-const draft = {
+const draft: CandidateDraft = {
   schema: "canopus.engine-output.v0",
   status: "success",
   claim: "The bounded worker produced one candidate.",
@@ -199,7 +201,11 @@ test("native tool worker pins Codex and permission-profile identities", async ()
     assert.doesNotMatch(prompt, /WORK_BRIEFING_MUST_NOT_ENTER_MODEL_CONTEXT/u);
     const runtimeConfig = await readFile(path.join(options.env.CODEX_HOME ?? "", "config.toml"));
     assert.deepEqual(runtimeConfig, await readFile(permissionProfile));
-    await writeFile(finalPath, JSON.stringify(draft));
+    await writeFile(path.join(options.cwd, "result.json"), draft.artifacts[0]?.content ?? "");
+    await writeFile(finalPath, JSON.stringify({
+      ...draft,
+      artifacts: draft.artifacts.map((artifact) => ({ ...artifact, content: "" })),
+    }));
     return {
       argv: [...options.argv], exitCode: 0, signal: null,
       stdout: Buffer.from(events()), stderr: Buffer.alloc(0), durationMs: 2,
@@ -244,6 +250,78 @@ test("native tool worker pins Codex and permission-profile identities", async ()
   assert.equal(run.includes("--sandbox"), false);
   assert.equal(run.includes("--ignore-user-config"), false);
   assert.equal(run.some((item) => item.includes(authHome)), false);
+});
+
+test("workspace-backed artifacts fail closed on unsafe files and invalid bytes", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "canopus-tools-artifacts-"));
+  const baseDraft = {
+    ...draft,
+    artifacts: [{ ...draft.artifacts[0]!, content: "" }],
+  };
+
+  await writeFile(path.join(root, "valid.json"), "{\"ok\":true}\n");
+  const hydrated = await hydrateWorkspaceArtifacts({
+    draft: { ...baseDraft, artifacts: [{ ...baseDraft.artifacts[0]!, path: "valid.json" }] },
+    workspace: root,
+    maxArtifactBytes: 1024,
+    secrets: [],
+  });
+  assert.equal(hydrated.artifacts[0]?.content, "{\"ok\":true}\n");
+
+  await writeFile(path.join(root, "large.json"), "x".repeat(17));
+  await assert.rejects(
+    hydrateWorkspaceArtifacts({
+      draft: { ...baseDraft, artifacts: [{ ...baseDraft.artifacts[0]!, path: "large.json" }] },
+      workspace: root,
+      maxArtifactBytes: 16,
+      secrets: [],
+    }),
+    /exceeds 16 bytes/u,
+  );
+
+  await symlink(path.join(root, "valid.json"), path.join(root, "symlink.json"));
+  await assert.rejects(
+    hydrateWorkspaceArtifacts({
+      draft: { ...baseDraft, artifacts: [{ ...baseDraft.artifacts[0]!, path: "symlink.json" }] },
+      workspace: root,
+      maxArtifactBytes: 1024,
+      secrets: [],
+    }),
+    /must not traverse a symbolic link/u,
+  );
+
+  await link(path.join(root, "valid.json"), path.join(root, "hardlink.json"));
+  await assert.rejects(
+    hydrateWorkspaceArtifacts({
+      draft: { ...baseDraft, artifacts: [{ ...baseDraft.artifacts[0]!, path: "hardlink.json" }] },
+      workspace: root,
+      maxArtifactBytes: 1024,
+      secrets: [],
+    }),
+    /not one singly linked regular file/u,
+  );
+
+  await writeFile(path.join(root, "invalid.json"), Buffer.from([0xc3, 0x28]));
+  await assert.rejects(
+    hydrateWorkspaceArtifacts({
+      draft: { ...baseDraft, artifacts: [{ ...baseDraft.artifacts[0]!, path: "invalid.json" }] },
+      workspace: root,
+      maxArtifactBytes: 1024,
+      secrets: [],
+    }),
+    /not valid UTF-8/u,
+  );
+
+  await writeFile(path.join(root, "secret.json"), "prefix credential-secret-0000 suffix");
+  await assert.rejects(
+    hydrateWorkspaceArtifacts({
+      draft: { ...baseDraft, artifacts: [{ ...baseDraft.artifacts[0]!, path: "secret.json" }] },
+      workspace: root,
+      maxArtifactBytes: 1024,
+      secrets: [Buffer.from("credential-secret-0000")],
+    }),
+    /exposed authentication material/u,
+  );
 });
 
 test("native preflight gives the exact Ubuntu AppArmor recovery action", async () => {

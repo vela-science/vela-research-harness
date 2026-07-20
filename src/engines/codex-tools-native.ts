@@ -3,6 +3,7 @@ import { constants } from "node:fs";
 import { chmod, copyFile, lstat, mkdir, realpath, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { TextDecoder } from "node:util";
 
 import { assertDraftArtifactsAllowed, parseCandidateDraft } from "../candidate/validate.js";
 import type { MissionV1 } from "../contracts/mission.js";
@@ -71,7 +72,7 @@ function prompt(mission: MissionV1): string {
             "The shell and apply_patch tools are active in this worker. Begin with a narrow shell call against the one registered packet; do not report a missing-tool failure without attempting that call.",
             `Read only current_state.tracked_unaccepted_seed, output_contract, verification, and negative_contract from ${mission.target_packet.path}. The tracked seed's encoded_points field contains every exact baseline point needed for the search; no other input file exists or is required.`,
             "Write search source and temporary data only inside the current workspace. On macOS compile with the exposed Xcode clang++ and TMPDIR=$PWD/tmp; do not invoke xcrun, xcodebuild, a package manager, a container, Vela, or the frozen verifier.",
-            "Spend the bounded runtime on an exact net-positive exchange over the supplied baseline. Independently recheck a positive candidate before returning its compact witness JSON as inline artifact content. A failed bounded search is null, never a universal maximality claim.",
+            "Spend the bounded runtime on an exact net-positive exchange over the supplied baseline. Independently recheck a positive candidate before returning its compact witness JSON at the exact declared workspace path. Inline it when practical; for a large artifact use the workspace-backed handoff described below. A failed bounded search is null, never a universal maximality claim.",
           ]
       : [];
   return [
@@ -84,7 +85,7 @@ function prompt(mission: MissionV1): string {
     "Keep tool output narrow. Do not print or ingest the whole target packet.",
     "Worker status reports producer completion, not verifier or scientific standing. Return status success when you produced all artifact bytes required by the output contract, even though you cannot run the separate verifier. State that verification remains pending; Canopus will freeze the bytes and run the verifier after you exit.",
     "Return null only when the bounded work produced no candidate. Return failed only when you could not produce a contract-complete candidate or observed disqualifying evidence. Never turn a bounded negative search into universal nonexistence, verifier failure into success, or Git publication into scientific acceptance.",
-    "Return only the supplied engine-output JSON shape. Artifact bytes must be inline UTF-8 content at mission.allowed_paths.",
+    "Return only the supplied engine-output JSON shape. Artifact bytes must be UTF-8 at mission.allowed_paths. Inline small artifacts. For a large declared artifact, content may be the empty string only when the complete bytes exist at that exact path inside the current workspace; Canopus will bound, scan, and freeze those bytes before workspace cleanup.",
     ...execution,
     "Mission:",
     canonicalJson(mission),
@@ -162,6 +163,50 @@ function assertNoSecrets(buffers: readonly Buffer[], secrets: readonly Buffer[])
       if (buffer.includes(secret)) throw new Error("native Codex worker exposed authentication material");
     }
   }
+}
+
+export async function hydrateWorkspaceArtifacts(options: {
+  draft: ReturnType<typeof parseCandidateDraft>;
+  workspace: string;
+  maxArtifactBytes: number;
+  secrets: readonly Buffer[];
+}): Promise<ReturnType<typeof parseCandidateDraft>> {
+  const workspace = await realpath(options.workspace);
+  const artifacts = await Promise.all(options.draft.artifacts.map(async (artifact) => {
+    if (artifact.content !== "") return artifact;
+
+    const candidate = path.join(workspace, artifact.path);
+    const relative = path.relative(workspace, candidate);
+    if (relative === "" || relative === ".." || relative.startsWith(`..${path.sep}`)) {
+      throw new Error(`workspace-backed artifact escapes the native worker workspace: ${artifact.path}`);
+    }
+
+    let resolved: string;
+    try {
+      resolved = await realpath(candidate);
+    } catch (error) {
+      throw new Error(
+        `workspace-backed artifact is missing at ${artifact.path}: ${String(error)}`,
+      );
+    }
+    if (resolved !== candidate) {
+      throw new Error(`workspace-backed artifact must not traverse a symbolic link: ${artifact.path}`);
+    }
+
+    const bytes = await readBoundedRegularFile(resolved, options.maxArtifactBytes);
+    if (bytes.length === 0) {
+      throw new Error(`workspace-backed artifact is empty at ${artifact.path}`);
+    }
+    assertNoSecrets([bytes], options.secrets);
+    let content: string;
+    try {
+      content = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    } catch (error) {
+      throw new Error(`workspace-backed artifact is not valid UTF-8 at ${artifact.path}: ${String(error)}`);
+    }
+    return { ...artifact, content };
+  }));
+  return { ...options.draft, artifacts };
 }
 
 function workerArgv(options: {
@@ -440,8 +485,14 @@ export class CodexToolsNativeEngine implements Engine {
       } catch (error) {
         throw new Error(`native Codex final response is not JSON: ${String(error)}`);
       }
-      const draft = parseCandidateDraft(raw);
-      assertDraftArtifactsAllowed(draft, mission.allowed_paths);
+      const parsedDraft = parseCandidateDraft(raw);
+      assertDraftArtifactsAllowed(parsedDraft, mission.allowed_paths);
+      const draft = await hydrateWorkspaceArtifacts({
+        draft: parsedDraft,
+        workspace,
+        maxArtifactBytes: mission.budgets.max_artifact_bytes,
+        secrets,
+      });
       return {
         draft,
         engine: {

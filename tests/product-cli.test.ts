@@ -61,6 +61,7 @@ test("profile help and validation retain the advanced closed interface", async (
     "formal-erdos-505-test-dim-one-gpt56",
     "sidon-a24-at-least-7194-gpt56",
     "sidon-a24-at-least-7194-gpt56-v2",
+    "sidon-a24-at-least-7194-gpt56-v3",
   ]);
   const validation = JSON.parse(
     await help("profile", "validate", "erdos1056-k15-10428401-10428600"),
@@ -78,6 +79,10 @@ test("profile help and validation retain the advanced closed interface", async (
     await help("profile", "validate", "sidon-a24-at-least-7194-gpt56-v2"),
   ) as { validation: { schema: string } };
   assert.equal(sidonRepair.validation.schema, "canopus.profile-validation.v1");
+  const sidonRetention = JSON.parse(
+    await help("profile", "validate", "sidon-a24-at-least-7194-gpt56-v3"),
+  ) as { validation: { schema: string } };
+  assert.equal(sidonRetention.validation.schema, "canopus.profile-validation.v1");
 });
 
 test("inspect latest reports the newest safely stopped run", async () => {

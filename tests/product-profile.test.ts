@@ -45,6 +45,8 @@ test("registered product profiles stage exact distinct capsules and bounded Miss
     await loadProductProfile("sidon-a24-at-least-7194-gpt56", { platform: "linux-x86_64" }),
     await loadProductProfile("sidon-a24-at-least-7194-gpt56-v2", { platform: "darwin-arm64" }),
     await loadProductProfile("sidon-a24-at-least-7194-gpt56-v2", { platform: "linux-x86_64" }),
+    await loadProductProfile("sidon-a24-at-least-7194-gpt56-v3", { platform: "darwin-arm64" }),
+    await loadProductProfile("sidon-a24-at-least-7194-gpt56-v3", { platform: "linux-x86_64" }),
   ];
   assert.equal(profiles[0]?.target, "erdos:1056");
   assert.notEqual(profiles[0]?.capsule_sha256, profiles[1]?.capsule_sha256);
@@ -77,6 +79,12 @@ test("registered product profiles stage exact distinct capsules and bounded Miss
   assert.equal(
     contentDigest(await loadProfileDraft(profiles[6]!)),
     contentDigest(await loadProfileDraft(profiles[7]!)),
+  );
+  assert.equal(profiles[8]?.target, "sidon:a24-improve");
+  assert.notEqual(profiles[8]?.capsule_sha256, profiles[9]?.capsule_sha256);
+  assert.equal(
+    contentDigest(await loadProfileDraft(profiles[8]!)),
+    contentDigest(await loadProfileDraft(profiles[9]!)),
   );
   for (const [index, profile] of profiles.entries()) {
     const staging = path.join(root, `${profile.name}-${index}`);
@@ -125,6 +133,7 @@ test("profile v2 binds exact platform custody and packs only portable contract r
     "formal-erdos-505-test-dim-one-gpt56",
     "sidon-a24-at-least-7194-gpt56",
     "sidon-a24-at-least-7194-gpt56-v2",
+    "sidon-a24-at-least-7194-gpt56-v3",
   ]);
   const mac = await loadProductProfile(name, { platform: "darwin-arm64" });
   const linux = await loadProductProfile(name, { platform: "linux-x86_64" });
