@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/canopus-flow.svg" width="960" alt="Canopus turns a bounded Vela offer into a frozen artifact, independent verification, and a Receipt without taking scientific authority." />
+  <img src="docs/assets/canopus-readme-product.jpg" width="960" alt="The public Canopus evidence surface showing worker success, verifier pass, policy defer, and zero accepted-state change." />
 </p>
 
 <p align="center"><strong>Bounded research for Codex.</strong></p>
