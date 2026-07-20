@@ -165,10 +165,26 @@ test("public run projection exports only the bounded submission evidence", () =>
   assert.equal(projection.policy.accepted_state_delta, 0);
   assert.deepEqual(projection.artifact_roots, [sha("e")]);
   assert.equal(projection.reproduction.commands.at(-1), "vela reproduce .");
+  assert.match(projection.nonclaims[1] ?? "", /does not establish maximality/u);
   const bytes = JSON.stringify(projection);
   for (const forbidden of ["worker-events", "worker-final", "authentication", "/Users/", "private.key"]) {
     assert.doesNotMatch(bytes, new RegExp(forbidden, "u"));
   }
+});
+
+test("public run projection resolves worker-time verifier-pending language", () => {
+  const { mission, record } = fixture();
+  record.candidate.caveats = [
+    "Verification by the separate frozen verifier remains pending after producer exit.",
+  ];
+  const projection = projectPublicRun({
+    mission,
+    record,
+    repository: "https://github.com/vela-science/formal-conjectures-frontier",
+  });
+  assert.deepEqual(projection.caveats, [
+    "The worker handed off without verifier authority; Canopus subsequently recorded the separate verifier pass shown in this projection.",
+  ]);
 });
 
 test("public run projection fails closed on a non-Defer result", () => {

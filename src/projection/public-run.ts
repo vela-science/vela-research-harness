@@ -66,6 +66,13 @@ function publicRepository(value: string): { url: string; directory: string } {
   return { url, directory };
 }
 
+function publicCaveat(value: string): string {
+  if (/verif(?:y|ication|ier).*(?:pending|has not run)|pending.*verif(?:y|ication|ier)/iu.test(value)) {
+    return "The worker handed off without verifier authority; Canopus subsequently recorded the separate verifier pass shown in this projection.";
+  }
+  return value;
+}
+
 export function projectPublicRun(options: {
   record: RunRecord;
   mission: Mission;
@@ -114,7 +121,7 @@ export function projectPublicRun(options: {
       clean_clone_replay: "matched",
     },
     claim: record.candidate.claim,
-    caveats: [...record.candidate.caveats],
+    caveats: [...new Set(record.candidate.caveats.map(publicCaveat))],
     artifact_roots: record.candidate.artifacts.map((artifact) => artifact.digest).sort(),
     verifier_root: contentDigest(record.verifier),
     receipt_root: record.landing.receipt_root,
@@ -150,7 +157,7 @@ export function projectPublicRun(options: {
     },
     nonclaims: [
       "Verifier success is not scientific acceptance.",
-      "The bounded result does not solve its general Erdős problem.",
+      "The bounded result does not establish maximality or settle the broader scientific problem.",
       "Canopus did not sign or perform a human decision.",
     ],
   };

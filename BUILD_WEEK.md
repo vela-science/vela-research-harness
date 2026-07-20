@@ -9,116 +9,115 @@
 - **Repository:** <https://github.com/vela-science/vela-research-harness>
 - **Live evidence:** <https://app.vela.space/build-week>
 
-The OpenAI Build Week submission period began July 13, 2026 at 9:00 a.m.
-Pacific and ends July 21, 2026 at 5:00 p.m. Pacific. Canopus did not exist at
-the start of that period. Its first commit,
+The submission period began July 13, 2026 at 9:00 a.m. Pacific and ends July
+21 at 5:00 p.m. Pacific. Canopus did not exist at the start. Its first commit,
 `9d95924f27842ceb14a45bb0ecaf5a777c3b2736`, was created July 15 at 11:05
 p.m. Toronto time.
 
 ## Baseline and Build Week delta
 
-The pre-existing substrate is distinguished from the submitted work:
-
-| Repository or layer | Submission-period baseline | Build Week contribution |
+| Layer | Submission-period baseline | Build Week contribution |
 | --- | --- | --- |
-| Canopus | none | Entire bounded runner, custody boundary, verifier separation, npm package, retained runs, public projection, and advisory audit |
-| Vela protocol | `26386aef9126594c27888d511b76ad65a8d56870` | Released Vela 0.910.0 is consumed through existing public interfaces; Canopus changes no protocol, Receipt, policy, or authority primitive |
-| Erdős frontier | `a143c351f8488e0c621598307e248373d9dc3374` | Retains the exact bounded 1056 artifact, Receipt, Defer proposal, and replayable final commit used by the demo |
-| Vela Observatory | `37eca05ae3bc1e2f2832ed99c58ba9fdc4bd1787` | Adds a pinned public-run type, retained-run detail route, and stable anonymous `/build-week` evidence page |
+| Canopus | none | Entire bounded runner, worker custody boundary, verifier separation, npm package, retained runs, public projection, and evidence workflow |
+| Vela protocol | `26386aef9126594c27888d511b76ad65a8d56870` | Released Vela 0.910.0 is consumed without changing its protocol, Receipt, policy, or authority interfaces |
+| Sidon frontier | `5f138a51a6c8723d5a85ff0ffc265728c2c33c6e` | A root-bound GPT-5.6 target, a new 7,194-point witness, frozen verification, Receipt, Defer proposal, and replayable final commit |
+| Vela Observatory | `37eca05ae3bc1e2f2832ed99c58ba9fdc4bd1787` | A pinned public-run type, retained-run detail route, and stable anonymous `/build-week` evidence page |
 
-Canopus releases `0.1.0` through `0.4.3` and their dated commits were all made
-during the submission period. Version `0.4.4` advances the product and CI pin
-to Vela 0.910.0, adds the GPT-5.6 formal registration, preserves the exact
-GPT-5.4 registration from `v0.4.3`, and adds the sanitized public projection
-and claim-fidelity fallback. Version `0.4.5` changes documentation only to
-identify the retained worker and verifier chain precisely; all evidence roots
-and runtime behavior remain those of 0.4.4.
+Canopus versions `0.1.0` through `0.4.6` were built during the submission
+period. Version `0.4.6` adds the successful GPT-5.6 Sidon profile and evidence,
+secure workspace-backed artifact retention, and the exact private Vela work
+session handoff required to carry a large scientific artifact through Defer.
 
-## Exact evidence used by the submission
+## Primary GPT-5.6 scientific result
 
-### Retained bounded research result
+### What is new
 
-The successful research example is the existing Canopus Erdős 1056 run. Its
-worker used GPT-5.4; the separate Build Week advisory below is the GPT-5.6
-addition over its immutable evidence.
+GPT-5.6 found an explicit Sidon subset of `{0,1}^24` with **7,194 points**.
+Every one of its `7,194 × 7,195 / 2 = 25,880,415` unordered componentwise
+integer pair sums is distinct. This advances the repository's mechanically
+verified but unaccepted 7,193-point seed by one point, establishing the bounded
+candidate lower bound `a(24) ≥ 7,194`. The accepted Vela state remains at its
+prior human-authorized lower bound; the new result is pending review.
 
-- Run: `run_eb6bcd46-cffd-4ae8-b630-2681bd84da71`
-- Mission: `mission_erdos1056_k15_range_10428401_10428600_native1`
-- Target: `erdos:1056`
-- Activity: worker success; verifier pass; clean-clone replay matched
-- Bounded range: `10428401..10428600`; 15 primes tested
-- Maximum multiplicity: 12 at `p=10428581`, residue `5141590`
-- Artifact root: `sha256:79370d5243095f28e65c218f3d5dc4710802e4dbe462fcfff1a35a8697a6f225`
-- Verifier root: `sha256:6d3f61b9111fde87d57340404ad5b7561a4aa777ce54c8bf639d081c216cb165`
-- Receipt root: `sha256:263506aae0144fb2aa4784ff9c145c6c41886b2956191c6458214cedd0bfd4aa`
+The discovery occurred in bounded run
+`run_230412bc-01f4-4805-9152-7fc8f8a5b8e0`. GPT-5.6 designed and executed an
+exact exchange search, removed zero-based baseline point 72, and added the
+24-bit points `970f25` and `246891`. It independently enumerated all
+25,880,415 sums. That run then failed closed because the 359 KB artifact
+remained in its transient worker workspace instead of crossing the artifact
+freeze boundary. It produced no Receipt and changed no frontier state.
+
+Canopus `0.4.6` repairs that product boundary without widening custody. A
+workspace-backed artifact is accepted only from its exact allowlisted path,
+must remain inside the sealed worker workspace, must be one regular singly
+linked file, must fit the mission byte budget, must be valid UTF-8, and is
+scanned for authentication material before being frozen. Symlinks, hardlinks,
+escapes, missing or empty files, invalid bytes, oversize files, and unrelated
+Git changes fail closed.
+
+### Completed primary run
+
+- Run: `run_f68e4cfc-e5c7-4c73-86cb-d79807c47ec4`
+- Mission: `mission_sidon_a24_at_least_7194_gpt56_v3`
+- Profile: `sidon-a24-at-least-7194-gpt56-v3`
+- Model: `gpt-5.6-sol`
+- Target packet root: `sha256:09977a08357cbe240c5a7f5c3ea8e5c7055d6b5d71bcfb5f947b49accee1a3a8`
+- Profile root: `sha256:3b529df4304b96890cdd7eed5f90fd862422b8b1e7b4da1cef0a478e6e7cdebe`
+- Worker: success
+- Artifact: 359,754 bytes at `sha256:878b05e01dbc4a785e5a671f977509f0bb338dfcb58ac53bf03d47bf6465f01e`
+- Frozen verifier: pass in a network-denied, read-only Linux capsule
+- Verifier root: `sha256:89130864b3ca4f354673416d4352616265b1e3dc25147a4ae91bbbf3874fbff8`
+- Receipt root: `sha256:91b9f0c72e2934d3f98a34de93b61a168c8a9ff560a18a63ff4a1ee6ae2f897c`
+- Evidence root: `sha256:072d5d45501fdf4fdae0481230e8b61536afbd4b02a097360bf9583a4c993a56`
+- Proposal: `vpr_491cc97cfdfe98ff`
 - Route: `defer`
 - Accepted-state delta: `0`
-- Final frontier commit: `807f0a8f770cfed05ac0dff00b952dc41052a720`
-- Public projection root: `sha256:056d7a3d9ba8d5fb682b6271e73616bff72cd9fa11f62f1ac93d76e89a699350`
+- Clean-clone replay: matched
+- Final frontier commit: `4289e05876f142e72af622672e190be26f6a6f1d`
+- Usage: 105,553 observed tokens, 88.131 seconds, 7 research processes, 1 attempt
+- Public projection root: `sha256:cf2c2ed8d54f68b8adca94f25f7ff2adcb39501fb2e68fa0b5640403dba5266e`
 
-The generated, sanitized projection is
-[`evidence/build-week/run_eb6bcd46-cffd-4ae8-b630-2681bd84da71.public.json`](evidence/build-week/run_eb6bcd46-cffd-4ae8-b630-2681bd84da71.public.json).
+The generated sanitized projection is
+[`evidence/build-week/run_f68e4cfc-e5c7-4c73-86cb-d79807c47ec4.public.json`](evidence/build-week/run_f68e4cfc-e5c7-4c73-86cb-d79807c47ec4.public.json).
 It contains no raw worker events, isolated home, authentication, private path,
 or unrestricted log.
 
-### GPT-5.6 claim-fidelity advisory
+## Secondary evidence
 
-The fallback registration uses `gpt-5.6-sol` once, without tools, over the
-immutable run, artifact, and five final Vela roots. Deterministic replay binds
-the schema, roots, artifact, and numeric correspondences. Language and
-publication recommendations are explicitly labeled `model_assessment`.
+The earlier retained Erdős 1056 run remains a useful bounded-research example:
 
-- Registration: `erdos1056-run-eb6b-claim-fidelity-gpt56`
-- Registration root: `sha256:371390871e1a371207e3de797e45989e84bbb766e07afdab5d47fdb3536f2c1b`
-- Output-schema root: `sha256:874c61b6fbd44a2bcb68cde8b5a9a89b74f6d00f3d9a9723cb67c682bd64e045`
-- Assessment root: `sha256:9205390df001a428b4b3e2fbb0a855e9f1061754b3f87771a85fc7328824ed1f`
-- Deterministic checks: source run, all five roots, artifact root, all six
-  numeric correspondences, and the verifier/acceptance distinction pass
-- Model assessment: no universal claim; no “solved” language; publishable only
-  with the bounded-result and non-acceptance caveats
-- Scientific state landed: `false`
+- Run `run_eb6bcd46-cffd-4ae8-b630-2681bd84da71`
+- Artifact root `sha256:79370d5243095f28e65c218f3d5dc4710802e4dbe462fcfff1a35a8697a6f225`
+- Verifier pass, Receipt `sha256:263506aae0144fb2aa4784ff9c145c6c41886b2956191c6458214cedd0bfd4aa`, Defer, accepted delta zero, and matched replay
 
-See the [registration](advisories/erdos1056-claim-fidelity/registration.json),
-[assessment](advisories/erdos1056-claim-fidelity/results/assessment.json), and
-[verification](advisories/erdos1056-claim-fidelity/results/verification.json).
+The GPT-5.6 claim-fidelity advisory over that immutable run also remains
+published as a non-authoritative `model_assessment`. Its deterministic checks
+bind the source run, all five roots, artifact, numeric correspondences, and the
+verifier-versus-acceptance distinction. It was not landed as scientific state.
 
-### Formal GPT-5.6 fail-closed case
-
-The active `formal-erdos-505-test-dim-one-gpt56` profile binds
-`gpt-5.6-sol`, profile root
-`sha256:e2330e477bdab48aede90512b4cf3f86cccda5fa014b4e64edfed23797f8e254`,
-the frozen Lean 4.27.0 capsule, one proof-term artifact, expected route Defer,
-and maximum accepted-state delta zero.
-
-The preregistered attempt `run_4c2ba5f5-04ac-44d5-adb6-8937eb2ea165`
-produced candidate root
-`sha256:ef81cbf548d8a08e3811f0aa070b6ce0d58b52792f0bb56b5584dd806da4cb30`.
-The frozen verifier rejected an unsolved one-dimensional inverse goal and
-reported `sorryAx`, with stdout root
-`sha256:04e31b07889f94a1d205231942bf30fa6c3b27864520b6a42de58604da53e544`.
-Canopus stopped before landing. There is no Receipt, proposal, policy route,
-accepted-state delta, Git commit, or frontier mutation for this attempt. The
-raw failure directory is intentionally not published.
+The formal profile `formal-erdos-505-test-dim-one-gpt56` supplies the public
+fail-closed counterexample. Run
+`run_4c2ba5f5-04ac-44d5-adb6-8937eb2ea165` produced a candidate, but the
+frozen Lean verifier rejected an unsolved inverse goal and `sorryAx`. Canopus
+stopped before Receipt creation or frontier mutation.
 
 ## Reproduce without rebuilding Canopus
 
-The retained scientific-state transition needs only released Vela and the
-public frontier:
+The primary state transition needs released Vela and the public frontier:
 
 ```bash
-git clone https://github.com/vela-science/erdos-frontier.git
-cd erdos-frontier
-git checkout 807f0a8f770cfed05ac0dff00b952dc41052a720
+git clone https://github.com/vela-science/sidon-frontier.git
+cd sidon-frontier
+git checkout 4289e05876f142e72af622672e190be26f6a6f1d
 vela reproduce .
 ```
 
-To inspect the packaged product under Node 22 or 24 without rebuilding:
+Inspect the packaged product under Node 22 or 24:
 
 ```bash
-npm install --global @vela-science/canopus@0.4.5
+npm install --global @vela-science/canopus@0.4.6
 canopus --version
-canopus profile list
-canopus profile validate formal-erdos-505-test-dim-one-gpt56
+canopus profile validate sidon-a24-at-least-7194-gpt56-v3
 ```
 
 Supported tool-using worker platforms are macOS arm64 and Linux x86-64,
@@ -127,27 +126,24 @@ replay surface and directs tool-using work into WSL2.
 
 ## Codex collaboration and human decisions
 
-Codex implemented and tested the harness, custody profiles, verifier routing,
-release automation, Vela 0.910.0 compatibility, public projection, GPT-5.6
-advisory, and evidence surface. The main Build Week completion task also used
-Codex to audit the live GitHub organization, verify official submission rules,
-run the exact custody preflight, execute the preregistered formal attempt, and
-diagnose its fail-closed result.
+Codex implemented and tested Canopus, its custody profiles, verifier routing,
+release automation, Vela 0.910.0 compatibility, public projection, and
+evidence surface. In the primary task, Codex also registered the GPT-5.6 Sidon
+mission, diagnosed two fail-closed handoff defects, implemented bounded
+artifact retention, reran all gates, executed the completed mission, and
+published the resulting pending frontier state.
 
-The human chose the product boundary, Developer Tools track, mission and
-fallback criteria, public presentation, and the rule that no model or Canopus
-process receives a human key. The human remains the only party that can make a
-protected scientific decision or submit the final Devpost entry. The private
-`/feedback` Session ID is kept in the submission checklist, not this repository.
+The human chose the product boundary, Developer Tools track, mission target,
+public presentation, and the rule that no model or Canopus process receives a
+human key. The human remains the only party that can make a protected
+scientific decision or submit the final Devpost entry. The private `/feedback`
+Session ID is kept in the submission checklist, not this repository.
 
 ## Nonclaims
 
 - A verifier pass is not scientific acceptance.
-- The retained Erdős 1056 result covers one exact finite range; it does not
-  solve Erdős 1056.
-- The rejected formal candidate does not prove the one-dimensional theorem or
-  the general Erdős 505 statement.
-- The GPT-5.6 advisory is a non-authoritative model assessment and was not
-  landed as scientific state.
-- Vela predates Build Week. The submission is the Canopus product and its
-  Build Week additions, not the whole Vela ecosystem.
+- The 7,194-point construction does not establish maximality, classification, or a world record.
+- The accepted Vela state did not change; the proposal remains pending human review.
+- The retained Erdős 1056 result covers one finite range and does not solve Erdős 1056.
+- The rejected formal candidate does not prove the one-dimensional theorem or Erdős 505.
+- Vela predates Build Week. The submission is Canopus and its Build Week additions, not the whole ecosystem.

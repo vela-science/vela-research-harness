@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.6 - 2026-07-20
+
+- Register and complete the GPT-5.6 Sidon mission that produces a new
+  7,194-point construction in `{0,1}^24`, passes the frozen verifier, lands a
+  Receipt through Defer with accepted-state delta zero, and clean-clone replays
+  the same evidence.
+- Retain large declared artifacts from their exact allowlisted worker path
+  before workspace cleanup. Reject path escapes, symlinks, hardlinks, empty or
+  missing files, oversize files, invalid UTF-8, and authentication material.
+- Preserve the exact private Vela work-session capability needed by `vela land`
+  while the publication guard continues to reject every unrelated Git change.
+- Ship both Sidon verifier capsules in the npm package and cover the package
+  allowlist with a regression test.
+- Make the sanitized public projection target-neutral and distinguish a
+  worker-time verifier-pending handoff from the final recorded verifier pass.
+
 ## 0.4.5 - 2026-07-20
 
 - Correct the judge quickstart so the retained Erdős 1056 evidence chain is

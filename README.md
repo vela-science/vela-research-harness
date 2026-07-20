@@ -29,12 +29,34 @@ Receipt through `vela land`.
 It cannot sign, accept a proposal, or make a scientific decision. Removing
 Canopus does not change accepted state or Vela replay.
 
+## Judge quickstart
+
+**20 seconds — inspect the real result:** open the anonymous
+[Build Week evidence page](https://app.vela.space/build-week) and follow
+Mission → GPT-5.6 → artifact → verifier → Receipt → Defer.
+
+**90 seconds — inspect the shipped product:**
+
+```sh
+npx -p @vela-science/canopus@0.4.6 canopus --version
+npx -p @vela-science/canopus@0.4.6 canopus profile validate sidon-a24-at-least-7194-gpt56-v3
+```
+
+**Full workflow — reproduce without rebuilding Canopus:**
+
+```sh
+git clone https://github.com/vela-science/sidon-frontier.git
+cd sidon-frontier
+git checkout 4289e05876f142e72af622672e190be26f6a6f1d
+vela reproduce .
+```
+
 ## Quickstart
 
 Install the provenance-backed public package:
 
 ```sh
-npm install --global @vela-science/canopus@0.4.5
+npm install --global @vela-science/canopus@0.4.6
 canopus --version
 ```
 

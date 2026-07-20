@@ -1,6 +1,6 @@
 {
   "name": "@vela-science/canopus",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "A bounded, replaceable research harness over released Vela interfaces",
   "type": "module",
   "private": false,
@@ -56,6 +56,8 @@
     "capsules/erdos1056-k15/bin/linux-arm64/10428401-10428600/verifier",
     "capsules/erdos1056-k15/bin/linux-x86_64/10428401-10428600/verifier",
     "capsules/formal-erdos-505-test-dim-one/verifier",
+    "capsules/sidon-a24/bin/linux-arm64/verifier",
+    "capsules/sidon-a24/bin/linux-x86_64/verifier",
     "missions",
     "profiles",
     "runtime",
