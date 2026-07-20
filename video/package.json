@@ -16,6 +16,7 @@
     "remotion": "4.0.495"
   },
   "devDependencies": {
+    "@types/node": "^24.13.3",
     "@types/react": "19.2.7",
     "prettier": "3.8.1",
     "typescript": "5.9.3",
@@ -25,6 +26,7 @@
     "dev": "remotion studio src/index.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "evidence": "node scripts/generate-evidence.mjs",
     "build": "remotion bundle src/index.ts",
     "render": "remotion render src/index.ts CanopusBuildWeek out/canopus-build-week.mp4 --codec=h264 --crf=18 --pixel-format=yuv420p --audio-codec=aac --audio-bitrate=192k --overwrite"
   },

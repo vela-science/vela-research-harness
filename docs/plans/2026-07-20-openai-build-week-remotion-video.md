@@ -143,7 +143,7 @@ git commit -m "build(video): scaffold Build Week Remotion film"
 - Create: `video/public/fonts/ibm-plex-mono-400-latin.woff2`
 - Create: `video/public/fonts/ibm-plex-mono-500-latin.woff2`
 - Create: `video/public/fonts/newsreader-display-500-latin.woff2`
-- Create: `video/public/brand/vela-symbol-full-color.svg`
+- Create: `video/public/brand/vela-mark-full.svg`
 - Create: `video/public/brand/FONT-WEB-MANIFEST.sha256`
 - Create: `video/src/design/tokens.ts`
 - Create: `video/src/design/fonts.ts`
