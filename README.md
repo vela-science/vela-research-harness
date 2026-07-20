@@ -1,152 +1,177 @@
-# Canopus
+<p align="center">
+  <img src="docs/assets/canopus-flow.svg" width="960" alt="Canopus turns a bounded Vela offer into a frozen artifact, independent verification, and a Receipt without taking scientific authority." />
+</p>
 
-**Canopus: Bounded Research for Codex**
+<p align="center"><strong>Bounded research for Codex.</strong></p>
 
-Give Codex a mission. Verify the work. Keep humans in authority.
+<p align="center">
+  Give Codex one finite mission. Verify the artifact independently. Keep humans in authority.
+</p>
 
-## Build Week judge quickstart
+<p align="center">
+  <a href="https://www.npmjs.com/package/@vela-science/canopus"><img alt="npm" src="https://img.shields.io/npm/v/@vela-science/canopus?style=flat-square&color=C9A664&labelColor=081224" /></a>
+  <a href="https://github.com/vela-science/vela-research-harness/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/vela-science/vela-research-harness/ci.yml?branch=main&style=flat-square&label=build&labelColor=081224" /></a>
+  <a href="LICENSE-APACHE"><img alt="Apache-2.0 OR MIT" src="https://img.shields.io/badge/license-Apache--2.0%20OR%20MIT-4F8F8B?style=flat-square&labelColor=081224" /></a>
+</p>
 
-1. **20-second public demo:** open
-   [app.vela.space/build-week](https://app.vela.space/build-week) to inspect the
-   retained Mission → GPT-5.4 worker → artifact → independent verifier → Vela
-   Receipt → Defer chain, plus the separate GPT-5.6 formal fail-closed attempt
-   and advisory audit. No account or rebuild is required.
-2. **90-second package inspection:** install the provenance-backed release with
-   `npm install --global @vela-science/canopus@0.4.5`, then run `canopus
-   --version`, `canopus profile list`, and `canopus profile validate
-   formal-erdos-505-test-dim-one-gpt56`.
-3. **Full local workflow:** use the exact `doctor` and `run` commands below on
-   a clean supported frontier checkout. The public run page includes a separate
-   no-model `vela reproduce .` path for the retained evidence.
+<p align="center">
+  <a href="https://app.vela.space/build-week">Live evidence</a> ·
+  <a href="BUILD_WEEK.md">Build Week record</a> ·
+  <a href="docs/MISSIONS.md">Missions</a> ·
+  <a href="docs/RUN_RECORD.md">Run records</a> ·
+  <a href="https://github.com/vela-science/vela">Vela</a>
+</p>
 
-The Build Week delta, baseline commits, Codex collaboration, exact run roots,
-and nonclaims are recorded in [BUILD_WEEK.md](BUILD_WEEK.md).
-
-Canopus is a bounded research runner over released Vela and Git interfaces. It
-selects an exact Vela work offer, gives a finite mission to a tool-enabled Codex
-worker, freezes the output, runs an independent verifier container, and may land
-a Receipt v1 through `vela land`.
+Canopus is a removable producer over released Vela and Git interfaces. It
+selects an exact work offer, gives a tool-enabled Codex worker a bounded mission,
+freezes the output, runs a separate verifier, and can land a Receipt through
+`vela land`.
 
 Canopus cannot sign, accept a proposal, or make a scientific decision. A
-verifier-passing landing remains `Deferred` or `pending_review` unless an
-already-signed Vela policy says otherwise. Removing Canopus does not change Vela
-replay or accepted state.
+verifier-passing result remains `Deferred` or `pending_review` unless an exact
+signed Vela policy already permits that result class. Removing Canopus does not
+change accepted state or Vela replay.
 
-## Product workflow
+## Quickstart
 
-Canopus 0.4.5 targets checksum-pinned Vela 0.910.0. Install the released CLI:
+Install the provenance-backed public package:
 
-```bash
-npm install --global @vela-science/canopus
+```sh
+npm install --global @vela-science/canopus@0.4.5
+canopus --version
 ```
 
-Its ordinary path is:
+Inspect a clean frontier, then run its first ranked producer offer:
 
-```bash
+```sh
 canopus doctor /path/to/frontier
 canopus run /path/to/frontier --first
 canopus inspect latest
 canopus replay /path/to/run.json
-canopus withdraw /path/to/frontier --run latest --reason "superseded"
 ```
 
-`doctor` discovers and binds Vela, Codex, Git, Docker, the clean frontier roots,
-the first Vela producer offer, and a registered verifier profile. It also runs
-the same generated-canary native custody preflight required by `run`; native
-Windows reports the WSL2 handoff instead of claiming mission readiness. `run`
-uses the first offer unless an exact registered target is requested. It refuses
-dirty frontiers, drifted binaries or roots, missing verifier images,
-cloud-synced output paths, and unregistered targets.
-`inspect latest` selects the newest completed or safely stopped run. Failed-run
-projections state whether landing was never attempted or whether retained
-landing-recovery evidence must be inspected; they never infer an unchanged
-frontier from process failure alone. Withdrawal's `latest` selector remains
-limited to completed, proposal-bearing runs.
+Use `--no-land` for a diagnostic mission that cannot change the source frontier:
 
-The native Codex worker runs under a bundled default-deny profile with only the
-target workspace and required compiler files exposed. macOS uses Seatbelt;
-Linux and WSL2 use Codex's Bubblewrap sandbox. Native Windows supports the
-read-only product surface and directs tool-using runs to WSL2 before creating
-run output or probing credentials. Open WSL2, enter the frontier through its
-Linux path, and rerun the same `canopus run` command there. Authentication,
-human keys, unrelated repositories, browser/search/MCP/app surfaces,
-delegation, and command network access remain outside the worker boundary. The
-verifier runs separately with network and writes denied.
+```sh
+canopus run /path/to/frontier --first --no-land
+```
 
-A successful landing creates unsigned local Git commits and fast-forwards the
-source checkout only after verifier success and clean-clone reproduction. It
-does not push a remote. Use `--no-land` for a diagnostic run that leaves the
-source frontier unchanged.
+`doctor` binds the exact Vela, Codex, Git, container, frontier, packet, profile,
+and verifier roots before work begins. `run` refuses dirty frontiers, drifted
+binaries or roots, missing capsules, cloud-synced outputs, and unregistered
+targets. It never silently skips the first ranked offer.
 
-Profiles are Defer-only by default. A profile can request the policy lane only
-when it includes a closed positive result contract and binds the full target
-packet, profile, verifier capsule, and result-contract roots into the Receipt.
-Canopus does not decide whether that work is admitted: released Vela evaluates
-the exact signed policy, and any route, root, result class, or accepted-state
-delta outside the frozen profile stops the run.
+## What one run does
 
-After a pending landing reproduces, Canopus retains only the exact
-Receipt-bound producer seed needed to withdraw that one proposal. The
-capability never enters worker, verifier, or run evidence. Withdrawal is
-explicit, runs in a disposable exact-head clone, proves the accepted scientific
-projection unchanged, fast-forwards the clean source, and then deletes the
-secret. A later human decision also consumes the now-useless secret.
+1. Reads the first exact producer offer from released Vela.
+2. Validates a closed, content-addressed Canopus profile.
+3. Copies the source into a fresh bounded worker workspace.
+4. Runs Codex with browser, network, MCP, apps, delegation, human keys, and
+   unrelated repositories outside the worker boundary.
+5. Freezes the candidate bytes and ends the producer phase.
+6. Runs a separate network-denied, write-denied verifier capsule.
+7. Reproduces the result from a clean clone.
+8. Optionally lands one Receipt through Vela; Canopus never signs it as a human.
 
-The installed product contains only the current active producer profiles:
+## Custody and authority
+
+| Surface | Allowed | Forbidden |
+| --- | --- | --- |
+| Codex worker | Shell and patch tools inside the bounded mission workspace | Network, browser, MCP, host home, human keys, verifier oracle |
+| Verifier | Read the frozen candidate and declared inputs | Network, writes, producer interaction, authority decisions |
+| Canopus | Select work, preserve evidence, invoke `vela land`, replay, withdraw its own proposal | Sign, accept, reject, claim verifier success is acceptance |
+| Vela | Validate roots, Receipt, policy context, replay, and standing | Delegate protected human authority to Canopus or a model |
+
+The worker uses macOS Seatbelt or Codex's Bubblewrap sandbox on Linux/WSL2.
+Native Windows supports the read-only product surface and hands tool-using
+missions to WSL2. A platform that cannot pass the hostile custody fixture is
+unsupported rather than silently weakened.
+
+The verifier runs in its own pinned multi-architecture container with network
+and writes denied. The producer cannot invoke it as an authority oracle.
+
+## Product commands
+
+```sh
+canopus doctor [frontier]
+canopus run [frontier] [--first | --target <id>] [--profile <name>] [--no-land]
+canopus inspect [run.json | latest]
+canopus replay <run.json>
+canopus withdraw [frontier] [--run <run.json|latest>] --reason <text>
+```
+
+After a pending landing reproduces, Canopus may retain only the exact
+Receipt-bound producer capability needed to withdraw that one proposal. It is
+never mounted into the worker or verifier, never enters run evidence, and is
+deleted after withdrawal or a terminal human decision.
+
+## Profiles
+
+Installed releases contain only active, closed `canopus.profile.v2` contracts.
+Each profile binds a target and packet, bounded objective, allowed artifacts,
+worker platform, verifier image, replay command, budgets, and landing ceiling.
+
+```sh
+canopus profile list
+canopus profile show <profile>
+canopus profile validate <profile>
+canopus profile pack <profile> --output /new/profile-pack
+```
+
+Current active profiles:
 
 - `erdos1056-k15-10428401-10428600`
 - `formal-erdos-505-test-dim-one-gpt56`
 
-The Erdős capsule is a content-addressed static Linux binary for arm64 and
-x86-64. The formal capsule is a small reviewed shell edge over an immutable
-Linux-amd64 Lean image; Apple-silicon hosts bind Docker's exact amd64 emulation
-instead of relying on implicit platform selection.
-Completed and stopped profile registrations remain in Git and release evidence,
-not in default discovery or the installed package. The shared source and pinned
-build provenance remain available for reproducible rebuilding, but an installed
-product run does not require a cross-compiler.
+Mission v1 remains the advanced portable bundle format. Mission v0, stopped
+cold-use registrations, and retired benchmark implementations remain available
+in Git and release evidence, but are intentionally absent from ordinary help
+and the installed package.
 
-## Advanced and historical interfaces
+## OpenAI Build Week
 
-Mission v1 remains the portable interface for preparing and validating a frozen
-bundle:
+For a fast public inspection:
 
-```bash
-canopus mission prepare path/to/draft.json \
-  --source /clean/frontier --output /new/bundle --vela /path/to/vela \
-  --codex /path/to/codex --verifier-image sha256:<image-root>
-canopus mission validate /new/bundle/mission.json
-```
+1. Open the [live evidence surface](https://app.vela.space/build-week) to inspect
+   the retained Mission → worker → artifact → verifier → Receipt → Defer chain.
+2. Run `canopus profile validate formal-erdos-505-test-dim-one-gpt56` against
+   the installed package.
+3. Use the separate no-model `vela reproduce .` command shown on the evidence
+   page to check the retained scientific artifact.
 
-Closed profile v2 contracts have a separate advanced lifecycle:
-
-```bash
-canopus profile list
-canopus profile show erdos1056-k15-10428401-10428600
-canopus profile validate erdos1056-k15-10428401-10428600
-canopus profile pack erdos1056-k15-10428401-10428600 --output /new/profile-pack
-canopus profile validate formal-erdos-505-test-dim-one-gpt56
-```
-
-Mission v0 and the stopped cold-use registrations remain available in Git for
-exact historical reproduction. Benchmark commands, compiled benchmark modules,
-registrations, and benchmark documentation are intentionally absent from the
-installed npm package.
+The exact commits, run roots, collaboration record, advisory audit, and
+nonclaims live in [`BUILD_WEEK.md`](BUILD_WEEK.md). First-party runs demonstrate
+the product contract; they do not claim independent scientific adoption.
 
 ## Development
 
 Requires Node 22 or 24, pnpm 10, Vela 0.910.0, Codex CLI 0.144.6, and Docker.
-Linux and WSL2 also require Bubblewrap. On Ubuntu 24.04, follow OpenAI's
-[targeted AppArmor setup](https://developers.openai.com/codex/concepts/sandboxing#prerequisites)
-for `bwrap-userns-restrict`; Canopus never disables the global unprivileged
-user-namespace restriction or falls back to an unsandboxed worker.
+Linux and WSL2 also require Bubblewrap and OpenAI's targeted AppArmor setup for
+`bwrap-userns-restrict`. Canopus never disables the host-wide user-namespace
+restriction or falls back to an unsandboxed worker.
 
-```bash
-pnpm install
+```sh
+pnpm install --frozen-lockfile
 pnpm check
 pnpm pack --dry-run
 ```
 
-See [run records](docs/RUN_RECORD.md) for evidence and publication semantics,
-[mission roles](docs/MISSIONS.md) for the bounded jobs, [ADR 0001](docs/adr/0001-harness-boundary-and-name.md)
-for the deletion test, and [release evidence](docs/RELEASES.md) for exact roots.
+Focused hostile-boundary checks:
+
+```sh
+pnpm fixture:hostile-custody
+pnpm fixture:hostile-verifier
+```
+
+## Documentation
+
+- [Mission roles](docs/MISSIONS.md)
+- [Run-record and publication semantics](docs/RUN_RECORD.md)
+- [Release evidence](docs/RELEASES.md)
+- [Harness boundary and deletion test](docs/adr/0001-harness-boundary-and-name.md)
+- [Portable profiles and cross-platform custody](docs/adr/0006-portable-profiles-public-distribution-and-cross-platform-worker-custody.md)
+
+## License
+
+Apache-2.0 OR MIT, at your option. Canopus is a replaceable producer; Vela
+remains the protocol and authority boundary.
