@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/canopus-readme-product.jpg" width="960" alt="The public Canopus evidence surface showing worker success, verifier pass, policy defer, and zero accepted-state change." />
+  <img src="docs/assets/canopus-readme-hero.jpg" width="960" alt="Canopus carries one bounded target through an isolated Codex worker and separate verifier into a Receipt pending human review." />
 </p>
 
 <p align="center"><strong>Bounded research for Codex.</strong></p>
