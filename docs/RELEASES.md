@@ -8,6 +8,28 @@ independent verifier, while keeping the separate GPT-5.6 formal failure and
 claim-fidelity advisory explicit. Runtime behavior, mission registrations,
 evidence roots, Vela compatibility, and authority boundaries are unchanged.
 
+The correction is independently release-verifiable:
+
+- Source/tag: `eccb3975505706b12c48c372e471c34303dffbd2` / `v0.4.5`
+- Cross-platform CI and installed-package smoke:
+  [run 29772472168](https://github.com/vela-science/vela-research-harness/actions/runs/29772472168)
+- CodeQL:
+  [run 29772445358](https://github.com/vela-science/vela-research-harness/actions/runs/29772445358)
+- OIDC publish, SLSA provenance audit, and GitHub release:
+  [run 29772472340](https://github.com/vela-science/vela-research-harness/actions/runs/29772472340)
+- Package SHA-256: `b0b8f0357337b79e3dca0ef4a1c1b90a14885f3f01759666cd31f082675474c5`
+- npm shasum: `fd55cc35d22e82b1976adab2265dff09cc84a948`
+- npm integrity:
+  `sha512-J9BqSPjqfp6OMW/7odlYtluSRkY3WfQpa/5ky/nuhzCdUOa8ksb7Be8oTtu19KuqEL/9BY4PhOHyUgptr5drHQ==`
+- The npm and GitHub release tarballs are byte-identical.
+- A clean registry execution under Node `v24.18.0` returned `canopus 0.4.5`,
+  listed both packaged profiles, and validated
+  `formal-erdos-505-test-dim-one-gpt56` at the registered profile and draft
+  roots.
+- Public package and matching release:
+  [npm](https://www.npmjs.com/package/@vela-science/canopus/v/0.4.5),
+  [GitHub](https://github.com/vela-science/vela-research-harness/releases/tag/v0.4.5)
+
 ## Canopus v0.4.4
 
 Version `0.4.4` advances the product and hosted integration from Vela 0.901.0
