@@ -17,6 +17,13 @@ function unique(values: readonly string[]): string[] {
   return [...new Set(values)];
 }
 
+function finalizeWorkerCaveat(value: string): string {
+  if (/verif(?:y|ication|ier).*(?:pending|has not run)|pending.*verif(?:y|ication|ier)/iu.test(value)) {
+    return "The worker handed off without verifier authority; Canopus subsequently recorded the separate verifier outcome.";
+  }
+  return value;
+}
+
 export function finalizeCandidate(options: {
   mission: Mission;
   engine: EngineResult;
@@ -56,7 +63,7 @@ export function finalizeCandidate(options: {
     ? `The engine proposed a candidate, but the declared verifier did not pass: ${options.engine.draft.claim}`
     : exactPositiveClaim ?? options.engine.draft.claim;
   const caveats = unique([
-    ...options.engine.draft.caveats,
+    ...options.engine.draft.caveats.map(finalizeWorkerCaveat),
     `Declared verifier outcome: ${options.verifier.status}.`,
     "Canopus produced this record; it is not a human acceptance decision.",
   ]);

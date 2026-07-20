@@ -73,6 +73,10 @@ function publicCaveat(value: string): string {
   return value;
 }
 
+function shellArgument(value: string): string {
+  return `'${value.replaceAll("'", `'"'"'`)}'`;
+}
+
 export function projectPublicRun(options: {
   record: RunRecord;
   mission: Mission;
@@ -152,7 +156,7 @@ export function projectPublicRun(options: {
         `git clone ${repository.url}.git`,
         `cd ${repository.directory}`,
         `git checkout ${record.final_roots.git_commit}`,
-        "vela reproduce .",
+        ...mission.allowed_paths.map((artifact) => `vela reproduce ${shellArgument(artifact)}`),
       ],
     },
     nonclaims: [

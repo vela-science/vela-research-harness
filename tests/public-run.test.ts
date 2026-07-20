@@ -164,7 +164,11 @@ test("public run projection exports only the bounded submission evidence", () =>
   assert.equal(projection.policy.route, "defer");
   assert.equal(projection.policy.accepted_state_delta, 0);
   assert.deepEqual(projection.artifact_roots, [sha("e")]);
-  assert.equal(projection.reproduction.commands.at(-1), "vela reproduce .");
+  assert.equal(
+    projection.reproduction.commands.at(-1),
+    "vela reproduce 'artifacts/proof.lean'",
+  );
+  assert.equal(projection.reproduction.commands.includes("vela reproduce ."), false);
   assert.match(projection.nonclaims[1] ?? "", /does not establish maximality/u);
   const bytes = JSON.stringify(projection);
   for (const forbidden of ["worker-events", "worker-final", "authentication", "/Users/", "private.key"]) {

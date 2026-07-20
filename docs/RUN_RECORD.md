@@ -44,7 +44,10 @@ canopus public-run /local/run/run.json \
 `canopus.public-run.v1` contains only mission and model identity, a bounded
 activity summary, claim and caveats, artifact/verifier/Receipt roots, route,
 accepted delta, usage, source/final commits, and clean-clone reproduction
-commands. It cannot export a failed or admitted run. Never publish the raw run
+commands. Those public commands target the mission's exact allowed artifact
+paths; they do not substitute frontier-wide accepted-state replay for
+verification of a pending artifact. It cannot export a failed or admitted run.
+Never publish the raw run
 directory, isolated homes, authentication, private paths, or unrestricted logs.
 
 The run root also contains isolated checkouts and content-addressed artifacts.

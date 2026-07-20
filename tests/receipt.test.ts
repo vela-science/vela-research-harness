@@ -182,6 +182,28 @@ test("verified candidate maps to scientific-chain Receipt v1 authoring", () => {
   assert.equal(input.work, "target-1");
 });
 
+test("post-verifier candidate resolves worker-time pending language", () => {
+  const pendingEngine = engine();
+  pendingEngine.draft.caveats = [
+    "Verification by the separate frozen verifier remains pending after producer exit.",
+  ];
+  const outcome = verifier();
+  const candidate = finalizeCandidate({
+    mission: mission(), engine: pendingEngine, frozen: frozen(), verifier: outcome,
+    budget: {
+      research_elapsed_ms: 5, research_processes: 2, research_output_bytes: 2,
+      prompt_bytes: 1, artifact_bytes: 10, attempts: 1, observed_tokens: 3,
+    },
+  });
+  assert.equal(candidate.caveats.some((caveat) => /pending/iu.test(caveat)), false);
+  assert.equal(candidate.caveats.includes(
+    "The worker handed off without verifier authority; Canopus subsequently recorded the separate verifier outcome.",
+  ), true);
+  const input = mapCandidateToReceipt(mission(), candidate, outcome);
+  assert.equal(input.caveats.some((caveat) => /pending/iu.test(caveat)), false);
+  assert.equal(input.caveats.includes("Declared verifier outcome: passed."), true);
+});
+
 test("failed verifier cannot remain a success candidate", () => {
   const outcome = verifier("failed");
   const candidate = finalizeCandidate({
