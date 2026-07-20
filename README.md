@@ -1,5 +1,26 @@
 # Canopus
 
+**Canopus: Bounded Research for Codex**
+
+Give Codex a mission. Verify the work. Keep humans in authority.
+
+## Build Week judge quickstart
+
+1. **20-second public demo:** open
+   [app.vela.space/build-week](https://app.vela.space/build-week) to inspect the
+   retained Mission → GPT-5.6 → artifact → Lean → Receipt → Defer chain. No
+   account or rebuild is required.
+2. **90-second package inspection:** install the provenance-backed release with
+   `npm install --global @vela-science/canopus@0.4.4`, then run `canopus
+   --version`, `canopus profile list`, and `canopus profile validate
+   formal-erdos-505-test-dim-one-gpt56`.
+3. **Full local workflow:** use the exact `doctor` and `run` commands below on
+   a clean supported frontier checkout. The public run page includes a separate
+   no-model `vela reproduce .` path for the retained evidence.
+
+The Build Week delta, baseline commits, Codex collaboration, exact run roots,
+and nonclaims are recorded in [BUILD_WEEK.md](BUILD_WEEK.md).
+
 Canopus is a bounded research runner over released Vela and Git interfaces. It
 selects an exact Vela work offer, gives a finite mission to a tool-enabled Codex
 worker, freezes the output, runs an independent verifier container, and may land
@@ -12,7 +33,7 @@ replay or accepted state.
 
 ## Product workflow
 
-Canopus 0.4 targets checksum-pinned Vela 0.901.0. Install the released CLI:
+Canopus 0.4.4 targets checksum-pinned Vela 0.910.0. Install the released CLI:
 
 ```bash
 npm install --global @vela-science/canopus
@@ -73,7 +94,7 @@ secret. A later human decision also consumes the now-useless secret.
 The installed product contains only the current active producer profiles:
 
 - `erdos1056-k15-10428401-10428600`
-- `formal-erdos-505-test-dim-one`
+- `formal-erdos-505-test-dim-one-gpt56`
 
 The Erdős capsule is a content-addressed static Linux binary for arm64 and
 x86-64. The formal capsule is a small reviewed shell edge over an immutable
@@ -103,7 +124,7 @@ canopus profile list
 canopus profile show erdos1056-k15-10428401-10428600
 canopus profile validate erdos1056-k15-10428401-10428600
 canopus profile pack erdos1056-k15-10428401-10428600 --output /new/profile-pack
-canopus profile validate formal-erdos-505-test-dim-one
+canopus profile validate formal-erdos-505-test-dim-one-gpt56
 ```
 
 Mission v0 and the stopped cold-use registrations remain available in Git for
@@ -113,7 +134,7 @@ installed npm package.
 
 ## Development
 
-Requires Node 22 or newer, pnpm 10, Vela 0.901.0, Codex CLI 0.144.6, and Docker.
+Requires Node 22 or 24, pnpm 10, Vela 0.910.0, Codex CLI 0.144.6, and Docker.
 Linux and WSL2 also require Bubblewrap. On Ubuntu 24.04, follow OpenAI's
 [targeted AppArmor setup](https://developers.openai.com/codex/concepts/sandboxing#prerequisites)
 for `bwrap-userns-restrict`; Canopus never disables the global unprivileged

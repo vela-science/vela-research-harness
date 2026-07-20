@@ -56,7 +56,7 @@ test("product withdraw consumes the producer secret after observing a human deci
       blockers_root: sha256Bytes("[]"),
       rule_counts: [],
     },
-    vela: { binary: velaBinary, version: "0.901.0", sha256: sha256Bytes(velaBytes) },
+    vela: { binary: velaBinary, version: "0.910.0", sha256: sha256Bytes(velaBytes) },
     created_at: "2026-07-17T00:00:00Z",
   };
   await writeFile(path.join(capabilityDir, "manifest.json"), canonicalJson(manifest), { mode: 0o600 });
@@ -145,7 +145,7 @@ test("product withdraw consumes the producer secret after observing a human deci
       return result(Buffer.alloc(0));
     }
     if (argv[0] === velaBinary && argv[1] === "--version") {
-      return result(Buffer.from("vela 0.901.0\n"));
+      return result(Buffer.from("vela 0.910.0\n"));
     }
     if (argv[0] === velaBinary && argv[1] === "check") {
       return result(

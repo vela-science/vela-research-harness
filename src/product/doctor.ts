@@ -178,8 +178,8 @@ export async function doctorProduct(options: {
       runtimeIdentity({ name: "vela", cwd: frontier, home: runtime, runner }),
       runtimeIdentity({ name: "git", cwd: frontier, home: runtime, runner }),
     ]);
-    if (vela.version !== "vela 0.901.0") {
-      throw new Error(`Canopus ${CANOPUS_VERSION} requires vela 0.901.0, observed ${vela.version}`);
+    if (vela.version !== "vela 0.910.0") {
+      throw new Error(`Canopus ${CANOPUS_VERSION} requires vela 0.910.0, observed ${vela.version}`);
     }
     const [status, offer, gitStatus] = await Promise.all([
       jsonCommand({ runner, argv: [vela.binary, "status", ".", "--json"], cwd: frontier, home: runtime, label: "vela status" }),

@@ -8,6 +8,7 @@ export * from "./activity/events.js";
 export * from "./activity/store.js";
 export * from "./candidate/validate.js";
 export * from "./util/canonical.js";
+export * from "./projection/public-run.js";
 export * from "./util/command.js";
 export * from "./util/files.js";
 export * from "./roles.js";

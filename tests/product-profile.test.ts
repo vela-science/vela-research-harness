@@ -39,8 +39,8 @@ test("registered product profiles stage exact distinct capsules and bounded Miss
   const profiles = [
     await loadProductProfile("erdos1056-k15-10428401-10428600", { platform: "darwin-arm64" }),
     await loadProductProfile("erdos1056-k15-10428401-10428600", { platform: "linux-x86_64" }),
-    await loadProductProfile("formal-erdos-505-test-dim-one", { platform: "darwin-arm64" }),
-    await loadProductProfile("formal-erdos-505-test-dim-one", { platform: "linux-x86_64" }),
+    await loadProductProfile("formal-erdos-505-test-dim-one-gpt56", { platform: "darwin-arm64" }),
+    await loadProductProfile("formal-erdos-505-test-dim-one-gpt56", { platform: "linux-x86_64" }),
   ];
   assert.equal(profiles[0]?.target, "erdos:1056");
   assert.notEqual(profiles[0]?.capsule_sha256, profiles[1]?.capsule_sha256);
@@ -102,7 +102,7 @@ test("portable verifier images require a closed public repository and full diges
 test("profile v2 binds exact platform custody and packs only portable contract resources", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "canopus-profile-pack-parent-"));
   const name = "erdos1056-k15-10428401-10428600";
-  assert.deepEqual(await listProductProfiles(), [name, "formal-erdos-505-test-dim-one"]);
+  assert.deepEqual(await listProductProfiles(), [name, "formal-erdos-505-test-dim-one-gpt56"]);
   const mac = await loadProductProfile(name, { platform: "darwin-arm64" });
   const linux = await loadProductProfile(name, { platform: "linux-x86_64" });
   assert.equal(mac.target_packet_schema, "erdos-frontier.problem-work.v1");
@@ -137,7 +137,7 @@ test("profile v2 binds exact platform custody and packs only portable contract r
 
 test("formal profile packs one shared capsule with exact amd64 emulation", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "canopus-formal-profile-pack-parent-"));
-  const name = "formal-erdos-505-test-dim-one";
+  const name = "formal-erdos-505-test-dim-one-gpt56";
   const validation = await validateProductProfile(name);
   assert.equal(validation.platforms["darwin-arm64"].verifier_platform, "linux/amd64");
   assert.equal(validation.platforms["linux-x86_64"].verifier_platform, "linux/amd64");
@@ -149,7 +149,7 @@ test("formal profile packs one shared capsule with exact amd64 emulation", async
   assert.equal(packed.files, 5);
   assert.deepEqual(manifest.files.map((file) => file.path), [
     "capsules/formal-erdos-505-test-dim-one/verifier",
-    "missions/formal-erdos-505-test-dim-one/mission.draft.json",
+    "missions/formal-erdos-505-test-dim-one-gpt56/mission.draft.json",
     `profiles/${name}.json`,
     "runtime/native-worker/config-linux.toml",
     "runtime/native-worker/config.toml",
@@ -199,7 +199,7 @@ test("ordinary profile discovery selects the unique first-offer profile", async 
   const formal = await resolveProductProfile({
     targets: [{ rank: 1, target_id: "formal:erdos-505-test-dim-one" }],
   });
-  assert.equal(formal.name, "formal-erdos-505-test-dim-one");
+  assert.equal(formal.name, "formal-erdos-505-test-dim-one-gpt56");
   await assert.rejects(
     resolveProductProfile({ targets: [{ rank: 1, target_id: "unknown:target" }] }),
     /no runnable profile is registered/u,

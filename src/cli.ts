@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { readdir, stat } from "node:fs/promises";
+import { readdir, stat, writeFile } from "node:fs/promises";
 
 import { parseMission } from "./contracts/mission.js";
 import { CodexExecEngine } from "./engines/codex-exec.js";
@@ -13,6 +13,7 @@ import { prepareMission, validateMissionBundle } from "./mission/prepare.js";
 import { parseDiagnosticRunRecord, projectDiagnosticRun } from "./projection/diagnostic.js";
 import { parseFailureRecord, projectFailure } from "./projection/failure.js";
 import { parseRunRecord, projectRun } from "./projection/run.js";
+import { projectPublicRun } from "./projection/public-run.js";
 import { doctorProduct } from "./product/doctor.js";
 import { replayProduct } from "./product/replay.js";
 import { runProduct } from "./product/run.js";
@@ -26,6 +27,7 @@ import {
 import { loadProductProfile } from "./product/profile.js";
 import { runCanopus } from "./run.js";
 import { readBoundedRegularFile } from "./util/files.js";
+import { canonicalJson, contentDigest } from "./util/canonical.js";
 import { VelaClient } from "./vela/cli.js";
 import { withdrawalCapabilityStatus } from "./capability/withdrawal.js";
 
@@ -34,10 +36,12 @@ function usage(): string {
 
 Primary workflow:
   canopus --version
-  canopus doctor [frontier]
+  canopus doctor [frontier] [--profile <name>]
   canopus run [frontier] [--first | --target <id>] [--profile <name>] \\
     [--output <dir>] [--no-land]
   canopus inspect [run.json | latest]
+  canopus public-run <run.json> --mission <mission.json> \
+    --repository <public-url> --output <file>
   canopus replay <run.json>
   canopus withdraw [frontier] [--run <run.json|latest>] --reason <text>
 
@@ -90,7 +94,7 @@ inspect reports whether retained landing-recovery evidence is required.`;
 
 function doctorUsage(): string {
   return `Usage:
-  canopus doctor [frontier]
+  canopus doctor [frontier] [--profile <name>]
 
 Checks the compact Vela contract, exact runtimes, first offer, registered
 profile, packaged capsule root, real native custody boundary, and verifier
@@ -103,6 +107,16 @@ function replayUsage(): string {
 
 Re-runs the frozen verifier over the content-addressed candidate without a
 model call, Vela mutation, network, or authority action.`;
+}
+
+function publicRunUsage(): string {
+  return `Usage:
+  canopus public-run <run.json> --mission <mission.json> \\
+    --repository <public-url> --output <file>
+
+Generates one canonical, sanitized canopus.public-run.v1 projection from a
+submission-ready completed run. Raw worker logs, homes, credentials, private
+paths, and unrestricted transcripts are never copied.`;
 }
 
 function withdrawUsage(): string {
@@ -354,9 +368,13 @@ async function runMission(file: string, rest: string[]): Promise<void> {
 }
 
 async function doctorCommand(args: string[]): Promise<void> {
-  const parsed = productOptions(args, [], []);
+  const parsed = productOptions(args, ["--profile"], []);
   if (parsed.positional.length > 1) throw new Error("doctor accepts at most one frontier");
-  const result = await doctorProduct({ frontier: path.resolve(parsed.positional[0] ?? ".") });
+  const profileName = parsed.values.get("--profile");
+  const result = await doctorProduct({
+    frontier: path.resolve(parsed.positional[0] ?? "."),
+    ...(profileName === undefined ? {} : { profileName }),
+  });
   process.stdout.write(`${JSON.stringify(result.public)}\n`);
 }
 
@@ -464,6 +482,27 @@ async function replayCommand(file: string | undefined, rest: string[]): Promise<
   process.stdout.write(`${JSON.stringify(await replayProduct(path.resolve(file)))}\n`);
 }
 
+async function publicRunCommand(file: string | undefined, rest: string[]): Promise<void> {
+  if (file === undefined) throw new Error("public-run requires one completed run file");
+  const values = options(rest, ["--mission", "--repository", "--output"]);
+  const record = parseRunRecord(await jsonFile(file));
+  const mission = parseMission(await jsonFile(required(values, "--mission")));
+  const projection = projectPublicRun({
+    record,
+    mission,
+    repository: required(values, "--repository"),
+  });
+  const output = path.resolve(required(values, "--output"));
+  await writeFile(output, canonicalJson(projection), { flag: "wx", mode: 0o644 });
+  process.stdout.write(`${JSON.stringify({
+    ok: true,
+    command: "public-run",
+    run_id: projection.run_id,
+    output,
+    projection_root: contentDigest(projection),
+  })}\n`);
+}
+
 async function withdrawCommand(args: string[]): Promise<void> {
   const parsed = productOptions(args, ["--run", "--reason"], []);
   if (parsed.positional.length > 1) throw new Error("withdraw accepts at most one frontier");
@@ -504,6 +543,7 @@ async function main(argv: string[]): Promise<void> {
       : command === "inspect" ? inspectUsage()
       : command === "doctor" ? doctorUsage()
       : command === "replay" ? replayUsage()
+      : command === "public-run" ? publicRunUsage()
       : command === "withdraw" ? withdrawUsage()
       : usage()
     }\n`);
@@ -515,6 +555,10 @@ async function main(argv: string[]): Promise<void> {
   }
   if (command === "replay") {
     await replayCommand(file, rest);
+    return;
+  }
+  if (command === "public-run") {
+    await publicRunCommand(file, rest);
     return;
   }
   if (command === "withdraw") {

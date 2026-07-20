@@ -22,7 +22,7 @@ async function help(...args: string[]): Promise<string> {
 
 test("primary help presents only the compact product workflow", async () => {
   const output = await help("--help");
-  for (const command of ["doctor", "run", "inspect", "replay", "withdraw"]) {
+  for (const command of ["doctor", "run", "inspect", "public-run", "replay", "withdraw"]) {
     assert.match(output, new RegExp(`canopus ${command}\\b`, "u"));
   }
   assert.doesNotMatch(output, /^\s*canopus (?:benchmark|benchmark-composition|validate)\b/mu);
@@ -31,12 +31,12 @@ test("primary help presents only the compact product workflow", async () => {
 });
 
 test("version is a stable single-line product identity", async () => {
-  assert.equal(await help("--version"), "canopus 0.4.3\n");
-  assert.equal(await help("-V"), "canopus 0.4.3\n");
+  assert.equal(await help("--version"), "canopus 0.4.4\n");
+  assert.equal(await help("-V"), "canopus 0.4.4\n");
 });
 
 test("every compact product subcommand has focused help", async () => {
-  for (const command of ["doctor", "run", "inspect", "replay", "withdraw"]) {
+  for (const command of ["doctor", "run", "inspect", "public-run", "replay", "withdraw"]) {
     const output = await help(command, "--help");
     assert.match(output, new RegExp(`canopus ${command}\\b`, "u"));
     assert.doesNotMatch(output, /Primary workflow:/u);
@@ -58,14 +58,14 @@ test("profile help and validation retain the advanced closed interface", async (
   const list = JSON.parse(await help("profile", "list")) as { profiles: string[] };
   assert.deepEqual(list.profiles, [
     "erdos1056-k15-10428401-10428600",
-    "formal-erdos-505-test-dim-one",
+    "formal-erdos-505-test-dim-one-gpt56",
   ]);
   const validation = JSON.parse(
     await help("profile", "validate", "erdos1056-k15-10428401-10428600"),
   ) as { validation: { schema: string } };
   assert.equal(validation.validation.schema, "canopus.profile-validation.v1");
   const formal = JSON.parse(
-    await help("profile", "validate", "formal-erdos-505-test-dim-one"),
+    await help("profile", "validate", "formal-erdos-505-test-dim-one-gpt56"),
   ) as { validation: { schema: string } };
   assert.equal(formal.validation.schema, "canopus.profile-validation.v1");
 });

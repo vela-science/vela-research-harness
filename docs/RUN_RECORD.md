@@ -30,6 +30,23 @@ so in its schema and can be rebuilt with `canopus inspect run.json`. Deleting
 the run-record files must not change Vela replay, a policy route, or accepted
 state.
 
+For a public evidence surface, generate the strict sanitized projection only
+after the successful run has reached Defer with zero accepted-state delta and
+matched clean-clone replay:
+
+```bash
+canopus public-run /local/run/run.json \
+  --mission /local/run/mission/mission.json \
+  --repository https://github.com/vela-science/formal-conjectures-frontier \
+  --output canopus.public-run.v1.json
+```
+
+`canopus.public-run.v1` contains only mission and model identity, a bounded
+activity summary, claim and caveats, artifact/verifier/Receipt roots, route,
+accepted delta, usage, source/final commits, and clean-clone reproduction
+commands. It cannot export a failed or admitted run. Never publish the raw run
+directory, isolated homes, authentication, private paths, or unrestricted logs.
+
 The run root also contains isolated checkouts and content-addressed artifacts.
 The landing clone uses a disposable attached branch so Vela can publish exact
 deltas; the immutable input clone remains detached and read-only. Successful

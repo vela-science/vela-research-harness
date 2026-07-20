@@ -1,5 +1,26 @@
 # Release evidence
 
+## Canopus v0.4.4
+
+Version `0.4.4` advances the product and hosted integration from Vela 0.901.0
+to the released Vela 0.910.0 assets. It adds the active
+`formal-erdos-505-test-dim-one-gpt56` registration, preserves the exact GPT-5.4
+v0.4.3 registration in historical storage, and adds the sanitized
+`canopus.public-run.v1` projection plus the non-authoritative GPT-5.6
+claim-fidelity fallback documented in `BUILD_WEEK.md`.
+
+The formal GPT-5.6 attempt stopped before landing when the independent Lean
+verifier rejected the candidate. No Receipt, proposal, Git commit, or accepted
+state was created. The fallback instead binds the already retained Erdős 1056
+run and all five final Vela roots, validates every reported numeric against the
+frozen artifact, and labels language judgments `model_assessment`. It is not
+landed as scientific state.
+
+Release publication remains the existing tag-triggered GitHub Actions OIDC
+workflow. The final tag, workflow runs, package root, npm integrity, and
+byte-equivalence audit are appended here after hosted gates complete; no
+reusable npm token is introduced.
+
 ## Canopus v0.4.3
 
 The source package advertises `0.4.3`. The public npm namespace was bootstrapped

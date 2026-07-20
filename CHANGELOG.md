@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.4 - 2026-07-20
+
+- Advance the product, CI assets, runtime inspection, and released-interface
+  compatibility gate to checksum-pinned Vela 0.910.0 without changing any Vela
+  protocol, Receipt, policy, or authority interface.
+- Replace the active formal registration with
+  `formal-erdos-505-test-dim-one-gpt56`, bound to `gpt-5.6-sol`, the frozen
+  Lean 4.27.0 capsule, one proof-term artifact, Defer, and zero accepted-state
+  delta. Preserve the exact GPT-5.4 v0.4.3 registration bytes and source roots
+  under `registrations/historical/`.
+- Add the fail-closed `canopus public-run` exporter and
+  `canopus.public-run.v1` schema. The public projection contains bounded roots
+  and outcomes but no raw run directory, worker log, authentication, private
+  path, or unrestricted transcript.
+- Make `canopus doctor --profile <name>` honor the explicit registered profile
+  used by the Build Week custody preflight.
+
 ## 0.4.3 - 2026-07-19
 
 - Add the stable `canopus --version` and `canopus -V` probes required for exact

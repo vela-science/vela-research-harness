@@ -55,7 +55,7 @@ function mission(): MissionV1 {
     schema: "canopus.mission.v1",
     id: "mission_withdrawal",
     target: "attack-1",
-    vela_version: "0.901.0",
+    vela_version: "0.910.0",
     vela_sha256: digest,
     frontier: ".",
     actor: "agent:canopus-test",
