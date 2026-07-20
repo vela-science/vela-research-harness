@@ -30,7 +30,9 @@ Canopus releases `0.1.0` through `0.4.3` and their dated commits were all made
 during the submission period. Version `0.4.4` advances the product and CI pin
 to Vela 0.910.0, adds the GPT-5.6 formal registration, preserves the exact
 GPT-5.4 registration from `v0.4.3`, and adds the sanitized public projection
-and claim-fidelity fallback.
+and claim-fidelity fallback. Version `0.4.5` changes documentation only to
+identify the retained worker and verifier chain precisely; all evidence roots
+and runtime behavior remain those of 0.4.4.
 
 ## Exact evidence used by the submission
 
@@ -113,7 +115,7 @@ vela reproduce .
 To inspect the packaged product under Node 22 or 24 without rebuilding:
 
 ```bash
-npm install --global @vela-science/canopus@0.4.4
+npm install --global @vela-science/canopus@0.4.5
 canopus --version
 canopus profile list
 canopus profile validate formal-erdos-505-test-dim-one-gpt56

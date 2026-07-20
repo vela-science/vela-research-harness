@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.5 - 2026-07-20
+
+- Correct the judge quickstart so the retained Erdős 1056 evidence chain is
+  identified as GPT-5.4 with an independent verifier, while the GPT-5.6 formal
+  attempt and claim-fidelity advisory remain clearly separate Build Week
+  additions. Runtime behavior, evidence roots, and Vela interfaces are
+  unchanged from 0.4.4.
+
 ## 0.4.4 - 2026-07-20
 
 - Advance the product, CI assets, runtime inspection, and released-interface

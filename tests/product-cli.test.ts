@@ -31,8 +31,8 @@ test("primary help presents only the compact product workflow", async () => {
 });
 
 test("version is a stable single-line product identity", async () => {
-  assert.equal(await help("--version"), "canopus 0.4.4\n");
-  assert.equal(await help("-V"), "canopus 0.4.4\n");
+  assert.equal(await help("--version"), "canopus 0.4.5\n");
+  assert.equal(await help("-V"), "canopus 0.4.5\n");
 });
 
 test("every compact product subcommand has focused help", async () => {

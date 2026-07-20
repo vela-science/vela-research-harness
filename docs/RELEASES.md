@@ -1,5 +1,13 @@
 # Release evidence
 
+## Canopus v0.4.5
+
+Version `0.4.5` is a documentation-only truthfulness correction over 0.4.4.
+It identifies the retained Erdős 1056 worker as GPT-5.4 and its verifier as an
+independent verifier, while keeping the separate GPT-5.6 formal failure and
+claim-fidelity advisory explicit. Runtime behavior, mission registrations,
+evidence roots, Vela compatibility, and authority boundaries are unchanged.
+
 ## Canopus v0.4.4
 
 Version `0.4.4` advances the product and hosted integration from Vela 0.901.0

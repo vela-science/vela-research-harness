@@ -8,10 +8,11 @@ Give Codex a mission. Verify the work. Keep humans in authority.
 
 1. **20-second public demo:** open
    [app.vela.space/build-week](https://app.vela.space/build-week) to inspect the
-   retained Mission → GPT-5.6 → artifact → Lean → Receipt → Defer chain. No
-   account or rebuild is required.
+   retained Mission → GPT-5.4 worker → artifact → independent verifier → Vela
+   Receipt → Defer chain, plus the separate GPT-5.6 formal fail-closed attempt
+   and advisory audit. No account or rebuild is required.
 2. **90-second package inspection:** install the provenance-backed release with
-   `npm install --global @vela-science/canopus@0.4.4`, then run `canopus
+   `npm install --global @vela-science/canopus@0.4.5`, then run `canopus
    --version`, `canopus profile list`, and `canopus profile validate
    formal-erdos-505-test-dim-one-gpt56`.
 3. **Full local workflow:** use the exact `doctor` and `run` commands below on
@@ -33,7 +34,7 @@ replay or accepted state.
 
 ## Product workflow
 
-Canopus 0.4.4 targets checksum-pinned Vela 0.910.0. Install the released CLI:
+Canopus 0.4.5 targets checksum-pinned Vela 0.910.0. Install the released CLI:
 
 ```bash
 npm install --global @vela-science/canopus
