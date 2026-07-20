@@ -41,6 +41,8 @@ test("registered product profiles stage exact distinct capsules and bounded Miss
     await loadProductProfile("erdos1056-k15-10428401-10428600", { platform: "linux-x86_64" }),
     await loadProductProfile("formal-erdos-505-test-dim-one-gpt56", { platform: "darwin-arm64" }),
     await loadProductProfile("formal-erdos-505-test-dim-one-gpt56", { platform: "linux-x86_64" }),
+    await loadProductProfile("quantum-10-1-4-stabilizer-retry", { platform: "darwin-arm64" }),
+    await loadProductProfile("quantum-10-1-4-stabilizer-retry", { platform: "linux-x86_64" }),
     await loadProductProfile("sidon-a24-at-least-7194-gpt56", { platform: "darwin-arm64" }),
     await loadProductProfile("sidon-a24-at-least-7194-gpt56", { platform: "linux-x86_64" }),
     await loadProductProfile("sidon-a24-at-least-7194-gpt56-v2", { platform: "darwin-arm64" }),
@@ -66,8 +68,8 @@ test("registered product profiles stage exact distinct capsules and bounded Miss
     verifier: { cwd: string };
   };
   assert.equal(formalDraft.verifier.cwd, "targets");
-  assert.equal(profiles[4]?.target, "sidon:a24-improve");
-  assert.notEqual(profiles[4]?.capsule_sha256, profiles[5]?.capsule_sha256);
+  assert.equal(profiles[4]?.target, "quantum:[[10,1,4]]");
+  assert.equal(profiles[4]?.capsule_sha256, profiles[5]?.capsule_sha256);
   assert.equal(profiles[4]?.verifier_platform, "linux/arm64");
   assert.equal(profiles[5]?.verifier_platform, "linux/amd64");
   assert.equal(
@@ -85,6 +87,12 @@ test("registered product profiles stage exact distinct capsules and bounded Miss
   assert.equal(
     contentDigest(await loadProfileDraft(profiles[8]!)),
     contentDigest(await loadProfileDraft(profiles[9]!)),
+  );
+  assert.equal(profiles[10]?.target, "sidon:a24-improve");
+  assert.notEqual(profiles[10]?.capsule_sha256, profiles[11]?.capsule_sha256);
+  assert.equal(
+    contentDigest(await loadProfileDraft(profiles[10]!)),
+    contentDigest(await loadProfileDraft(profiles[11]!)),
   );
   for (const [index, profile] of profiles.entries()) {
     const staging = path.join(root, `${profile.name}-${index}`);
@@ -131,6 +139,7 @@ test("profile v2 binds exact platform custody and packs only portable contract r
   assert.deepEqual(await listProductProfiles(), [
     name,
     "formal-erdos-505-test-dim-one-gpt56",
+    "quantum-10-1-4-stabilizer-retry",
     "sidon-a24-at-least-7194-gpt56",
     "sidon-a24-at-least-7194-gpt56-v2",
     "sidon-a24-at-least-7194-gpt56-v3",
@@ -188,6 +197,27 @@ test("formal profile packs one shared capsule with exact amd64 emulation", async
   ]);
 });
 
+test("quantum profile packs the frozen witness verifier and bounded retry", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "canopus-quantum-profile-pack-parent-"));
+  const name = "quantum-10-1-4-stabilizer-retry";
+  const validation = await validateProductProfile(name);
+  assert.equal(validation.platforms["darwin-arm64"].verifier_platform, "linux/arm64");
+  assert.equal(validation.platforms["linux-x86_64"].verifier_platform, "linux/amd64");
+
+  const packed = await packProductProfile(name, path.join(root, "bundle"));
+  const manifest = JSON.parse(await readFile(packed.manifest, "utf8")) as {
+    files: Array<{ path: string }>;
+  };
+  assert.equal(packed.files, 5);
+  assert.deepEqual(manifest.files.map((file) => file.path), [
+    "capsules/quantum-10-1-4/verifier.py",
+    "missions/quantum-10-1-4-retry/mission.draft.json",
+    `profiles/${name}.json`,
+    "runtime/native-worker/config-linux.toml",
+    "runtime/native-worker/config.toml",
+  ]);
+});
+
 test("Linux custody denies host roots and reopens only the exact workspace", async () => {
   const config = await readFile(
     path.resolve("runtime/native-worker/config-linux.toml"),
@@ -232,6 +262,22 @@ test("ordinary profile discovery selects the unique first-offer profile", async 
     targets: [{ rank: 1, target_id: "formal:erdos-505-test-dim-one" }],
   });
   assert.equal(formal.name, "formal-erdos-505-test-dim-one-gpt56");
+  const quantum = await resolveProductProfile({
+    targets: [{ rank: 1, target_id: "quantum:[[10,1,4]]" }],
+  });
+  assert.equal(quantum.name, "quantum-10-1-4-stabilizer-retry");
+  await assert.rejects(
+    resolveProductProfile({
+      availability: { configured_open: 1, available: 0, leased: 1 },
+      leased_targets: [{
+        target_id: "sidon:a24-improve",
+        actor: "agent:canopus-local",
+        expires_at: "2026-07-21T22:03:46Z",
+      }],
+      targets: [],
+    }),
+    /sidon:a24-improve by agent:canopus-local until 2026-07-21T22:03:46Z/u,
+  );
   await assert.rejects(
     resolveProductProfile({ targets: [{ rank: 1, target_id: "unknown:target" }] }),
     /no runnable profile is registered/u,

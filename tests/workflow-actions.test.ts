@@ -6,7 +6,7 @@ const workflows = new URL("../../.github/workflows/", import.meta.url);
 const expectedNode24Pins = new Map([
   ["actions/checkout", "9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0"],
   ["actions/setup-node", "820762786026740c76f36085b0efc47a31fe5020"],
-  ["pnpm/action-setup", "0ebf47130e4866e96fce0953f49152a61190b271"],
+  ["oven-sh/setup-bun", "0c5077e51419868618aeaa5fe8019c62421857d6"],
   ["docker/login-action", "af1e73f918a031802d376d3c8bbc3fe56130a9b0"],
   ["docker/setup-buildx-action", "bb05f3f5519dd87d3ba754cc423b652a5edd6d2c"],
   ["docker/build-push-action", "53b7df96c91f9c12dcc8a07bcb9ccacbed38856a"],
@@ -43,9 +43,9 @@ test("release validates macOS-only history before the portable OIDC publisher", 
   const validate = value.slice(validateStart, publishStart);
   const publish = value.slice(publishStart);
   assert.match(validate, /runs-on: macos-15/u);
-  assert.match(validate, /- run: pnpm check/u);
+  assert.match(validate, /- run: bun run check/u);
   assert.match(publish, /needs: validate/u);
-  assert.doesNotMatch(publish, /- run: pnpm check/u);
-  assert.match(publish, /pnpm typecheck/u);
+  assert.doesNotMatch(publish, /- run: bun run check/u);
+  assert.match(publish, /bun run typecheck/u);
   assert.match(publish, /dist\/tests\/release-contract\.test\.js/u);
 });
