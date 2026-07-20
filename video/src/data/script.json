@@ -1,0 +1,56 @@
+[
+  {
+    "scene": "outcomeColdOpen",
+    "startMs": 0,
+    "endMs": 12000,
+    "text": "An agent completed bounded work. The verifier passed. Policy routed the evidence to Defer. Accepted scientific state changed by zero. That separation is Canopus."
+  },
+  {
+    "scene": "authorityBoundary",
+    "startMs": 12000,
+    "endMs": 27800,
+    "text": "Research agents often produce an answer, check it, and report it as one blended act. Canopus separates three different authorities. Codex receives a finite, preregistered mission. An independent verifier checks the frozen artifact. Vela records the evidence and applies policy, but a model cannot make the protected scientific decision."
+  },
+  {
+    "scene": "missionRegistration",
+    "startMs": 27800,
+    "endMs": 54000,
+    "text": "For OpenAI Build Week, we registered GPT-5.6 against one exact Lean target: Erdős problem 505 in dimension one. The mission binds the GPT-5.6 Sol model, one proof-term artifact, a frozen Lean 4.27 verifier image, no sorry, no admit, no new axioms, an expected Defer route, and a maximum accepted-state delta of zero. Canopus also checks the Codex, Git, Docker, Vela, frontier, and sandbox custody boundaries before work begins."
+  },
+  {
+    "scene": "workerStream",
+    "startMs": 54000,
+    "endMs": 69200,
+    "text": "This is a sanitized structural projection of the genuine GPT-5.6 worker stream. The source events root binds the original activity without publishing prompts, authentication, private paths, or unrestricted logs. GPT-5.6 completed the worker phase and produced a candidate proof artifact."
+  },
+  {
+    "scene": "verifierFailClosed",
+    "startMs": 69200,
+    "endMs": 88200,
+    "text": "Then the separate frozen verifier ran. Lean found an unsolved inverse goal, and the declaration depended on sorry Ax. The verifier returned exit code one. Canopus stopped before landing. There was no Receipt, no proposal, no policy route, no frontier commit, and no scientific-state mutation. A failed proof stays failed."
+  },
+  {
+    "scene": "retainedSuccess",
+    "startMs": 88200,
+    "endMs": 112900,
+    "text": "For the submission fallback, we use an already retained bounded Erdős 1056 computation as the successful verified example. Its worker was GPT-5.4, and the page says so directly. The independent verifier passed, Vela constructed the Receipt, signed policy routed the evidence to Defer, clean-clone replay matched, and accepted scientific state still changed by zero. Defer preserves the evidence while leaving the human decision untouched."
+  },
+  {
+    "scene": "fidelityAudit",
+    "startMs": 112900,
+    "endMs": 132300,
+    "text": "GPT-5.6 then performed a separate claim-fidelity assessment over that immutable evidence. Deterministic checks bind the source run, artifact, all five final Vela roots, and every reported numeric value. GPT-5.6 found no universal or solved language, but that semantic judgment is explicitly labeled model assessment. It was not landed as scientific state."
+  },
+  {
+    "scene": "releaseAndReproduction",
+    "startMs": 132300,
+    "endMs": 149400,
+    "text": "Canopus 0.4.5 is public on npm with trusted-publishing provenance. The npm and GitHub release tarballs are byte-identical. Judges can inspect the installed package in ninety seconds under Node 22 or 24, or reproduce the retained frontier directly from its exact public commit without rebuilding Canopus."
+  },
+  {
+    "scene": "codexBuildDelta",
+    "startMs": 149400,
+    "endMs": 166245,
+    "text": "This Codex task built the GPT-5.6 profile, release, public projection, advisory audit, Observatory evidence route, GitHub organization presentation, and submission package. Canopus gives Codex a mission, verifies the work, and keeps humans in authority. Let agents do the work without letting them declare truth."
+  }
+]

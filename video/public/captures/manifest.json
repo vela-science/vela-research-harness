@@ -1,0 +1,13 @@
+{
+  "schema": "canopus.video-capture-manifest.v1",
+  "captures": [
+    {
+      "file": "retained-run.jpg",
+      "url": "https://app.vela.space/frontiers/erdos/runs/run_eb6bcd46-cffd-4ae8-b630-2681bd84da71",
+      "captured_at": "2026-07-20T19:51:33Z",
+      "viewport": "1728x963",
+      "source_commit": "2c8f0db4e89f4af0406389d0c5d6197fa8ab8dfc",
+      "sha256": "516b75edf690f25db418a08ed77ee073bfb25b0fc709f7d11dc665337c4da6da"
+    }
+  ]
+}

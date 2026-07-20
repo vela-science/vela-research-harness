@@ -1,0 +1,248 @@
+1
+00:00:00,000 --> 00:00:02,460
+An agent completed bounded work.
+
+2
+00:00:02,500 --> 00:00:03,960
+The verifier passed.
+
+3
+00:00:04,000 --> 00:00:06,960
+Policy routed the evidence to Defer.
+
+4
+00:00:07,000 --> 00:00:09,960
+Accepted scientific state changed by zero.
+
+5
+00:00:10,000 --> 00:00:11,960
+That separation is Canopus.
+
+6
+00:00:12,000 --> 00:00:15,829
+Research agents often produce an
+answer, check it, and report it as
+
+7
+00:00:15,869 --> 00:00:16,797
+one blended act.
+
+8
+00:00:16,837 --> 00:00:18,409
+Canopus separates three
+different authorities.
+
+9
+00:00:18,449 --> 00:00:20,344
+Codex receives a finite,
+preregistered mission.
+
+10
+00:00:20,384 --> 00:00:22,601
+An independent verifier
+checks the frozen artifact.
+
+11
+00:00:22,641 --> 00:00:26,793
+Vela records the evidence and applies
+policy, but a model cannot make the
+
+12
+00:00:26,833 --> 00:00:27,760
+protected scientific decision.
+
+13
+00:00:27,800 --> 00:00:32,769
+For OpenAI Build Week, we registered
+GPT-5.6 against one exact Lean target: Erdős
+
+14
+00:00:32,809 --> 00:00:34,695
+problem 505 in dimension one.
+
+15
+00:00:34,735 --> 00:00:39,704
+The mission binds the GPT-5.6 Sol model,
+one proof-term artifact, a frozen Lean
+
+16
+00:00:39,744 --> 00:00:45,098
+4.27 verifier image, no sorry, no admit,
+no new axioms, an expected Defer route,
+
+17
+00:00:45,138 --> 00:00:47,795
+and a maximum accepted-state
+delta of zero.
+
+18
+00:00:47,835 --> 00:00:52,419
+Canopus also checks the Codex, Git,
+Docker, Vela, frontier, and sandbox custody
+
+19
+00:00:52,459 --> 00:00:53,960
+boundaries before work begins.
+
+20
+00:00:54,000 --> 00:00:58,520
+This is a sanitized structural projection
+of the genuine GPT-5.6 worker stream.
+
+21
+00:00:58,560 --> 00:01:02,700
+The source events root binds the original
+activity without publishing prompts,
+
+22
+00:01:02,740 --> 00:01:04,980
+authentication, private
+paths, or unrestricted logs.
+
+23
+00:01:05,020 --> 00:01:09,160
+GPT-5.6 completed the worker phase and
+produced a candidate proof artifact.
+
+24
+00:01:09,200 --> 00:01:11,440
+Then the separate frozen verifier ran.
+
+25
+00:01:11,480 --> 00:01:16,380
+Lean found an unsolved inverse goal, and
+the declaration depended on sorry Ax.
+
+26
+00:01:16,420 --> 00:01:18,660
+The verifier returned exit code one.
+
+27
+00:01:18,700 --> 00:01:20,180
+Canopus stopped before landing.
+
+28
+00:01:20,220 --> 00:01:25,120
+There was no Receipt, no proposal, no
+policy route, no frontier commit, and
+
+29
+00:01:25,160 --> 00:01:26,260
+no scientific-state mutation.
+
+30
+00:01:26,300 --> 00:01:28,160
+A failed proof stays failed.
+
+31
+00:01:28,200 --> 00:01:32,791
+For the submission fallback, we use
+an already retained bounded Erdős 1056
+
+32
+00:01:32,831 --> 00:01:35,107
+computation as the
+successful verified example.
+
+33
+00:01:35,147 --> 00:01:38,966
+Its worker was GPT-5.4, and
+the page says so directly.
+
+34
+00:01:39,006 --> 00:01:42,826
+The independent verifier passed, Vela
+constructed the Receipt, signed policy
+
+35
+00:01:42,866 --> 00:01:47,071
+routed the evidence to Defer, clean-clone
+replay matched, and accepted scientific
+
+36
+00:01:47,111 --> 00:01:49,001
+state still changed by zero.
+
+37
+00:01:49,041 --> 00:01:52,860
+Defer preserves the evidence while
+leaving the human decision untouched.
+
+38
+00:01:52,900 --> 00:01:55,903
+GPT-5.6 then performed a separate
+claim-fidelity assessment over
+
+39
+00:01:55,943 --> 00:01:57,044
+that immutable evidence.
+
+40
+00:01:57,084 --> 00:02:01,989
+Deterministic checks bind the source run,
+artifact, all five final Vela roots, and
+
+41
+00:02:02,029 --> 00:02:03,511
+every reported numeric value.
+
+42
+00:02:03,551 --> 00:02:08,076
+GPT-5.6 found no universal or solved
+language, but that semantic judgment is
+
+43
+00:02:08,116 --> 00:02:09,597
+explicitly labeled model assessment.
+
+44
+00:02:09,637 --> 00:02:12,260
+It was not landed as scientific state.
+
+45
+00:02:12,300 --> 00:02:15,680
+Canopus 0.4.5 is public on npm
+with trusted-publishing provenance.
+
+46
+00:02:15,720 --> 00:02:18,720
+The npm and GitHub release
+tarballs are byte-identical.
+
+47
+00:02:18,760 --> 00:02:24,420
+Judges can inspect the installed package
+in ninety seconds under Node 22 or 24, or
+
+48
+00:02:24,460 --> 00:02:28,220
+reproduce the retained frontier
+directly from its exact public commit
+
+49
+00:02:28,260 --> 00:02:29,360
+without rebuilding Canopus.
+
+50
+00:02:29,400 --> 00:02:33,571
+This Codex task built the GPT-5.6 profile,
+release, public projection, advisory
+
+51
+00:02:33,611 --> 00:02:36,251
+audit, Observatory evidence route,
+GitHub organization presentation,
+
+52
+00:02:36,291 --> 00:02:37,400
+and submission package.
+
+53
+00:02:37,440 --> 00:02:42,377
+Canopus gives Codex a mission, verifies
+the work, and keeps humans in authority.
+
+54
+00:02:42,417 --> 00:02:46,205
+Let agents do the work without
+letting them declare truth.
