@@ -1,54 +1,51 @@
-# Remotion video
+# Canopus Build Week film
 
-<p align="center">
-  <a href="https://github.com/remotion-dev/logo">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-dark.apng">
-      <img alt="Animated Remotion Logo" src="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-light.gif">
-    </picture>
-  </a>
-</p>
+This Remotion project renders the public OpenAI Build Week film for **Canopus:
+Bounded Research for Codex**. It tells one evidence-bound story: a model may do
+the work, an independent verifier checks the artifact, Vela records and routes
+the evidence, and protected scientific acceptance remains human-only.
 
-Welcome to your Remotion project!
+The composition is 1920×1080, 30 fps, and 4,988 frames (2:46.27). Narration and
+burned-in English captions are timed from the same structured script. The
+standalone SRT is suitable for YouTube captions.
 
-## Commands
+## Reproduce
 
-**Install Dependencies**
+From this directory:
 
 ```console
-pnpm i
+pnpm install --frozen-lockfile
+pnpm verify
 ```
 
-**Start Preview**
+The encoded outputs are intentionally ignored by Git:
 
-```console
-pnpm run dev
-```
+- `out/canopus-build-week.mp4`
+- `out/render-report.json`
 
-**Render video**
+The generated SRT, evidence projection, narration fallback, and public capture
+manifest are committed so their bindings remain reviewable.
 
-```console
-pnpm exec remotion render
-```
+Use `pnpm dev` for a Remotion Studio preview. Evidence and captions can be
+regenerated independently with `pnpm evidence` and `pnpm captions`.
 
-**Upgrade Remotion**
+## Evidence boundary
 
-```console
-pnpm exec remotion upgrade
-```
+`scripts/generate-evidence.mjs` reads only public, committed Canopus evidence.
+The film contains a sanitized structural projection of genuine GPT-5.6 worker
+events, exact frozen-verifier output, a public Canopus run projection, and a
+public Observatory capture. It never imports a raw run directory, isolated
+home, authentication, unrestricted log, or human key.
 
-## Docs
+The film is deliberately explicit about the two different examples:
 
-Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).
+- the formal GPT-5.6 attempt produced a candidate and failed the Lean verifier;
+- the retained GPT-5.4 computation passed its verifier and was routed to Defer,
+  with accepted-state delta zero;
+- GPT-5.6 separately performed a claim-fidelity assessment that was not landed
+  as scientific state.
 
-## Help
-
-We provide help on our [Discord server](https://discord.gg/6VzzNDwUwV).
-
-## Issues
-
-Found an issue with Remotion? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
-
-## License
-
-Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
+The narration WAV is a precisely timed production fallback. A natural human
+read can replace it without changing the composition if it preserves the
+script timings. Visual QA is performed in Remotion Studio with the Codex Chrome
+integration and against stills decoded from the final MP4.

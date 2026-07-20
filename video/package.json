@@ -29,7 +29,9 @@
     "evidence": "node scripts/generate-evidence.mjs",
     "captions": "node scripts/generate-captions.mjs",
     "build": "remotion bundle src/index.ts",
-    "render": "remotion render src/index.ts CanopusBuildWeek out/canopus-build-week.mp4 --codec=h264 --crf=18 --pixel-format=yuv420p --audio-codec=aac --audio-bitrate=192k --overwrite"
+    "render": "remotion render src/index.ts CanopusBuildWeek out/canopus-build-week.mp4 --codec=h264 --crf=18 --pixel-format=yuv420p --audio-codec=aac --audio-bitrate=192k --overwrite",
+    "verify:render": "node scripts/verify-render.mjs",
+    "verify": "pnpm evidence && pnpm captions && pnpm typecheck && pnpm test && pnpm render && pnpm verify:render"
   },
   "sideEffects": [
     "*.css"
