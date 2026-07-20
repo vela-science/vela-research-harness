@@ -97,7 +97,15 @@ jobs:
           cd "$audit_root"
           npm init -y >/dev/null
           npm install --ignore-scripts --save-exact "$spec" >/dev/null
-          npm audit signatures --json --include-attestations > audit.json
+          audit_ok=false
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if npm audit signatures --json --include-attestations > audit.json 2> audit.err; then
+              audit_ok=true
+              break
+            fi
+            sleep 5
+          done
+          test "$audit_ok" = true
           node - "$package" "$version" <<'NODE'
           const fs = require("node:fs");
           const audit = JSON.parse(fs.readFileSync("audit.json", "utf8"));

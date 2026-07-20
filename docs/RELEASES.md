@@ -1,5 +1,45 @@
 # Release evidence
 
+## Canopus v0.4.6
+
+Version `0.4.6` is the primary Build Week science release. It registers the
+bounded `gpt-5.6-sol` Sidon mission, securely retains the worker's declared
+large artifact before workspace teardown, packages the frozen Sidon verifier
+capsules, and publishes the sanitized public projection of the successful
+7,194-point construction.
+
+The exact run completed the full product chain: worker success, frozen
+verifier pass, Vela route `defer`, accepted-state delta zero, and matching
+clean-clone replay. The pending proposal is evidence, not scientific
+acceptance.
+
+- Source/tag: `ad72a7aca63aaa6c060f840020cca6871e4a9f11` / `v0.4.6`
+- Cross-platform CI and installed-package smoke:
+  [run 29783128714](https://github.com/vela-science/vela-research-harness/actions/runs/29783128714)
+- CodeQL:
+  [run 29783117151](https://github.com/vela-science/vela-research-harness/actions/runs/29783117151)
+- OIDC publish and GitHub build attestation:
+  [run 29783128737](https://github.com/vela-science/vela-research-harness/actions/runs/29783128737)
+- Package SHA-256: `d1c30b0c35b56cb7d874e3646a5d3ddc2abe2f61e38da0c6d2c7163d6de09300`
+- npm shasum: `ca9e9f5a8c064c749523f2e47a4936030367eed3`
+- npm integrity:
+  `sha512-Y3vL/29YEYnKt6iniPvSi5C85UHEOWZ+vtlXiqZSyyyNo5emXkC5gt8fJ4chzEMi7iTYzaRPOv0hsNuPnbUhVQ==`
+- A fresh `npm audit signatures --include-attestations` verifies the registry
+  signatures and the SLSA provenance v1 attestation.
+- A clean registry execution under Node `v24.14.0` returned `canopus 0.4.6`
+  and validated the exact packaged Sidon v3 profile root.
+- Public package and matching release:
+  [npm](https://www.npmjs.com/package/@vela-science/canopus/v/0.4.6),
+  [GitHub](https://github.com/vela-science/vela-research-harness/releases/tag/v0.4.6)
+
+The OIDC workflow published successfully, but its immediate registry
+attestation audit encountered a transient npm attestations-endpoint `404`, so
+the final GitHub-release step did not run. Once the same registry tarball
+passed both `gh attestation verify` against the exact release workflow/tag and
+the npm signature audit, the matching GitHub release was created from those
+bytes. The tag did not move and no reusable npm token was introduced. The
+workflow now retries the full audit while the registry endpoint propagates.
+
 ## Canopus v0.4.5
 
 Version `0.4.5` is a documentation-only truthfulness correction over 0.4.4.
