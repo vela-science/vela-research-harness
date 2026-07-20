@@ -16,10 +16,35 @@ run and all five final Vela roots, validates every reported numeric against the
 frozen artifact, and labels language judgments `model_assessment`. It is not
 landed as scientific state.
 
-Release publication remains the existing tag-triggered GitHub Actions OIDC
-workflow. The final tag, workflow runs, package root, npm integrity, and
-byte-equivalence audit are appended here after hosted gates complete; no
-reusable npm token is introduced.
+The hosted release closed the product and provenance gates:
+
+- Source/tag: `26dc0518cbeb3377d285dc4aa90bd3bc70a6e013` / `v0.4.4`
+- Cross-platform CI:
+  [run 29768275757](https://github.com/vela-science/vela-research-harness/actions/runs/29768275757)
+- CodeQL:
+  [run 29768274600](https://github.com/vela-science/vela-research-harness/actions/runs/29768274600)
+- OIDC publish and build attestation:
+  [run 29769118124](https://github.com/vela-science/vela-research-harness/actions/runs/29769118124)
+- Package SHA-256:
+  `593a3a5caa64cee5ebb2fe91a5e8518d780172462671607398f2ef6f45e79fa7`
+- npm integrity:
+  `sha512-6H4ZmnQ4nAOhRLbrkUM15AAgn4uoB+xJsLm7t7kSLbU+J3Fq4kA50HBrhEjwiRTlntCOy3/SPyvYy4WpeYJLwA==`
+- npm shasum: `36ad1a8647320ad314e081b6daa6b261e286988b`
+- npm reports the SLSA provenance v1 predicate, and `npm audit signatures`
+  verifies the registry signatures and one attestation.
+- A clean registry install under Node `v24.18.0` returned `canopus 0.4.4`,
+  listed both packaged profiles, and validated the exact GPT-5.6 formal
+  profile root.
+- The [GitHub release](https://github.com/vela-science/vela-research-harness/releases/tag/v0.4.4)
+  tarball is byte-identical to the npm tarball and its published
+  `SHA256SUMS`.
+
+The OIDC workflow's immediate npm-attestation endpoint check encountered a
+transient registry `404` after publication, so its final GitHub-release step
+did not run. Once the same endpoint and `npm audit signatures` both returned
+the expected provenance, the matching GitHub release was created from the
+exact attested npm tarball. No tag moved and no reusable npm token was
+introduced.
 
 ## Canopus v0.4.3
 
