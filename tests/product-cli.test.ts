@@ -31,8 +31,8 @@ test("primary help presents only the compact product workflow", async () => {
 });
 
 test("version is a stable single-line product identity", async () => {
-  assert.equal(await help("--version"), "canopus 0.4.6\n");
-  assert.equal(await help("-V"), "canopus 0.4.6\n");
+  assert.equal(await help("--version"), "canopus 0.5.0\n");
+  assert.equal(await help("-V"), "canopus 0.5.0\n");
 });
 
 test("every compact product subcommand has focused help", async () => {
@@ -59,6 +59,7 @@ test("profile help and validation retain the advanced closed interface", async (
   assert.deepEqual(list.profiles, [
     "erdos1056-k15-10428401-10428600",
     "formal-erdos-505-test-dim-one-gpt56",
+    "quantum-10-1-4-stabilizer-retry",
     "sidon-a24-at-least-7194-gpt56",
     "sidon-a24-at-least-7194-gpt56-v2",
     "sidon-a24-at-least-7194-gpt56-v3",

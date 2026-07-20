@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0 - 2026-07-20
+
+- Compose against released Vela 0.911.0 and surface configured, available, and
+  leased producer work without treating a lease as an empty frontier.
+- Restore the packaged quantum-codes profile, mission draft, and verifier
+  capsule so all four published frontiers have reproducible product coverage.
+- Make Bun 1.3.12 the canonical development and public invocation path while
+  preserving the supported Node runtime for the installed package.
+- Keep historical Build Week registrations and evidence byte-identical; this
+  release adds composition and usability, not scientific authority.
+
 ## 0.4.6 - 2026-07-20
 
 - Register and complete the GPT-5.6 Sidon mission that produces a new
