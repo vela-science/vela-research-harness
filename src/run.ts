@@ -250,6 +250,20 @@ function publicationState(land: LandResult): string {
   return typeof value === "string" ? value : "unknown";
 }
 
+export function isPrivateWorkSessionStatus(entry: string): boolean {
+  if (!entry.startsWith("?? ")) return false;
+  const relative = entry.slice(3);
+  const parts = relative.split("/");
+  return (
+    parts.length === 4 &&
+    parts[0] === ".vela" &&
+    parts[1] === "work" &&
+    parts[2] !== undefined &&
+    /^[a-zA-Z0-9._-]+$/u.test(parts[2]) &&
+    parts[3] === "session.json"
+  );
+}
+
 async function writeExclusive(file: string, value: unknown): Promise<void> {
   await writeFile(file, canonicalJson(value), { flag: "wx", mode: 0o600 });
 }
@@ -299,7 +313,17 @@ async function publishArtifactSources(options: {
   }
   const status = (await git(["status", "--porcelain=v1", "-z", "--untracked-files=all"]))
     .toString("utf8").split("\0").filter((entry) => entry.length > 0).sort();
-  const expectedStatus = paths.map((entry) => `A  ${entry}`).sort();
+  // `vela work` deliberately keeps its producer capability in one private,
+  // untracked session file until `vela land` consumes it. The worker cannot
+  // access the landing clone, and every other unstaged path remains fatal.
+  const privateWorkSessions = status.filter(isPrivateWorkSessionStatus);
+  if (privateWorkSessions.length > 1) {
+    throw new Error("artifact publication observed multiple private Vela work sessions");
+  }
+  const expectedStatus = [
+    ...paths.map((entry) => `A  ${entry}`),
+    ...privateWorkSessions,
+  ].sort();
   if (canonicalJson(status) !== canonicalJson(expectedStatus)) {
     throw new Error("artifact publication observed unrelated or unstaged repository changes");
   }
