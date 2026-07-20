@@ -6,6 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import test from "node:test";
+import { CANOPUS_VERSION } from "../src/product/version.js";
 
 const execute = promisify(execFile);
 const cli = fileURLToPath(new URL("../src/cli.js", import.meta.url));
@@ -31,8 +32,8 @@ test("primary help presents only the compact product workflow", async () => {
 });
 
 test("version is a stable single-line product identity", async () => {
-  assert.equal(await help("--version"), "canopus 0.5.0\n");
-  assert.equal(await help("-V"), "canopus 0.5.0\n");
+  assert.equal(await help("--version"), `canopus ${CANOPUS_VERSION}\n`);
+  assert.equal(await help("-V"), `canopus ${CANOPUS_VERSION}\n`);
 });
 
 test("every compact product subcommand has focused help", async () => {

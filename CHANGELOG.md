@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.1 - 2026-07-20
+
+- Preserve exact pending-result replay roots instead of recomputing a receipt
+  projection with incomplete post-run state.
+- Keep the published `0.5.0` package and failed post-publication workflow as
+  audit evidence; `0.5.1` is the corrected default install target.
+
 ## 0.5.0 - 2026-07-20
 
 - Compose against released Vela 0.911.0 and surface configured, available, and

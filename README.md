@@ -38,8 +38,8 @@ Mission → GPT-5.6 → artifact → verifier → Receipt → Defer.
 **90 seconds — inspect the shipped product:**
 
 ```sh
-bunx @vela-science/canopus@0.5.0 --version
-bunx @vela-science/canopus@0.5.0 profile validate sidon-a24-at-least-7194-gpt56-v3
+bunx @vela-science/canopus@0.5.1 --version
+bunx @vela-science/canopus@0.5.1 profile validate sidon-a24-at-least-7194-gpt56-v3
 ```
 
 **Full workflow — reproduce without rebuilding Canopus:**
@@ -56,22 +56,22 @@ vela reproduce .
 Run the provenance-backed public package with Bun:
 
 ```sh
-bunx @vela-science/canopus@0.5.0 --version
+bunx @vela-science/canopus@0.5.1 --version
 ```
 
 Inspect a clean frontier, then run its first ranked producer offer:
 
 ```sh
-bunx @vela-science/canopus@0.5.0 doctor /path/to/frontier
-bunx @vela-science/canopus@0.5.0 run /path/to/frontier --first
-bunx @vela-science/canopus@0.5.0 inspect latest
-bunx @vela-science/canopus@0.5.0 replay /path/to/run.json
+bunx @vela-science/canopus@0.5.1 doctor /path/to/frontier
+bunx @vela-science/canopus@0.5.1 run /path/to/frontier --first
+bunx @vela-science/canopus@0.5.1 inspect latest
+bunx @vela-science/canopus@0.5.1 replay /path/to/run.json
 ```
 
 Use `--no-land` for a diagnostic mission that cannot change the source frontier:
 
 ```sh
-bunx @vela-science/canopus@0.5.0 run /path/to/frontier --first --no-land
+bunx @vela-science/canopus@0.5.1 run /path/to/frontier --first --no-land
 ```
 
 `doctor` binds the exact Vela, Codex, Git, frontier, packet, profile, and verifier

@@ -96,13 +96,14 @@ jobs:
           npm init -y >/dev/null
           npm install --ignore-scripts --save-exact "$spec" >/dev/null
           audit_ok=false
-          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+          for attempt in $(seq 1 24); do
             if npm audit signatures --json --include-attestations > audit.json 2> audit.err; then
               audit_ok=true
               break
             fi
-            sleep 5
+            sleep 10
           done
+          test "$audit_ok" = true || cat audit.err
           test "$audit_ok" = true
           node - "$package" "$version" <<'NODE'
           const fs = require("node:fs");
