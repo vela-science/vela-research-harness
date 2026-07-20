@@ -66,6 +66,13 @@ function prompt(mission: MissionV1): string {
           "Return the artifact path and kind exactly as output_contract specifies. Status success means only that those complete candidate bytes exist; the separate frozen Lean capsule owns elaboration and the axiom audit.",
           "Use at most four shell or patch tool calls. A token-efficient handoff is part of this mission's product contract.",
         ]
+      : mission.target === "sidon:a24-improve"
+        ? [
+            "The shell and apply_patch tools are active in this worker. Begin with a narrow shell call against the one registered packet; do not report a missing-tool failure without attempting that call.",
+            `Read only current_state.tracked_unaccepted_seed, output_contract, verification, and negative_contract from ${mission.target_packet.path}. The tracked seed's encoded_points field contains every exact baseline point needed for the search; no other input file exists or is required.`,
+            "Write search source and temporary data only inside the current workspace. On macOS compile with the exposed Xcode clang++ and TMPDIR=$PWD/tmp; do not invoke xcrun, xcodebuild, a package manager, a container, Vela, or the frozen verifier.",
+            "Spend the bounded runtime on an exact net-positive exchange over the supplied baseline. Independently recheck a positive candidate before returning its compact witness JSON as inline artifact content. A failed bounded search is null, never a universal maximality claim.",
+          ]
       : [];
   return [
     "Execute one bounded Canopus research mission inside a fresh writable workspace containing only the exact hash-verified target packet.",
