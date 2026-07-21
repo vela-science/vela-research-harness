@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.2 - 2026-07-20
+
+- Compose against Vela 0.911.1 so same-actor retries of `vela work` return the
+  exact active session without appending a second lease event.
+- Preserve the 0.911.0 cold-use run as immutable diagnostic evidence; the
+  retry defect it exposed is not rewritten away.
+
 ## 0.5.1 - 2026-07-20
 
 - Preserve exact pending-result replay roots instead of recomputing a receipt
