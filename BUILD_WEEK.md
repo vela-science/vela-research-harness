@@ -29,6 +29,27 @@ workspace-backed artifact retention. Versions `0.5` and `0.6` then hardened
 retry-safe Vela composition, stage-typed run evidence, proposal-scoped replay,
 and a local-only sanitized publication bundle. None adds an acceptance path.
 
+## Dated Build Week ledger
+
+All dates below are Toronto time. Tags identify released product bytes; later
+documentation commits do not rewrite those release or evidence identities.
+
+| Date | Repository and immutable ref | Build Week addition |
+| --- | --- | --- |
+| July 15 | Canopus first commit `9d95924f27842ceb14a45bb0ecaf5a777c3b2736` | Introduced the bounded research harness; no Canopus repository existed at the competition baseline. |
+| July 16 | Canopus `v0.1.0` at `0c0e59bf025b93faca8e8078b098b5aee9c67078` | Bound exact missions, worker custody, artifact freezing, verifier separation, and released-Vela composition. |
+| July 16 | Canopus `v0.2.0` at `ab01e6b4eebebb64cd3403962e1104d4b2d43bbb` | Shipped the authority-free mission loop with retained success and failure evidence. |
+| July 17 | Canopus `v0.3.0` at `a25c97c4b92c6248d1f827ead6ab9522084728b8` | Added the installable `doctor`, `run`, `inspect`, `replay`, and `withdraw` product surface. |
+| July 19 | Canopus `v0.4.3` at `f461a0d184f2076c4b451e524e5e949abdee621e` | Published the provenance-backed npm path and repaired clean-install usability. |
+| July 20 | Sidon frontier result commit `4289e05876f142e72af622672e190be26f6a6f1d` | Retained the GPT-5.6-produced 7,194-point witness, verifier pass, Receipt, Defer proposal, and accepted delta zero. |
+| July 20 | Canopus `v0.4.6` at `ad72a7aca63aaa6c060f840020cca6871e4a9f11` | Added the successful GPT-5.6 Sidon profile and bounded workspace-backed artifact handoff. |
+| July 20 | Canopus `v0.5.0` at `25523ccb558f81db95c01b48b83616ed3ab05b35` | Added stage-typed run evidence and retry-safe Vela composition without adding an authority path. |
+| July 20 | Sidon independent-audit commit `825657d7e87618c0aa6fc9af7e3182e05f324750` | Added a separate base-3 verifier and a deterministic collision-injection rejection probe. |
+| July 21 | Canopus `v0.6.1` at `b98c846d61d4c554e43388107bcce77c51307db5` | Froze the final npm package, public projection, proposal-scoped replay, and corrected judge path. |
+| July 21 | Vela `v0.912.0` at `bb6774b6a65ecc5615e17ddf574c3efd893e0e44` | Bound the final Build Week composition while leaving Receipt, policy, replay, and human-authority semantics intact. |
+| July 21 | Observatory `v0.340.6` at `7483ab20c0d2878f3d50a76ed1bca9969f7dd5f5` | Deployed the anonymous run detail and `/build-week` route with an exact evidence manifest. |
+| July 21 | Canopus documentation at `4cae162bc37538e9ff1add0ef42861804ff86a62` | Corrected the public commands to select and reproduce the pending witness rather than only retained canonical witnesses. |
+
 ## Primary GPT-5.6 scientific result
 
 ### What is new
@@ -158,3 +179,10 @@ Session ID is kept in the submission checklist, not this repository.
 - The retained Erdős 1056 result covers one finite range and does not solve Erdős 1056.
 - The rejected formal candidate does not prove the one-dimensional theorem or Erdős 505.
 - Vela predates Build Week. The submission is Canopus and its Build Week additions, not the whole ecosystem.
+
+## Licensing and third-party boundary
+
+Canopus is dual-licensed Apache-2.0 OR MIT. Its runtime npm dependency set is
+empty. Bundled verifier capsules and separately supplied development or host
+tools are documented in [`THIRD_PARTY.md`](THIRD_PARTY.md); those tools do not
+receive scientific decision authority through Canopus.

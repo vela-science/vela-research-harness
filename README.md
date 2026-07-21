@@ -152,3 +152,7 @@ bun run pack:check
 
 Apache-2.0 OR MIT, at your option. Canopus is a replaceable producer; Vela
 remains the protocol and authority boundary.
+
+The published CLI has no runtime npm dependencies. See
+[Third-party components](THIRD_PARTY.md) for the bundled verifier and external
+toolchain boundary.
