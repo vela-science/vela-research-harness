@@ -38,11 +38,15 @@ Mission → GPT-5.6 → artifact → verifier → Receipt → Defer.
 **90 seconds — inspect the shipped product:**
 
 ```sh
-bunx @vela-science/canopus@0.6.1 --version
-bunx @vela-science/canopus@0.6.1 profile validate sidon-a24-at-least-7194-gpt56-v3
+bunx @vela-science/canopus@0.6.2 --version
+bunx @vela-science/canopus@0.6.2 profile validate sidon-a24-at-least-7194-gpt56-v3
 ```
 
 **Full workflow — reproduce without rebuilding Canopus:**
+
+Install the provenance-checked prebuilt
+[Vela 0.912.0 release](https://github.com/vela-science/vela/releases/tag/v0.912.0)
+for your platform, then:
 
 ```sh
 git clone https://github.com/vela-science/sidon-frontier.git
@@ -62,16 +66,16 @@ also rejects a bound collision injection. Neither command accepts the proposal.
 Run the provenance-backed public package with Bun:
 
 ```sh
-bunx @vela-science/canopus@0.6.1 --version
+bunx @vela-science/canopus@0.6.2 --version
 ```
 
 Inspect a clean frontier, then run its first ranked producer offer:
 
 ```sh
-bunx @vela-science/canopus@0.6.1 doctor /path/to/frontier
-bunx @vela-science/canopus@0.6.1 run /path/to/frontier --first
-bunx @vela-science/canopus@0.6.1 inspect latest
-bunx @vela-science/canopus@0.6.1 replay /path/to/run.json
+bunx @vela-science/canopus@0.6.2 doctor /path/to/frontier
+bunx @vela-science/canopus@0.6.2 run /path/to/frontier --first
+bunx @vela-science/canopus@0.6.2 inspect latest
+bunx @vela-science/canopus@0.6.2 replay /path/to/run.json
 ```
 
 Export a completed Defer run without publishing or mutating anything:
@@ -90,7 +94,7 @@ standing after verification; historical run v0 records remain inspectable.
 Use `--no-land` for a diagnostic mission that cannot change the source frontier:
 
 ```sh
-bunx @vela-science/canopus@0.6.1 run /path/to/frontier --first --no-land
+bunx @vela-science/canopus@0.6.2 run /path/to/frontier --first --no-land
 ```
 
 `doctor` binds the exact Vela, Codex, Git, frontier, packet, profile, and verifier

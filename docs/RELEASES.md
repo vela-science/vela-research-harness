@@ -1,5 +1,26 @@
 # Release evidence
 
+## Canopus v0.6.2
+
+Version `0.6.2` is the final Build Week distribution correction. It packages
+the exact artifact-specific Vela replay and independent base-3 verifier paths
+for the pending 7,194-point Sidon witness, together with the dated evidence
+ledger, immutable Receipt caveat reconciliation, and third-party notice that
+were added after `0.6.1`. It changes no runtime, protocol, Receipt, policy, or
+authority behavior.
+
+- Source/tag: `v0.6.2`
+- Public package: <https://www.npmjs.com/package/@vela-science/canopus/v/0.6.2>
+- Matching release: <https://github.com/vela-science/vela-research-harness/releases/tag/v0.6.2>
+- Publication path: the repository release workflow validates the package on
+  macOS, packs it on Ubuntu, binds a GitHub build attestation to the exact tag
+  and workflow, publishes through npm trusted publishing, and audits the npm
+  signature plus SLSA provenance v1 before creating the GitHub release.
+- Judge-path contract: the packed `README.md` and `BUILD_WEEK.md` select
+  `artifacts/sidon-a24-gpt56-7194.witness.json` explicitly at frontier audit
+  commit `825657d7e87618c0aa6fc9af7e3182e05f324750`; neither command performs a
+  scientific acceptance decision.
+
 ## Canopus v0.4.6
 
 Version `0.4.6` is the primary Build Week science release. It registers the

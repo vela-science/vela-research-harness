@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.2 - 2026-07-21
+
+- Ship the exact pending Sidon artifact reproduction command and independent
+  base-3 verifier command in the provenance-backed package instead of the
+  whole-frontier canonical-witness check previously published by `0.6.1`.
+- Package the dated Build Week ledger, immutable Receipt caveat reconciliation,
+  and third-party component notice used by the final judge path.
+- Add release-contract coverage for those public instructions and files. No
+  runtime, protocol, Receipt, policy, or authority behavior changes.
+
 ## 0.6.1 - 2026-07-21
 
 - Correct the public Build Week record and judge quickstart to name the

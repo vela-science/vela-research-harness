@@ -28,3 +28,26 @@ test("release binds tag, GitHub attestation, and npm trusted provenance", async 
   assert.doesNotMatch(workflow, /NPM_TOKEN|NODE_AUTH_TOKEN/u);
   assert.doesNotMatch(workflow, /shasum -a 256 release\/\*\.tgz/u);
 });
+
+test("published package carries the exact Build Week judge path", async () => {
+  const [packageText, readme, buildWeek] = await Promise.all([
+    readFile(new URL("../../package.json", import.meta.url), "utf8"),
+    readFile(new URL("../../README.md", import.meta.url), "utf8"),
+    readFile(new URL("../../BUILD_WEEK.md", import.meta.url), "utf8"),
+  ]);
+  const packageJson = JSON.parse(packageText) as { files?: string[]; version?: string };
+  const artifact = "artifacts/sidon-a24-gpt56-7194.witness.json";
+  const auditCommit = "825657d7e87618c0aa6fc9af7e3182e05f324750";
+  const velaRelease = "https://github.com/vela-science/vela/releases/tag/v0.912.0";
+
+  assert.equal(packageJson.version, "0.6.2");
+  for (const file of ["README.md", "BUILD_WEEK.md", "THIRD_PARTY.md", "docs/RELEASES.md"]) {
+    assert.ok(packageJson.files?.includes(file), `${file} must ship in the npm package`);
+  }
+  for (const document of [readme, buildWeek]) {
+    assert.match(document, new RegExp(velaRelease.replaceAll(".", "\\."), "u"));
+    assert.match(document, new RegExp(`git checkout ${auditCommit}`, "u"));
+    assert.match(document, new RegExp(`vela reproduce ${artifact.replaceAll(".", "\\.")}`, "u"));
+    assert.match(document, /node verification\/verify-sidon-a24-7194\.mjs/u);
+  }
+});

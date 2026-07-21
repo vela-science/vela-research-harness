@@ -23,7 +23,7 @@ p.m. Toronto time.
 | Sidon frontier | `5f138a51a6c8723d5a85ff0ffc265728c2c33c6e` | A root-bound GPT-5.6 target, a new 7,194-point witness, frozen verification, Receipt, Defer proposal, and replayable final commit |
 | Vela Observatory | `37eca05ae3bc1e2f2832ed99c58ba9fdc4bd1787` | A pinned public-run type, retained-run detail route, and stable anonymous `/build-week` evidence page |
 
-Canopus versions `0.1.0` through `0.6.1` were built during the submission
+Canopus versions `0.1.0` through `0.6.2` were built during the submission
 period. Version `0.4.6` added the successful GPT-5.6 Sidon profile and secure
 workspace-backed artifact retention. Versions `0.5` and `0.6` then hardened
 retry-safe Vela composition, stage-typed run evidence, proposal-scoped replay,
@@ -45,7 +45,8 @@ documentation commits do not rewrite those release or evidence identities.
 | July 20 | Canopus `v0.4.6` at `ad72a7aca63aaa6c060f840020cca6871e4a9f11` | Added the successful GPT-5.6 Sidon profile and bounded workspace-backed artifact handoff. |
 | July 20 | Canopus `v0.5.0` at `25523ccb558f81db95c01b48b83616ed3ab05b35` | Added stage-typed run evidence and retry-safe Vela composition without adding an authority path. |
 | July 20 | Sidon independent-audit commit `825657d7e87618c0aa6fc9af7e3182e05f324750` | Added a separate base-3 verifier and a deterministic collision-injection rejection probe. |
-| July 21 | Canopus `v0.6.1` at `b98c846d61d4c554e43388107bcce77c51307db5` | Froze the final npm package, public projection, proposal-scoped replay, and corrected judge path. |
+| July 21 | Canopus `v0.6.1` at `b98c846d61d4c554e43388107bcce77c51307db5` | Updated the released Vela and package identities; its packed judge path remained the generic canonical-witness check and is superseded by `v0.6.2`. |
+| July 21 | Canopus `v0.6.2` | Shipped the exact pending-artifact and independent-verifier judge path, dated evidence ledger, caveat reconciliation, and third-party notice in the provenance-backed package. |
 | July 21 | Vela `v0.912.0` at `bb6774b6a65ecc5615e17ddf574c3efd893e0e44` | Bound the final Build Week composition while leaving Receipt, policy, replay, and human-authority semantics intact. |
 | July 21 | Observatory `v0.340.6` at `7483ab20c0d2878f3d50a76ed1bca9969f7dd5f5` | Deployed the anonymous run detail and `/build-week` route with an exact evidence manifest. |
 | July 21 | Canopus documentation at `4cae162bc37538e9ff1add0ef42861804ff86a62` | Corrected the public commands to select and reproduce the pending witness rather than only retained canonical witnesses. |
@@ -135,9 +136,10 @@ result is bound at
 
 ## Reproduce without rebuilding Canopus
 
-The pending primary artifact needs released Vela and the public frontier. The
-audit commit adds an independent implementation without changing the retained
-Receipt, proposal, or accepted state:
+The pending primary artifact needs the provenance-checked prebuilt
+[Vela 0.912.0 release](https://github.com/vela-science/vela/releases/tag/v0.912.0)
+and the public frontier. The audit commit adds an independent implementation
+without changing the retained Receipt, proposal, or accepted state:
 
 ```bash
 git clone https://github.com/vela-science/sidon-frontier.git
@@ -155,7 +157,7 @@ artifact-specific command above is the exact pending-result path.
 Inspect the packaged product under Node 22 or 24:
 
 ```bash
-npm install --global @vela-science/canopus@0.6.1
+npm install --global @vela-science/canopus@0.6.2
 canopus --version
 canopus profile validate sidon-a24-at-least-7194-gpt56-v3
 ```
