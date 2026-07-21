@@ -104,6 +104,14 @@ The generated sanitized projection is
 It contains no raw worker events, isolated home, authentication, private path,
 or unrestricted log.
 
+The immutable `0.4.6` Receipt preserves the worker's pre-verifier handoff
+caveat that separate verification remained pending, alongside the rooted final
+verifier evidence. We do not rewrite that historical record. Canopus fixed
+post-verifier caveat finalization in commit
+`58aad1e5806e7f3c192214e65f8968e03e2cff87` and shipped it from `0.5.1`
+onward; the public projection derives standing caveats from the final run
+observations and therefore reports the recorded verifier pass.
+
 ## Secondary evidence
 
 The earlier retained Erdős 1056 run remains a useful bounded-research example:
