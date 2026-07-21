@@ -19,14 +19,15 @@ p.m. Toronto time.
 | Layer | Submission-period baseline | Build Week contribution |
 | --- | --- | --- |
 | Canopus | none | Entire bounded runner, worker custody boundary, verifier separation, npm package, retained runs, public projection, and evidence workflow |
-| Vela protocol | `26386aef9126594c27888d511b76ad65a8d56870` | Released Vela 0.910.0 is consumed without changing its protocol, Receipt, policy, or authority interfaces |
+| Vela protocol | `26386aef9126594c27888d511b76ad65a8d56870` | Released Vela 0.912.0 adds proposal-scoped verifier evidence and replay without changing its protocol, Receipt, policy, or authority semantics |
 | Sidon frontier | `5f138a51a6c8723d5a85ff0ffc265728c2c33c6e` | A root-bound GPT-5.6 target, a new 7,194-point witness, frozen verification, Receipt, Defer proposal, and replayable final commit |
 | Vela Observatory | `37eca05ae3bc1e2f2832ed99c58ba9fdc4bd1787` | A pinned public-run type, retained-run detail route, and stable anonymous `/build-week` evidence page |
 
-Canopus versions `0.1.0` through `0.4.6` were built during the submission
-period. Version `0.4.6` adds the successful GPT-5.6 Sidon profile and evidence,
-secure workspace-backed artifact retention, and the exact private Vela work
-session handoff required to carry a large scientific artifact through Defer.
+Canopus versions `0.1.0` through `0.6.1` were built during the submission
+period. Version `0.4.6` added the successful GPT-5.6 Sidon profile and secure
+workspace-backed artifact retention. Versions `0.5` and `0.6` then hardened
+retry-safe Vela composition, stage-typed run evidence, proposal-scoped replay,
+and a local-only sanitized publication bundle. None adds an acceptance path.
 
 ## Primary GPT-5.6 scientific result
 
@@ -115,7 +116,7 @@ vela reproduce .
 Inspect the packaged product under Node 22 or 24:
 
 ```bash
-npm install --global @vela-science/canopus@0.4.6
+npm install --global @vela-science/canopus@0.6.1
 canopus --version
 canopus profile validate sidon-a24-at-least-7194-gpt56-v3
 ```
@@ -127,7 +128,7 @@ replay surface and directs tool-using work into WSL2.
 ## Codex collaboration and human decisions
 
 Codex implemented and tested Canopus, its custody profiles, verifier routing,
-release automation, Vela 0.910.0 compatibility, public projection, and
+release automation, Vela 0.912.0 compatibility, public projection, and
 evidence surface. In the primary task, Codex also registered the GPT-5.6 Sidon
 mission, diagnosed two fail-closed handoff defects, implemented bounded
 artifact retention, reran all gates, executed the completed mission, and

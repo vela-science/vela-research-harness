@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.1 - 2026-07-21
+
+- Correct the public Build Week record and judge quickstart to name the
+  released Vela 0.912.0 composition and current Canopus package.
+- Preserve the 0.6.0 code and evidence contracts unchanged.
+
 ## 0.6.0 - 2026-07-20
 
 - Type completed-run evidence by stage as `worker_observations`,
