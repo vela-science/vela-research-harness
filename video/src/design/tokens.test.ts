@@ -17,9 +17,8 @@ describe('stable Vela film identity', () => {
   it('uses Vela editorial, product, and evidence type roles', () => {
     expect(type).toEqual({
       display: 'Newsreader Display',
-      sans: 'Inter',
+      sans: 'IBM Plex Mono',
       mono: 'IBM Plex Mono',
     });
   });
 });
-

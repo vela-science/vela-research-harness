@@ -3,6 +3,7 @@ import {Scene} from '../components/Scene';
 import {Terminal} from '../components/Terminal';
 import {EditorialTitle, Label} from '../components/Typography';
 import {colors, type} from '../design/tokens';
+import {evidence} from '../data/evidence';
 import {enter, reveal} from '../motion';
 
 export const Reproduction = () => {
@@ -41,13 +42,13 @@ export const Reproduction = () => {
 
         <div style={{opacity: reveal(frame, 18, 20)}}>
           <Terminal title="90-second inspection / full replay">
-            <span style={{color: colors.stardust}}>$</span> npx -p @vela-science/canopus@0.4.5 canopus --version
-            {'\n\n'}<span style={{color: colors.stardust}}>$</span> git checkout 807f0a8f770cfed05ac0dff00b952dc41052a720
-            {'\n\n'}<span style={{color: colors.stardust}}>$</span> vela reproduce .
+            <span style={{color: colors.stardust}}>$</span> npm i -g @vela-science/canopus@{evidence.release.canopusVersion}
+            {'\n'}<span style={{color: colors.stardust}}>$</span> canopus profile validate sidon-a24-at-least-7194-gpt56-v3
+            {'\n\n'}<span style={{color: colors.stardust}}>$</span> git checkout {evidence.independentAudit.frontierCommit.slice(0, 12)}
+            {'\n'}<span style={{color: colors.stardust}}>$</span> vela reproduce artifacts/sidon-a24-gpt56-7194.witness.json
           </Terminal>
         </div>
       </div>
     </Scene>
   );
 };
-

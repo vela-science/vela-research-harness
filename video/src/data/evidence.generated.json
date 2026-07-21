@@ -1,132 +1,104 @@
 {
-  "schema": "canopus.build-week-film-evidence.v1",
+  "schema": "canopus.build-week-film-evidence.v2",
   "generatedFrom": [
     "package.json",
     "BUILD_WEEK.md",
-    "docs/RELEASES.md",
-    "profiles/formal-erdos-505-test-dim-one-gpt56.json",
-    "missions/formal-erdos-505-test-dim-one-gpt56/mission.draft.json",
-    "evidence/build-week/run_eb6bcd46-cffd-4ae8-b630-2681bd84da71.public.json",
-    "advisories/erdos1056-claim-fidelity/results/assessment.json",
-    "advisories/erdos1056-claim-fidelity/results/verification.json"
+    "CHANGELOG.md",
+    "profiles/sidon-a24-at-least-7194-gpt56-v3.json",
+    "missions/sidon-a24-at-least-7194-gpt56-v3/mission.draft.json",
+    "evidence/build-week/run_f68e4cfc-e5c7-4c73-86cb-d79807c47ec4.public.json"
   ],
-  "formal": {
-    "profile": "formal-erdos-505-test-dim-one-gpt56",
-    "profileRoot": "sha256:e2330e477bdab48aede90512b4cf3f86cccda5fa014b4e64edfed23797f8e254",
-    "missionId": "mission_formal_erdos_505_test_dim_one_gpt56_native1",
-    "missionRoot": "sha256:dd066b636ed9261f73a6413a37d023b870a2ae8be7710954e9bb3368b77eddc5",
+  "primary": {
+    "profile": "sidon-a24-at-least-7194-gpt56-v3",
+    "profileRoot": "sha256:3b529df4304b96890cdd7eed5f90fd862422b8b1e7b4da1cef0a478e6e7cdebe",
+    "missionId": "mission_sidon_a24_at_least_7194_gpt56_v3",
+    "missionRoot": "sha256:6cb1866832cba030d88bd15ae22c0b44766b859f34302320041f170ed02360e0",
     "model": "gpt-5.6-sol",
-    "target": "formal:erdos-505-test-dim-one",
-    "verifier": "Lean 4.27.0",
-    "artifact": "one proof term",
-    "forbidden": [
-      "sorry",
-      "admit",
-      "new axioms",
-      "unsafe"
-    ],
-    "expectedRoute": "defer",
-    "acceptedStateDelta": 0,
-    "runId": "run_4c2ba5f5-04ac-44d5-adb6-8937eb2ea165",
-    "worker": "success",
-    "candidateRoot": "sha256:ef81cbf548d8a08e3811f0aa070b6ce0d58b52792f0bb56b5584dd806da4cb30",
-    "workerEventsRoot": "sha256:767379f1720f9a1ecad7286f80f364cab582335b2753e95f483ccc28fbacfc2b",
-    "verifierResultRoot": "sha256:04e31b07889f94a1d205231942bf30fa6c3b27864520b6a42de58604da53e544",
-    "verifierStatus": "failed",
-    "verifierExitCode": 1,
-    "landingObserved": false
-  },
-  "retained": {
-    "runId": "run_eb6bcd46-cffd-4ae8-b630-2681bd84da71",
-    "model": "gpt-5.4",
-    "claim": "Exhaustive registered search over primes in 10428401..10428600 completed with a bounded negative result; the maximum factorial-residue fiber multiplicity found was 12 at p=10428581, residue=5141590.",
+    "target": "sidon:a24-improve",
+    "targetPacketRoot": "sha256:09977a08357cbe240c5a7f5c3ea8e5c7055d6b5d71bcfb5f947b49accee1a3a8",
+    "baselineSize": 7193,
+    "candidateSize": 7194,
+    "exchange": {
+      "removedBaselineIndex": 72,
+      "addedHexPoints": [
+        "970f25",
+        "246891"
+      ]
+    },
+    "pairSumsChecked": 25880415,
+    "claim": "Produced the exact reconstructed 7,194-point Sidon witness for {0,1}^24.",
     "caveats": [
+      "The worker handed off without verifier authority; Canopus subsequently recorded the separate verifier pass shown in this projection.",
       "Declared verifier outcome: passed.",
       "Canopus produced this record; it is not a human acceptance decision."
     ],
     "nonclaims": [
       "Verifier success is not scientific acceptance.",
-      "The bounded result does not solve its general Erdős problem.",
+      "The bounded result does not establish maximality or settle the broader scientific problem.",
       "Canopus did not sign or perform a human decision."
     ],
+    "runId": "run_f68e4cfc-e5c7-4c73-86cb-d79807c47ec4",
     "worker": "success",
     "verifier": "pass",
     "replay": "matched",
+    "artifactRoot": "sha256:878b05e01dbc4a785e5a671f977509f0bb338dfcb58ac53bf03d47bf6465f01e",
     "artifactRoots": [
-      "sha256:143ce07733126239999e375f865aeeca36a17453df1de98a0afbef848c33066c",
-      "sha256:79370d5243095f28e65c218f3d5dc4710802e4dbe462fcfff1a35a8697a6f225",
-      "sha256:9fdad10b14ff7c267c418e1ced041810085974d52715d7d1c5b5f766d62f1df3"
+      "sha256:5eca82c582a9d3b6ae63d137cf7dadd4a01e40d52bc1bfac99932d1d8752f884",
+      "sha256:878b05e01dbc4a785e5a671f977509f0bb338dfcb58ac53bf03d47bf6465f01e",
+      "sha256:ba5da48c4f6fd744a70eb82d5e1a8291f981bf5ee4df9ec2d86d8184fde22de3"
     ],
-    "verifierRoot": "sha256:6d3f61b9111fde87d57340404ad5b7561a4aa777ce54c8bf639d081c216cb165",
-    "receiptRoot": "sha256:263506aae0144fb2aa4784ff9c145c6c41886b2956191c6458214cedd0bfd4aa",
+    "verifierRoot": "sha256:89130864b3ca4f354673416d4352616265b1e3dc25147a4ae91bbbf3874fbff8",
+    "receiptRoot": "sha256:91b9f0c72e2934d3f98a34de93b61a168c8a9ff560a18a63ff4a1ee6ae2f897c",
+    "proposalId": "vpr_491cc97cfdfe98ff",
     "route": "defer",
     "acceptedStateDelta": 0,
-    "sourceCommit": "fde5e1da5816445e3f7a71f3d5a3cc3167b0b2c0",
-    "finalCommit": "807f0a8f770cfed05ac0dff00b952dc41052a720",
+    "sourceCommit": "6f9dca7e30ea3d9db3f440fcb4b50ece21dcf40e",
+    "finalCommit": "4289e05876f142e72af622672e190be26f6a6f1d",
     "reproduction": [
-      "git clone https://github.com/vela-science/erdos-frontier.git",
-      "cd erdos-frontier",
-      "git checkout 807f0a8f770cfed05ac0dff00b952dc41052a720",
+      "git clone https://github.com/vela-science/sidon-frontier.git",
+      "cd sidon-frontier",
+      "git checkout 4289e05876f142e72af622672e190be26f6a6f1d",
       "vela reproduce ."
-    ]
+    ],
+    "usage": {
+      "attempts": 1,
+      "observed_tokens": 105553,
+      "research_elapsed_ms": 88131,
+      "research_processes": 7
+    }
   },
-  "audit": {
+  "failClosed": {
+    "profile": "formal-erdos-505-test-dim-one-gpt56",
     "model": "gpt-5.6-sol",
-    "status": "pass",
-    "authority": "non_authoritative_advisory",
-    "assessmentRoot": "sha256:9205390df001a428b4b3e2fbb0a855e9f1061754b3f87771a85fc7328824ed1f",
-    "checks": {
-      "all_five_roots_bound": true,
-      "artifact_root_matched": true,
-      "numeric_correspondence_matched": true,
-      "source_run_bound": true,
-      "verifier_acceptance_distinction_preserved": true
-    },
-    "scientificStateLanded": false,
-    "classification": "model_assessment",
-    "solvedLanguageDetected": false,
-    "universalClaimDetected": false,
-    "numericCorrespondence": {
-      "best_p": {
-        "artifact": 10428581,
-        "matches": true,
-        "reported": 10428581
-      },
-      "best_residue": {
-        "artifact": 5141590,
-        "matches": true,
-        "reported": 5141590
-      },
-      "max_multiplicity": {
-        "artifact": 12,
-        "matches": true,
-        "reported": 12
-      },
-      "primes_tested": {
-        "artifact": 15,
-        "matches": true,
-        "reported": 15
-      },
-      "range_end": {
-        "artifact": 10428600,
-        "matches": true,
-        "reported": 10428600
-      },
-      "range_start": {
-        "artifact": 10428401,
-        "matches": true,
-        "reported": 10428401
-      }
-    },
-    "route": "defer",
-    "acceptedStateDelta": 0
+    "runId": "run_4c2ba5f5-04ac-44d5-adb6-8937eb2ea165",
+    "worker": "success",
+    "verifier": "failed",
+    "verifierExitCode": 1,
+    "landingObserved": false,
+    "receiptProduced": false,
+    "acceptedStateDelta": 0,
+    "verifierRoot": "sha256:04e31b07889f94a1d205231942bf30fa6c3b27864520b6a42de58604da53e544"
   },
   "release": {
-    "version": "0.4.5",
-    "commit": "eccb3975505706b12c48c372e471c34303dffbd2",
-    "npmShasum": "fd55cc35d22e82b1976adab2265dff09cc84a948",
-    "packageSha256": "sha256:b0b8f0357337b79e3dca0ef4a1c1b90a14885f3f01759666cd31f082675474c5",
-    "provenance": "trusted publishing",
-    "assets": "byte-identical"
+    "canopusVersion": "0.6.2",
+    "canopusCommit": "43c1aa97165bd9c7e9b2dcbd232155f42ca8410c",
+    "packageSha256": "sha256:7c82af47782c07c332f6b60020c9205da3d60132e970df0a3c7678545596a812",
+    "npmShasum": "ee1f69bcaf616982af3d27bfb2a60cb243252f81",
+    "provenance": "SLSA provenance v1",
+    "velaVersion": "0.912.0",
+    "observatoryVersion": "0.340.7",
+    "observatoryCommit": "7e71d031355c3476e4eb144bae5ed5e2d29ff23c"
+  },
+  "independentAudit": {
+    "frontierCommit": "825657d7e87618c0aa6fc9af7e3182e05f324750",
+    "verifierSourceRoot": "sha256:ddbef08b366138005618c937d732f95361488db22104d86819f5d212b89bf254",
+    "reportRoot": "sha256:39c3a08515ecd4ad7312a5a04f3d2ea5c0e0f73d00acff8bdfe47d550fab2937",
+    "reproduction": [
+      "git clone https://github.com/vela-science/sidon-frontier.git",
+      "cd sidon-frontier",
+      "git checkout 825657d7e87618c0aa6fc9af7e3182e05f324750",
+      "vela reproduce artifacts/sidon-a24-gpt56-7194.witness.json",
+      "node verification/verify-sidon-a24-7194.mjs artifacts/sidon-a24-gpt56-7194.witness.json"
+    ]
   }
 }

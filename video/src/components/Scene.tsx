@@ -19,6 +19,9 @@ export const Scene = ({children, eyebrow, dark = true, chapter}: SceneProps) => 
       style={{
         overflow: 'hidden',
         backgroundColor: background,
+        backgroundImage: dark
+          ? 'radial-gradient(circle at 10% 18%, rgba(79, 143, 139, 0.12), transparent 30%), radial-gradient(circle at 84% 74%, rgba(201, 166, 100, 0.09), transparent 33%)'
+          : 'radial-gradient(circle at 12% 16%, rgba(201, 166, 100, 0.12), transparent 31%), radial-gradient(circle at 86% 78%, rgba(79, 143, 139, 0.08), transparent 34%)',
         color: foreground,
         fontFamily: type.sans,
         padding: `${layout.insetY}px ${layout.insetX}px ${layout.captionSafeHeight + 80}px`,
@@ -27,9 +30,30 @@ export const Scene = ({children, eyebrow, dark = true, chapter}: SceneProps) => 
       <div
         style={{
           position: 'absolute',
+          inset: 0,
+          opacity: dark ? 0.1 : 0.12,
+          backgroundImage:
+            'linear-gradient(rgba(161, 167, 176, 0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(161, 167, 176, 0.14) 1px, transparent 1px)',
+          backgroundSize: '72px 72px',
+          maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.6), transparent 78%)',
+          pointerEvents: 'none',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
           inset: 24,
           border: `1px solid ${border}`,
           borderRadius: 28,
+          pointerEvents: 'none',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          inset: 31,
+          border: `1px solid ${dark ? 'rgba(247, 246, 242, 0.035)' : 'rgba(8, 18, 36, 0.045)'}`,
+          borderRadius: 22,
           pointerEvents: 'none',
         }}
       />

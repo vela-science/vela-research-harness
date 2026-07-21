@@ -7,12 +7,12 @@ import {colors, type} from '../design/tokens';
 import {enter, reveal} from '../motion';
 
 const missionRows = [
-  ['model', evidence.formal.model],
-  ['target', 'Erdős 505 · dimension one'],
-  ['artifact', evidence.formal.artifact],
-  ['verifier', `${evidence.formal.verifier} · frozen image`],
-  ['forbidden', evidence.formal.forbidden.join(' · ')],
-  ['policy', `${evidence.formal.expectedRoute} · accepted Δ ${evidence.formal.acceptedStateDelta}`],
+  ['model', evidence.primary.model],
+  ['target', 'Sidon subset · {0,1}²⁴'],
+  ['baseline', `${evidence.primary.baselineSize.toLocaleString()} verified points`],
+  ['artifact', `exact witness · ≥ ${evidence.primary.candidateSize.toLocaleString()}`],
+  ['verifier', `${evidence.primary.pairSumsChecked.toLocaleString()} pair sums`],
+  ['policy', `${evidence.primary.route} · accepted Δ ${evidence.primary.acceptedStateDelta}`],
 ];
 
 const custody = ['Codex', 'Git', 'Docker', 'Vela', 'frontier', 'sandbox'];
@@ -41,8 +41,8 @@ export const MissionRegistration = () => {
             Zero authority.
           </EditorialTitle>
           <div style={{marginTop: 34}}>
-            <RootText>{shortRoot(evidence.formal.profileRoot)}</RootText>
-            <RootText>{shortRoot(evidence.formal.missionRoot)}</RootText>
+            <RootText>{shortRoot(evidence.primary.profileRoot)}</RootText>
+            <RootText>{shortRoot(evidence.primary.missionRoot)}</RootText>
           </div>
         </div>
 

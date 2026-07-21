@@ -1,44 +1,50 @@
 # Final render QA
 
-The OpenAI Build Week master was rendered from source commit
-`ab10a97280dd41debeeca152cdf2ab22962c4e96` with Remotion `4.0.495`.
+The OpenAI Build Week master was rendered from the Remotion project over source
+base commit `d6815fbee072cc723e0a11eff6bcaeee43f33c98` with Remotion `4.0.495`.
+The release package is local-only; no video or gallery asset has been uploaded.
 
 ## Encoded master
 
 - Composition: `CanopusBuildWeek`
-- Duration: `166.293333` seconds (`2:46.293` container duration)
+- Duration: `166.266667` seconds (`2:46.267`)
 - Picture: H.264, 1920×1080, 30 fps, 4,988 frames, YouTube-compatible
   4:2:0 pixel format
-- Sound: AAC, 48 kHz, stereo container, `166.293333` seconds
-- Audio/video duration delta: `0.026666` seconds
-- Integrated check: mean `-16.1 dB`, peak `-1.8 dB`
-- File size: `12,472,311` bytes
+- Sound: AAC, 48 kHz, stereo, `166.250667` seconds
+- Audio/video duration delta: `0.016` seconds
+- Audio check: mean `-18.6 dB`, peak `-3.7 dB`
+- File size: `12,185,964` bytes
 - MP4 SHA-256:
-  `eb1570697afd57b79ffafb91ba829251c16d37bf048e1c191f571d4417683a10`
+  `974d2503a4e6a996b5620b0e4bd8ec614373ac49e1d930e71ee308fa45df9345`
 - SRT SHA-256:
-  `4849a9887df828204506590cbff9f4cc75ed5f9f4f4e57345de12975126fa0df`
+  `732190f8bd498d470222b78e539f6493c50cca24b5ac24760c7ea2637110f754`
 
-`pnpm verify:render` reproduces the codec, dimensions, frame-rate, frame-count,
-duration, and sync checks and writes `out/render-report.json`.
+`bun run verify:render` reproduces the codec, dimensions, frame-rate,
+frame-count, duration, and sync checks and writes `out/render-report.json`.
+`bun run package:release` builds the local upload package and its checksummed
+manifest under `out/release/`.
 
 ## Content and visual review
 
-- The film distinguishes the failed GPT-5.6 formal attempt from the retained
-  GPT-5.4 verified computation at every relevant scene.
-- The GPT-5.6 assessment is labeled `model_assessment` and never presented as
-  scientific state.
-- The failed proof stops before Receipt, proposal, route, commit, or frontier
-  mutation.
-- The successful chain ends at Defer with accepted-state delta zero.
-- No authentication, private run home, unrestricted log, human key, or private
-  absolute path appears in the source or rendered frames.
-- Burned-in captions and the standalone 54-cue SRT remain inside the 2:46.27
-  composition.
-- A 12-frame decoded contact sheet plus full-resolution retained-run and
-  end-card frames were inspected from the encoded MP4.
-- The live Observatory capture was made through the Codex Chrome integration
-  and its source binding is recorded in `public/captures/manifest.json`.
+- The film opens on the genuine GPT-5.6 Sidon result: the bounded `a(24)`
+  construction advances from 7,193 to 7,194.
+- The worker's exact replacement is shown: remove baseline point 72 and add
+  hexadecimal points `970f25` and `246891`.
+- The frozen verifier reports all 25,880,415 unordered componentwise pair sums
+  checked with zero collisions.
+- The independent audit, public run identity, Receipt-bound Defer route, and
+  accepted-state delta zero are all represented separately.
+- A formal Lean example demonstrates fail-closed behavior without implying that
+  the failed candidate produced a Receipt, proposal, route, or state mutation.
+- Canopus `0.6.2`, trusted publishing, SLSA provenance, the current Vela and
+  Observatory versions, and the clean-clone reproduction path are included.
+- No authentication, private run home, unrestricted log, human key, feedback
+  Session ID, or private absolute path appears in generated public surfaces.
+- Burned-in captions and the standalone 54-cue SRT end before the 2:46.27
+  composition boundary.
+- A ten-frame encoded contact sheet plus full-resolution cold-open,
+  Observatory, thumbnail, and end-card frames were inspected after rendering.
 
-The committed Samantha narration is the precisely timed production fallback.
-A natural human read remains the preferred final audio if one can be recorded
-without changing the script timings.
+The committed Samantha narration is a precisely timed production track with
+English voiceover. It can be replaced by a human read later without changing
+the evidence, scene timing, or caption contract.

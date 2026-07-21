@@ -6,15 +6,15 @@ import {colors, type} from '../design/tokens';
 import {enter, reveal} from '../motion';
 
 const events = [
-  ['01', 'thread.started', ''],
-  ['02', 'turn.started', ''],
-  ['03', 'item.completed', 'agent_message'],
-  ['04', 'item.started', 'command_execution · in_progress'],
-  ['05', 'item.completed', 'command_execution · completed'],
-  ['06', 'item.started', 'file_change · in_progress'],
-  ['07', 'item.completed', 'file_change · completed'],
-  ['08', 'item.completed', 'agent_message'],
-  ['09', 'turn.completed', ''],
+  ['01', 'load baseline', '7,193 points'],
+  ['02', 'build conflicts', 'exact pair sums'],
+  ['03', 'search exchange', '1 removed · 2 added'],
+  ['04', 'remove index', '72'],
+  ['05', 'add point', '970f25'],
+  ['06', 'add point', '246891'],
+  ['07', 'reconstruct', '7,194 points'],
+  ['08', 'enumerate', '25,880,415 sums'],
+  ['09', 'handoff', 'worker success'],
 ];
 
 export const WorkerStream = () => {
@@ -39,10 +39,10 @@ export const WorkerStream = () => {
             It cannot certify itself.
           </EditorialTitle>
           <div style={{marginTop: 34, display: 'grid', gap: 8}}>
-            <RootText>model: {evidence.formal.model}</RootText>
+            <RootText>model: {evidence.primary.model}</RootText>
             <RootText>engine: codex-tools-native</RootText>
             <RootText>
-              events: {shortRoot(evidence.formal.workerEventsRoot)}
+              packet: {shortRoot(evidence.primary.targetPacketRoot)}
             </RootText>
           </div>
         </div>

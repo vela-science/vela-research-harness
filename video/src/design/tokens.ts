@@ -18,7 +18,7 @@ export const colors = {
 
 export const type = {
   display: 'Newsreader Display',
-  sans: 'Inter',
+  sans: 'IBM Plex Mono',
   mono: 'IBM Plex Mono',
 } as const;
 
@@ -27,4 +27,3 @@ export const layout = {
   insetY: 84,
   captionSafeHeight: 132,
 } as const;
-

@@ -14,8 +14,8 @@ standalone SRT is suitable for YouTube captions.
 From this directory:
 
 ```console
-pnpm install --frozen-lockfile
-pnpm verify
+bun install --frozen-lockfile
+bun run verify
 ```
 
 The encoded outputs are intentionally ignored by Git:
@@ -26,8 +26,9 @@ The encoded outputs are intentionally ignored by Git:
 The generated SRT, evidence projection, narration fallback, and public capture
 manifest are committed so their bindings remain reviewable.
 
-Use `pnpm dev` for a Remotion Studio preview. Evidence and captions can be
-regenerated independently with `pnpm evidence` and `pnpm captions`.
+Use `bun run dev` for a Remotion Studio preview. Evidence, captions, and the
+timed narration can be regenerated independently with `bun run evidence`,
+`bun run captions`, and `bun run narration`.
 
 ## Evidence boundary
 
@@ -37,13 +38,20 @@ events, exact frozen-verifier output, a public Canopus run projection, and a
 public Observatory capture. It never imports a raw run directory, isolated
 home, authentication, unrestricted log, or human key.
 
-The film is deliberately explicit about the two different examples:
+The film follows one successful, end-to-end scientific result:
 
-- the formal GPT-5.6 attempt produced a candidate and failed the Lean verifier;
-- the retained GPT-5.4 computation passed its verifier and was routed to Defer,
-  with accepted-state delta zero;
-- GPT-5.6 separately performed a claim-fidelity assessment that was not landed
-  as scientific state.
+- GPT-5.6 improved the known construction for the bounded Sidon target
+  `a(24)` from 7,193 to 7,194;
+- the frozen verifier exhaustively checked all 25,880,415 unordered
+  componentwise pair sums and found zero collisions;
+- an independently authored verifier reproduced the result at a separately
+  bound audit commit;
+- Vela recorded the evidence and routed the proposal to Defer, leaving
+  accepted-state delta at zero until a human decides.
+
+A separate formal-proof example demonstrates fail-closed behavior: a Lean
+candidate containing an unresolved goal never becomes a Receipt, proposal,
+route, commit, or frontier mutation.
 
 The narration WAV is a precisely timed production fallback. A natural human
 read can replace it without changing the composition if it preserves the

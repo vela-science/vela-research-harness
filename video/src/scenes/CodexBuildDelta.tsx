@@ -5,13 +5,13 @@ import {colors, type} from '../design/tokens';
 import {enter, reveal} from '../motion';
 
 const delta = [
-  'GPT-5.6 mission profile',
-  'Canopus 0.4.5 release',
+  'bounded GPT-5.6 mission',
+  'new 7,194-point construction',
+  'independent frozen verifier',
+  'Vela Receipt and Defer route',
   'sanitized public projection',
-  'claim-fidelity advisory',
-  'Observatory evidence route',
-  'GitHub organization presentation',
-  'submission package',
+  'Observatory evidence surface',
+  'Canopus 0.6.2 release',
 ];
 
 export const CodexBuildDelta = () => {

@@ -35,7 +35,7 @@ export const ReleaseIdentity = () => {
               fontSize: 52,
             }}
           >
-            v{evidence.release.version}
+            v{evidence.release.canopusVersion}
           </div>
         </div>
 
@@ -51,7 +51,7 @@ export const ReleaseIdentity = () => {
         >
           <div style={{display: 'flex', gap: 12, flexWrap: 'wrap'}}>
             <StatusPill tone="evidence">trusted publishing</StatusPill>
-            <StatusPill tone="progress">provenance</StatusPill>
+            <StatusPill tone="progress">SLSA provenance</StatusPill>
           </div>
           <div
             style={{
@@ -85,8 +85,9 @@ export const ReleaseIdentity = () => {
             </div>
           </div>
           <div style={{marginTop: 30, display: 'grid', gap: 9}}>
-            <RootText>npm shasum: {evidence.release.npmShasum}</RootText>
+            <RootText>commit: {evidence.release.canopusCommit.slice(0, 12)}</RootText>
             <RootText>{shortRoot(evidence.release.packageSha256)}</RootText>
+            <RootText>Vela {evidence.release.velaVersion} · Observatory {evidence.release.observatoryVersion}</RootText>
           </div>
         </div>
       </div>

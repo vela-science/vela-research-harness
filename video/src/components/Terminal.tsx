@@ -12,41 +12,50 @@ export const Terminal = ({
 }) => (
   <div
     style={{
-      overflow: 'hidden',
       border: `1px solid ${tone === 'conflict' ? colors.conflict : colors.darkBorder}`,
-      borderRadius: 24,
-      backgroundColor: colors.darkEmphasis,
+      borderRadius: 27,
+      padding: 7,
+      backgroundColor: 'rgba(247, 246, 242, 0.025)',
       boxShadow:
-        'inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 28px 80px rgba(5, 12, 24, 0.18)',
+        'inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 28px 80px rgba(5, 12, 24, 0.18)',
     }}
   >
     <div
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        height: 48,
-        padding: '0 18px',
-        borderBottom: `1px solid ${colors.darkBorder}`,
-        color: colors.mist,
-        fontFamily: type.mono,
-        fontSize: 16,
-        letterSpacing: '0.04em',
+        overflow: 'hidden',
+        border: `1px solid ${colors.darkBorder}`,
+        borderRadius: 19,
+        backgroundColor: colors.darkEmphasis,
       }}
     >
-      <span style={{color: colors.stardust, marginRight: 12}}>●</span>
-      {title}
-    </div>
-    <div
-      style={{
-        padding: '24px 26px 28px',
-        color: colors.light,
-        fontFamily: type.mono,
-        fontSize: 21,
-        lineHeight: 1.55,
-        whiteSpace: 'pre-wrap',
-      }}
-    >
-      {children}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          height: 48,
+          padding: '0 18px',
+          borderBottom: `1px solid ${colors.darkBorder}`,
+          color: colors.mist,
+          fontFamily: type.mono,
+          fontSize: 16,
+          letterSpacing: '0.04em',
+        }}
+      >
+        <span style={{color: colors.stardust, marginRight: 12}}>●</span>
+        {title}
+      </div>
+      <div
+        style={{
+          padding: '24px 26px 28px',
+          color: colors.light,
+          fontFamily: type.mono,
+          fontSize: 21,
+          lineHeight: 1.55,
+          whiteSpace: 'pre-wrap',
+        }}
+      >
+        {children}
+      </div>
     </div>
   </div>
 );

@@ -1,5 +1,5 @@
 import {useCurrentFrame} from 'remotion';
-import {EvidenceChain} from '../components/Evidence';
+import {EvidenceChain, StatusPill} from '../components/Evidence';
 import {Scene} from '../components/Scene';
 import {Terminal} from '../components/Terminal';
 import {EditorialTitle, Label, RootText, shortRoot} from '../components/Typography';
@@ -8,137 +8,66 @@ import {colors, type} from '../design/tokens';
 import {enter, lineProgress, reveal} from '../motion';
 
 const chain = [
-  {label: 'Worker', detail: 'success'},
-  {label: 'Artifact', detail: 'frozen'},
-  {label: 'Lean verifier', detail: 'failed'},
-  {label: 'Receipt', detail: 'not produced'},
-  {label: 'Policy', detail: 'not reached'},
-  {label: 'State', detail: 'unchanged'},
+  {label: 'Artifact', detail: '359,754 bytes'},
+  {label: 'Parse', detail: '7,194 distinct'},
+  {label: 'Enumerate', detail: '25,880,415'},
+  {label: 'Uniqueness', detail: 'all distinct'},
+  {label: 'Verifier', detail: 'exit 0'},
+  {label: 'Receipt', detail: 'root-bound'},
 ];
 
-const absent = [
-  ['Receipt', 'not produced'],
-  ['proposal', 'not created'],
-  ['policy route', 'not reached'],
-  ['frontier commit', 'unchanged'],
-  ['accepted Δ', '0'],
+const checks = [
+  ['dimension', '24'],
+  ['points', '7,194'],
+  ['pair sums', '25,880,415'],
+  ['collisions', '0'],
+  ['result', 'PASS'],
 ];
 
 export const VerifierFailClosed = () => {
   const frame = useCurrentFrame();
-  const stopAtVerifier = lineProgress(frame, 38, 150) * 0.4;
+  const progress = lineProgress(frame, 38, 170);
 
   return (
-    <Scene eyebrow="Frozen Lean 4.27.0 replay" chapter="05 / fail closed">
+    <Scene eyebrow="Separate frozen verifier" chapter="05 / verify">
       <div style={{paddingTop: 48}}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'space-between',
-            ...enter(frame, 2),
-          }}
-        >
+        <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', ...enter(frame, 2)}}>
           <div>
-            <Label color={colors.darkConflict}>The candidate failed closed</Label>
+            <Label color={colors.progress}>The artifact does not grade itself</Label>
             <EditorialTitle style={{marginTop: 18, fontSize: 74}}>
-              A failed proof stays failed.
+              Every sum. Independently checked.
             </EditorialTitle>
           </div>
           <div style={{textAlign: 'right'}}>
-            <div
-              style={{
-                color: colors.darkConflict,
-                fontFamily: type.mono,
-                fontSize: 38,
-                letterSpacing: '0.08em',
-              }}
-            >
-              EXIT 1
-            </div>
-            <RootText>{shortRoot(evidence.formal.verifierResultRoot)}</RootText>
+            <StatusPill tone="progress">verifier pass</StatusPill>
+            <div style={{marginTop: 14}}><RootText>{shortRoot(evidence.primary.verifierRoot)}</RootText></div>
           </div>
         </div>
 
-        <div
-          style={{
-            marginTop: 36,
-            display: 'grid',
-            gridTemplateColumns: '1.22fr 0.78fr',
-            gap: 30,
-          }}
-        >
+        <div style={{marginTop: 36, display: 'grid', gridTemplateColumns: '1.22fr 0.78fr', gap: 30}}>
           <div style={{opacity: reveal(frame, 34, 20)}}>
-            <Terminal title="exact frozen replay" tone="conflict">
-              <span style={{color: colors.darkConflict}}>error: unsolved goals</span>
-              {'\n'}S : Set (EuclideanSpace ℝ (Fin 1))
-              {'\n'}hS : Bornology.IsBounded S
-              {'\n'}hd : 0 &lt; diam S
-              {'\n'}x : EuclideanSpace ℝ (Fin 1)
-              {'\n'}⊢ EuclideanSpace.single 0 (x.ofLp 0) = x
-              {'\n\n'}depends on axioms:
-              {'\n'}[propext, <span style={{color: colors.darkConflict}}>sorryAx</span>, Classical.choice, Quot.sound]
+            <Terminal title="network denied · read-only capsule">
+              <span style={{color: colors.stardust}}>$</span> capsule/verifier --claim a(24) ≥ 7194 witness.json
+              {'\n\n'}parsed 7,194 distinct binary points
+              {'\n'}enumerated 25,880,415 unordered sums
+              {'\n'}duplicate sums: <span style={{color: colors.progress}}>0</span>
+              {'\n'}claim binding: <span style={{color: colors.progress}}>matched</span>
+              {'\n\n'}<span style={{color: colors.progress}}>PASS · exit 0</span>
             </Terminal>
           </div>
 
-          <div
-            style={{
-              border: `1px solid ${colors.darkBorder}`,
-              borderRadius: 24,
-              overflow: 'hidden',
-              backgroundColor: colors.darkInset,
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.045)',
-            }}
-          >
-            {absent.map(([label, value], index) => {
-              const opacity = reveal(frame, 92 + index * 18, 12);
-              return (
-                <div
-                  key={label}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr auto',
-                    alignItems: 'center',
-                    minHeight: 73,
-                    padding: '0 22px',
-                    borderBottom:
-                      index === absent.length - 1
-                        ? 'none'
-                        : `1px solid ${colors.darkBorder}`,
-                    opacity,
-                  }}
-                >
-                  <span
-                    style={{
-                      color: colors.mist,
-                      fontFamily: type.mono,
-                      fontSize: 17,
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    {label}
-                  </span>
-                  <span
-                    style={{
-                      color: value === '0' ? colors.light : colors.darkConflict,
-                      fontFamily: type.mono,
-                      fontSize: 18,
-                    }}
-                  >
-                    {value}
-                  </span>
-                </div>
-              );
-            })}
+          <div style={{border: `1px solid ${colors.darkBorder}`, borderRadius: 24, overflow: 'hidden', backgroundColor: colors.darkInset}}>
+            {checks.map(([label, value], index) => (
+              <div key={label} style={{display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', minHeight: 73, padding: '0 22px', borderBottom: index === checks.length - 1 ? 'none' : `1px solid ${colors.darkBorder}`, opacity: reveal(frame, 92 + index * 18, 12)}}>
+                <span style={{color: colors.mist, fontFamily: type.mono, fontSize: 17, textTransform: 'uppercase'}}>{label}</span>
+                <span style={{color: value === 'PASS' ? colors.progress : colors.light, fontFamily: type.mono, fontSize: 18}}>{value}</span>
+              </div>
+            ))}
           </div>
         </div>
 
         <div style={{marginTop: 34}}>
-          <EvidenceChain
-            nodes={chain}
-            progress={stopAtVerifier}
-            stopTone="conflict"
-          />
+          <EvidenceChain nodes={chain} progress={progress} />
         </div>
       </div>
     </Scene>
