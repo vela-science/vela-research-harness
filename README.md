@@ -47,9 +47,15 @@ bunx @vela-science/canopus@0.6.1 profile validate sidon-a24-at-least-7194-gpt56-
 ```sh
 git clone https://github.com/vela-science/sidon-frontier.git
 cd sidon-frontier
-git checkout 4289e05876f142e72af622672e190be26f6a6f1d
-vela reproduce .
+git checkout 825657d7e87618c0aa6fc9af7e3182e05f324750
+vela reproduce artifacts/sidon-a24-gpt56-7194.witness.json
+node verification/verify-sidon-a24-7194.mjs \
+  artifacts/sidon-a24-gpt56-7194.witness.json
 ```
+
+The first command selects the pending artifact explicitly and runs Vela's
+frozen Sidon verifier. The second is an independent base-3 implementation that
+also rejects a bound collision injection. Neither command accepts the proposal.
 
 ## Quickstart
 

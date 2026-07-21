@@ -106,14 +106,22 @@ result is bound at
 
 ## Reproduce without rebuilding Canopus
 
-The primary state transition needs released Vela and the public frontier:
+The pending primary artifact needs released Vela and the public frontier. The
+audit commit adds an independent implementation without changing the retained
+Receipt, proposal, or accepted state:
 
 ```bash
 git clone https://github.com/vela-science/sidon-frontier.git
 cd sidon-frontier
-git checkout 4289e05876f142e72af622672e190be26f6a6f1d
-vela reproduce .
+git checkout 825657d7e87618c0aa6fc9af7e3182e05f324750
+vela reproduce artifacts/sidon-a24-gpt56-7194.witness.json
+node verification/verify-sidon-a24-7194.mjs \
+  artifacts/sidon-a24-gpt56-7194.witness.json
 ```
+
+`vela reproduce .` remains the whole-frontier canonical-witness check, but it
+must not be presented as verification of this still-pending proposal. The
+artifact-specific command above is the exact pending-result path.
 
 Inspect the packaged product under Node 22 or 24:
 
