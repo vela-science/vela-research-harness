@@ -9,7 +9,27 @@ ledger, immutable Receipt caveat reconciliation, and third-party notice that
 were added after `0.6.1`. It changes no runtime, protocol, Receipt, policy, or
 authority behavior.
 
-- Source/tag: `v0.6.2`
+- Source/tag: `43c1aa97165bd9c7e9b2dcbd232155f42ca8410c` / `v0.6.2`
+- Cross-platform CI, released-Vela composition, custody, verifier, and
+  installed-package smoke:
+  [run 29849463278](https://github.com/vela-science/vela-research-harness/actions/runs/29849463278)
+- CodeQL:
+  [run 29849462038](https://github.com/vela-science/vela-research-harness/actions/runs/29849462038)
+- OIDC publish, GitHub build attestation, npm provenance audit, and matching
+  GitHub release:
+  [run 29849601711](https://github.com/vela-science/vela-research-harness/actions/runs/29849601711)
+- Package SHA-256:
+  `7c82af47782c07c332f6b60020c9205da3d60132e970df0a3c7678545596a812`
+- npm shasum: `ee1f69bcaf616982af3d27bfb2a60cb243252f81`
+- npm integrity:
+  `sha512-mugVOz8ilh1VZ1S3A3BGS/2CowdplJd4qXTdi2AXNYOQCoJJ1/exOLlTw6BsU8FfGdgaASjxyJvq/+R+0015Aw==`
+- The npm and GitHub release tarballs are byte-identical. The GitHub
+  attestation verifies against the exact release workflow, tag, and source
+  digest.
+- A fresh `npm audit signatures --include-attestations` reports no invalid or
+  missing entries and verifies the npm signature plus SLSA provenance v1.
+- A clean registry install executed under Node `v24.14.0`, returned
+  `canopus 0.6.2`, and validated the exact Sidon v3 profile root.
 - Public package: <https://www.npmjs.com/package/@vela-science/canopus/v/0.6.2>
 - Matching release: <https://github.com/vela-science/vela-research-harness/releases/tag/v0.6.2>
 - Publication path: the repository release workflow validates the package on

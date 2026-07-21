@@ -46,7 +46,7 @@ documentation commits do not rewrite those release or evidence identities.
 | July 20 | Canopus `v0.5.0` at `25523ccb558f81db95c01b48b83616ed3ab05b35` | Added stage-typed run evidence and retry-safe Vela composition without adding an authority path. |
 | July 20 | Sidon independent-audit commit `825657d7e87618c0aa6fc9af7e3182e05f324750` | Added a separate base-3 verifier and a deterministic collision-injection rejection probe. |
 | July 21 | Canopus `v0.6.1` at `b98c846d61d4c554e43388107bcce77c51307db5` | Updated the released Vela and package identities; its packed judge path remained the generic canonical-witness check and is superseded by `v0.6.2`. |
-| July 21 | Canopus `v0.6.2` | Shipped the exact pending-artifact and independent-verifier judge path, dated evidence ledger, caveat reconciliation, and third-party notice in the provenance-backed package. |
+| July 21 | Canopus `v0.6.2` at `43c1aa97165bd9c7e9b2dcbd232155f42ca8410c` | Shipped the exact pending-artifact and independent-verifier judge path, dated evidence ledger, caveat reconciliation, and third-party notice in the provenance-backed package. |
 | July 21 | Vela `v0.912.0` at `bb6774b6a65ecc5615e17ddf574c3efd893e0e44` | Bound the final Build Week composition while leaving Receipt, policy, replay, and human-authority semantics intact. |
 | July 21 | Observatory `v0.340.6` at `7483ab20c0d2878f3d50a76ed1bca9969f7dd5f5` | Deployed the anonymous run detail and `/build-week` route with an exact evidence manifest. |
 | July 21 | Canopus documentation at `4cae162bc37538e9ff1add0ef42861804ff86a62` | Corrected the public commands to select and reproduce the pending witness rather than only retained canonical witnesses. |
