@@ -100,7 +100,9 @@ The formal profile `formal-erdos-505-test-dim-one-gpt56` supplies the public
 fail-closed counterexample. Run
 `run_4c2ba5f5-04ac-44d5-adb6-8937eb2ea165` produced a candidate, but the
 frozen Lean verifier rejected an unsolved inverse goal and `sorryAx`. Canopus
-stopped before Receipt creation or frontier mutation.
+stopped before Receipt creation or frontier mutation. The rejected verifier
+result is bound at
+`sha256:04e31b07889f94a1d205231942bf30fa6c3b27864520b6a42de58604da53e544`.
 
 ## Reproduce without rebuilding Canopus
 
