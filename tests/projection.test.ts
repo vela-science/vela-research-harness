@@ -50,3 +50,19 @@ test("run inspection rejects nested drift instead of casting it", () => {
   (drifted.reproduction as Record<string, unknown>).matched = false;
   assert.throws(() => parseRunRecord(drifted), /run\.reproduction\.matched must be true/u);
 });
+
+test("run v1 requires stage-typed observations while v0 remains replayable", () => {
+  const current = record();
+  current.schema = "canopus.run.v1";
+  current.observations = {
+    worker_observations: ["Worker found one bounded candidate."],
+    verifier_observations: ["Frozen verifier passed."],
+    standing_caveats: ["The claim remains pending human review."],
+  };
+  assert.deepEqual(parseRunRecord(current), current);
+  const missing = structuredClone(current) as unknown as Record<string, unknown>;
+  delete missing.observations;
+  assert.throws(() => parseRunRecord(missing), /run\.observations is required/u);
+  const legacy = record();
+  assert.deepEqual(parseRunRecord(legacy), legacy);
+});

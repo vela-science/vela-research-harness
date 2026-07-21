@@ -23,7 +23,7 @@ async function help(...args: string[]): Promise<string> {
 
 test("primary help presents only the compact product workflow", async () => {
   const output = await help("--help");
-  for (const command of ["doctor", "run", "inspect", "public-run", "replay", "withdraw"]) {
+  for (const command of ["doctor", "run", "inspect", "public-run", "publish-run", "replay", "withdraw"]) {
     assert.match(output, new RegExp(`canopus ${command}\\b`, "u"));
   }
   assert.doesNotMatch(output, /^\s*canopus (?:benchmark|benchmark-composition|validate)\b/mu);
@@ -37,7 +37,7 @@ test("version is a stable single-line product identity", async () => {
 });
 
 test("every compact product subcommand has focused help", async () => {
-  for (const command of ["doctor", "run", "inspect", "public-run", "replay", "withdraw"]) {
+  for (const command of ["doctor", "run", "inspect", "public-run", "publish-run", "replay", "withdraw"]) {
     const output = await help(command, "--help");
     assert.match(output, new RegExp(`canopus ${command}\\b`, "u"));
     assert.doesNotMatch(output, /Primary workflow:/u);

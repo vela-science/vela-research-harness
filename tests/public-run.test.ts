@@ -4,6 +4,7 @@ import test from "node:test";
 
 import type { Mission } from "../src/contracts/mission.js";
 import { projectPublicRun } from "../src/projection/public-run.js";
+import { buildPublicationBundle } from "../src/projection/publication.js";
 import type { RunRecord } from "../src/projection/run.js";
 import { contentDigest, sha256Bytes } from "../src/util/canonical.js";
 
@@ -199,6 +200,23 @@ test("public run projection fails closed on a non-Defer result", () => {
     () => projectPublicRun({ mission, record, repository: "https://github.com/vela-science/formal-conjectures-frontier" }),
     /requires Defer with zero accepted-state delta/u,
   );
+});
+
+test("publication bundle emits only rooted read-only evidence and pending commands", () => {
+  const { mission, record } = fixture();
+  const bundle = buildPublicationBundle({
+    mission,
+    record,
+    repository: "https://github.com/vela-science/formal-conjectures-frontier",
+  });
+  assert.equal(bundle.manifest.schema, "canopus.publication-manifest.v1");
+  assert.equal(bundle.webImport.projection_root, contentDigest(bundle.projection));
+  assert.equal(bundle.webImport.authority, "read_only");
+  assert.equal(bundle.pendingCommands.authority, "none");
+  assert.match(bundle.pendingCommands.commands[0]?.command ?? "", /--proposal vpr_public_fixture/u);
+  assert.match(bundle.pendingCommands.commands[2]?.command ?? "", /vela verify attach/u);
+  assert.equal(bundle.manifest.files["public-run.json"], contentDigest(bundle.projection));
+  assert.doesNotMatch(JSON.stringify(bundle), /\/Users\/|private\.key|worker-events/u);
 });
 
 test("the GPT-5.4 registration preserves the exact v0.4.3 bytes and roots", async () => {

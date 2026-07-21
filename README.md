@@ -38,8 +38,8 @@ Mission → GPT-5.6 → artifact → verifier → Receipt → Defer.
 **90 seconds — inspect the shipped product:**
 
 ```sh
-bunx @vela-science/canopus@0.5.2 --version
-bunx @vela-science/canopus@0.5.2 profile validate sidon-a24-at-least-7194-gpt56-v3
+bunx @vela-science/canopus@0.6.0 --version
+bunx @vela-science/canopus@0.6.0 profile validate sidon-a24-at-least-7194-gpt56-v3
 ```
 
 **Full workflow — reproduce without rebuilding Canopus:**
@@ -56,22 +56,35 @@ vela reproduce .
 Run the provenance-backed public package with Bun:
 
 ```sh
-bunx @vela-science/canopus@0.5.2 --version
+bunx @vela-science/canopus@0.6.0 --version
 ```
 
 Inspect a clean frontier, then run its first ranked producer offer:
 
 ```sh
-bunx @vela-science/canopus@0.5.2 doctor /path/to/frontier
-bunx @vela-science/canopus@0.5.2 run /path/to/frontier --first
-bunx @vela-science/canopus@0.5.2 inspect latest
-bunx @vela-science/canopus@0.5.2 replay /path/to/run.json
+bunx @vela-science/canopus@0.6.0 doctor /path/to/frontier
+bunx @vela-science/canopus@0.6.0 run /path/to/frontier --first
+bunx @vela-science/canopus@0.6.0 inspect latest
+bunx @vela-science/canopus@0.6.0 replay /path/to/run.json
 ```
+
+Export a completed Defer run without publishing or mutating anything:
+
+```sh
+canopus publish-run /path/to/run.json --mission /path/to/mission.json \
+  --repository https://github.com/vela-science/<frontier> \
+  --output ./public-evidence
+```
+
+The new directory contains `public-run.json`, `root-manifest.json`, exact
+pending-state commands, and a read-only Observatory import descriptor. Run v1
+separates worker observations, verifier observations, and caveats that remain
+standing after verification; historical run v0 records remain inspectable.
 
 Use `--no-land` for a diagnostic mission that cannot change the source frontier:
 
 ```sh
-bunx @vela-science/canopus@0.5.2 run /path/to/frontier --first --no-land
+bunx @vela-science/canopus@0.6.0 run /path/to/frontier --first --no-land
 ```
 
 `doctor` binds the exact Vela, Codex, Git, frontier, packet, profile, and verifier
@@ -112,7 +125,7 @@ commits, run roots, audit evidence, and nonclaims live in
 
 ## Development
 
-Requires Bun 1.3.12, Vela 0.911.1, Codex CLI 0.144.6, and Docker. The built
+Requires Bun 1.3.12, Vela 0.912.0, Codex CLI 0.144.6, and Docker. The built
 package also runs under Node 22 or 24; unsupported odd-numbered Node releases
 are rejected rather than silently treated as supported.
 

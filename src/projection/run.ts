@@ -11,11 +11,12 @@ import {
   stringAt,
 } from "../contracts/validation.js";
 
-export const RUN_RECORD_SCHEMA = "canopus.run.v0" as const;
+export const RUN_RECORD_SCHEMA = "canopus.run.v1" as const;
+export const LEGACY_RUN_RECORD_SCHEMA = "canopus.run.v0" as const;
 export const RUN_PROJECTION_SCHEMA = "canopus.run-projection.v0" as const;
 
 export interface RunRecord {
-  schema: typeof RUN_RECORD_SCHEMA;
+  schema: typeof RUN_RECORD_SCHEMA | typeof LEGACY_RUN_RECORD_SCHEMA;
   run_id: string;
   status: "completed";
   authority: "non_authoritative";
@@ -32,6 +33,11 @@ export interface RunRecord {
     claim: string;
     artifacts: Array<{ path: string; kind: string; digest: string; bytes: number }>;
     caveats: string[];
+  };
+  observations?: {
+    worker_observations: string[];
+    verifier_observations: string[];
+    standing_caveats: string[];
   };
   verifier: {
     status: "passed" | "failed" | "error";
@@ -121,13 +127,19 @@ function nullableCount(value: unknown, at: string): number | null {
 
 export function parseRunRecord(value: unknown): RunRecord {
   const record = objectAt(value, "run");
+  const schema = enumAt(
+    record.schema,
+    "run.schema",
+    [RUN_RECORD_SCHEMA, LEGACY_RUN_RECORD_SCHEMA] as const,
+  );
   exactKeys(
     record,
     [
       "schema", "run_id", "status", "authority", "external_gate_credit", "mission",
       "candidate", "verifier", "landing", "final_roots", "reproduction", "budget",
+      ...(schema === RUN_RECORD_SCHEMA ? ["observations"] : []),
     ],
-    [],
+    schema === LEGACY_RUN_RECORD_SCHEMA ? ["observations"] : [],
     "run",
   );
   const mission = objectAt(record.mission, "run.mission");
@@ -170,8 +182,25 @@ export function parseRunRecord(value: unknown): RunRecord {
     [],
     "run.budget",
   );
+  const observations = record.observations === undefined ? undefined : (() => {
+    const stages = objectAt(record.observations, "run.observations");
+    exactKeys(
+      stages,
+      ["worker_observations", "verifier_observations", "standing_caveats"],
+      [],
+      "run.observations",
+    );
+    const strings = (value: unknown, at: string) =>
+      arrayAt(value, at, { max: 16 }, (item, itemAt) =>
+        stringAt(item, itemAt, { min: 1, max: 4096 }));
+    return {
+      worker_observations: strings(stages.worker_observations, "run.observations.worker_observations"),
+      verifier_observations: strings(stages.verifier_observations, "run.observations.verifier_observations"),
+      standing_caveats: strings(stages.standing_caveats, "run.observations.standing_caveats"),
+    };
+  })();
   return {
-    schema: literal(record.schema, RUN_RECORD_SCHEMA, "run.schema"),
+    schema,
     run_id: stringAt(record.run_id, "run.run_id", { min: 5, max: 128 }),
     status: literal(record.status, "completed", "run.status"),
     authority: literal(record.authority, "non_authoritative", "run.authority"),
@@ -204,6 +233,7 @@ export function parseRunRecord(value: unknown): RunRecord {
         stringAt(item, at, { min: 1, max: 4096 }),
       ),
     },
+    ...(observations === undefined ? {} : { observations }),
     verifier: {
       status: enumAt(verifier.status, "run.verifier.status", ["passed", "failed", "error"] as const),
       sandbox: enumAt(

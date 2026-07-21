@@ -191,6 +191,27 @@ async function cloneExact(remote, commit, target) {
 }
 
 async function renderReaderFixture(target) {
+  const renderedSource = process.env.CANOPUS_SITE_RENDERED_SOURCE;
+  if (renderedSource !== undefined) {
+    const source = path.resolve(renderedSource);
+    const state = await gitState(source);
+    if (state.commit !== registration.products.site_commit || state.status.length !== 0) {
+      throw new Error("local rendered site source is not the registered clean exact commit");
+    }
+    const remote = await checked(["git", "remote", "get-url", "origin"], { cwd: source });
+    if (remote.stdout.toString("utf8").trim() !== registration.products.site_remote) {
+      throw new Error("local rendered site source remote does not match the registration");
+    }
+    await Promise.all([
+      copyFile(path.join(source, "apps/observatory/.next/server/app/index.html"), path.join(target, "home.html")),
+      copyFile(path.join(source, "apps/observatory/.next/server/app/frontiers/erdos.html"), path.join(target, "erdos.html")),
+      copyFile(
+        path.join(source, "apps/observatory/.next/server/app/frontiers/erdos/reproduce.html"),
+        path.join(target, "erdos-reproduce.html"),
+      ),
+    ]);
+    return;
+  }
   const site = await mkdtemp(path.join(tmpdir(), "vela-site-cold-use-"));
   try {
     const source = process.env.CANOPUS_SITE_SOURCE ?? registration.products.site_remote;

@@ -9,8 +9,8 @@ A completed run writes these local records beneath its run root:
 - `worker-final.json`: the exact final worker response;
 - `worker-stderr.bin`: the bounded raw worker stderr stream;
 - `engine-result.json`: the parsed worker outcome and usage;
-- `run.json`: the compact run record, exact roots, landing result, costs, and
-  clean-clone reproduction result;
+- `run.json`: the compact run record, exact roots, landing result, costs,
+  clean-clone reproduction result, and stage-typed observations;
 - `evidence-manifest.json`: content roots for the worker, run, candidate,
   artifacts, verifier result, Receipt when present, and final frontier roots;
 - `projection.json`: a read-only view for another consumer;
@@ -30,25 +30,36 @@ so in its schema and can be rebuilt with `canopus inspect run.json`. Deleting
 the run-record files must not change Vela replay, a policy route, or accepted
 state.
 
-For a public evidence surface, generate the strict sanitized projection only
-after the successful run has reached Defer with zero accepted-state delta and
-matched clean-clone replay:
+Completed runs now use `canopus.run.v1`. Its `observations` object separates
+three claims that must not be collapsed:
+
+- `worker_observations`: what the model reported or attempted;
+- `verifier_observations`: what the frozen mechanical verifier established;
+- `standing_caveats`: limitations that remain true after verification.
+
+Immutable `canopus.run.v0` records remain readable and replayable. Canopus does
+not rewrite them to manufacture the new evidence categories.
+
+For a public evidence surface, generate the publication bundle only after the
+successful run has reached Defer with zero accepted-state delta and matched
+clean-clone replay:
 
 ```bash
-canopus public-run /local/run/run.json \
+canopus publish-run /local/run/run.json \
   --mission /local/run/mission/mission.json \
   --repository https://github.com/vela-science/formal-conjectures-frontier \
-  --output canopus.public-run.v1.json
+  --output ./public-evidence
 ```
 
-`canopus.public-run.v1` contains only mission and model identity, a bounded
-activity summary, claim and caveats, artifact/verifier/Receipt roots, route,
-accepted delta, usage, source/final commits, and clean-clone reproduction
-commands. Those public commands target the mission's exact allowed artifact
-paths; they do not substitute frontier-wide accepted-state replay for
-verification of a pending artifact. It cannot export a failed or admitted run.
-Never publish the raw run
-directory, isolated homes, authentication, private paths, or unrestricted logs.
+The new directory contains the `canopus.public-run.v1` projection, an exact
+root manifest, read-only Observatory import data, and commands to reproduce or
+inspect the pending proposal and retain additional verifier evidence. The
+commands do not accept, publish, push, deploy, or cross a human authority
+boundary. The public projection contains only mission and model identity, a
+bounded activity summary, claim and caveats, artifact/verifier/Receipt roots,
+route, accepted delta, usage, source/final commits, and reproduction commands.
+It cannot export a failed or admitted run. Never publish the raw run directory,
+isolated homes, authentication, private paths, or unrestricted logs.
 
 The run root also contains isolated checkouts and content-addressed artifacts.
 The landing clone uses a disposable attached branch so Vela can publish exact

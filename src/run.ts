@@ -819,6 +819,14 @@ export async function runCanopus(
         artifacts: candidate.artifacts,
         caveats: candidate.caveats,
       },
+      observations: {
+        worker_observations: candidate.observations,
+        verifier_observations: [
+          `Frozen verifier passed in ${verifier.sandbox}.`,
+          `Verifier stdout ${verifier.record.stdout_digest}; stderr ${verifier.record.stderr_digest}.`,
+        ],
+        standing_caveats: candidate.caveats,
+      },
       verifier: {
         status: verifier.status,
         sandbox: verifier.sandbox,

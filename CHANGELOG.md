@@ -1,11 +1,22 @@
 # Changelog
 
+## 0.6.0 - 2026-07-20
+
+- Type completed-run evidence by stage as `worker_observations`,
+  `verifier_observations`, and `standing_caveats`, while preserving read
+  compatibility for immutable `canopus.run.v0` records.
+- Add `canopus publish-run`, which emits a sanitized public projection, root
+  manifest, exact pending-proposal commands, and read-only Observatory import
+  descriptor without landing, signing, pushing, deploying, or accepting.
+- Compose against Vela 0.912.0 and its proposal-scoped verifier attachment and
+  reproduction surfaces.
+
 ## 0.5.2 - 2026-07-20
 
 - Compose against Vela 0.911.1 so same-actor retries of `vela work` return the
   exact active session without appending a second lease event.
-- Preserve the 0.911.0 cold-use run as immutable diagnostic evidence; the
-  retry defect it exposed is not rewritten away.
+- Preserve the 0.911.0 cold-use run and registration as immutable diagnostic
+  evidence; any focused retry remains separate and never rewrites that record.
 
 ## 0.5.1 - 2026-07-20
 

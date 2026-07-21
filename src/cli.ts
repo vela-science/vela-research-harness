@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { readdir, stat, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 
 import { parseMission } from "./contracts/mission.js";
 import { CodexExecEngine } from "./engines/codex-exec.js";
@@ -14,6 +14,7 @@ import { parseDiagnosticRunRecord, projectDiagnosticRun } from "./projection/dia
 import { parseFailureRecord, projectFailure } from "./projection/failure.js";
 import { parseRunRecord, projectRun } from "./projection/run.js";
 import { projectPublicRun } from "./projection/public-run.js";
+import { buildPublicationBundle } from "./projection/publication.js";
 import { doctorProduct } from "./product/doctor.js";
 import { replayProduct } from "./product/replay.js";
 import { runProduct } from "./product/run.js";
@@ -42,6 +43,8 @@ Primary workflow:
   canopus inspect [run.json | latest]
   canopus public-run <run.json> --mission <mission.json> \
     --repository <public-url> --output <file>
+  canopus publish-run <run.json> --mission <mission.json> \
+    --repository <public-url> --output <new-directory>
   canopus replay <run.json>
   canopus withdraw [frontier] [--run <run.json|latest>] --reason <text>
 
@@ -117,6 +120,16 @@ function publicRunUsage(): string {
 Generates one canonical, sanitized canopus.public-run.v1 projection from a
 submission-ready completed run. Raw worker logs, homes, credentials, private
 paths, and unrestricted transcripts are never copied.`;
+}
+
+function publishRunUsage(): string {
+  return `Usage:
+  canopus publish-run <run.json> --mission <mission.json> \\
+    --repository <public-url> --output <new-directory>
+
+Creates a sanitized public projection, root manifest, proposal-scoped pending
+commands, and a read-only Vela Observatory import descriptor. It never lands,
+signs, accepts, pushes, or deploys.`;
 }
 
 function withdrawUsage(): string {
@@ -503,6 +516,43 @@ async function publicRunCommand(file: string | undefined, rest: string[]): Promi
   })}\n`);
 }
 
+async function publishRunCommand(file: string | undefined, rest: string[]): Promise<void> {
+  if (file === undefined) throw new Error("publish-run requires one completed run file");
+  const values = options(rest, ["--mission", "--repository", "--output"]);
+  const record = parseRunRecord(await jsonFile(file));
+  const mission = parseMission(await jsonFile(required(values, "--mission")));
+  const bundle = buildPublicationBundle({
+    record,
+    mission,
+    repository: required(values, "--repository"),
+  });
+  const output = path.resolve(required(values, "--output"));
+  const parent = path.dirname(output);
+  await mkdir(parent, { recursive: true, mode: 0o755 });
+  const temporary = await mkdtemp(path.join(parent, `.${path.basename(output)}.tmp-`));
+  try {
+    await Promise.all([
+      writeFile(path.join(temporary, "public-run.json"), canonicalJson(bundle.projection), { flag: "wx", mode: 0o644 }),
+      writeFile(path.join(temporary, "pending-commands.json"), canonicalJson(bundle.pendingCommands), { flag: "wx", mode: 0o644 }),
+      writeFile(path.join(temporary, "web-import.json"), canonicalJson(bundle.webImport), { flag: "wx", mode: 0o644 }),
+      writeFile(path.join(temporary, "root-manifest.json"), canonicalJson(bundle.manifest), { flag: "wx", mode: 0o644 }),
+    ]);
+    await rename(temporary, output);
+  } catch (error) {
+    await rm(temporary, { recursive: true, force: true });
+    throw error;
+  }
+  process.stdout.write(`${JSON.stringify({
+    ok: true,
+    command: "publish-run",
+    run_id: bundle.projection.run_id,
+    output,
+    projection_root: contentDigest(bundle.projection),
+    bundle_root: contentDigest(bundle.manifest),
+    authority_effect: "none",
+  })}\n`);
+}
+
 async function withdrawCommand(args: string[]): Promise<void> {
   const parsed = productOptions(args, ["--run", "--reason"], []);
   if (parsed.positional.length > 1) throw new Error("withdraw accepts at most one frontier");
@@ -544,6 +594,7 @@ async function main(argv: string[]): Promise<void> {
       : command === "doctor" ? doctorUsage()
       : command === "replay" ? replayUsage()
       : command === "public-run" ? publicRunUsage()
+      : command === "publish-run" ? publishRunUsage()
       : command === "withdraw" ? withdrawUsage()
       : usage()
     }\n`);
@@ -559,6 +610,10 @@ async function main(argv: string[]): Promise<void> {
   }
   if (command === "public-run") {
     await publicRunCommand(file, rest);
+    return;
+  }
+  if (command === "publish-run") {
+    await publishRunCommand(file, rest);
     return;
   }
   if (command === "withdraw") {
