@@ -5,6 +5,12 @@ Bounded Research for Codex**. It tells one evidence-bound story: a model may do
 the work, an independent verifier checks the artifact, Vela records and routes
 the evidence, and protected scientific acceptance remains human-only.
 
+The final cut is product-first. Roughly 71% of its runtime uses authentic
+public Chrome captures of the exact GitHub mission, retained artifact,
+independent verifier, npm package, Vela homepage, and live Observatory run.
+Designed scenes are limited to the result cold-open, the fail-closed formal
+example, and the final product message.
+
 The composition is 1920×1080, 30 fps, and 4,988 frames (2:46.27). Narration and
 burned-in English captions are timed from the same structured script. The
 standalone SRT is suitable for YouTube captions.
@@ -33,10 +39,10 @@ timed narration can be regenerated independently with `bun run evidence`,
 ## Evidence boundary
 
 `scripts/generate-evidence.mjs` reads only public, committed Canopus evidence.
-The film contains a sanitized structural projection of genuine GPT-5.6 worker
-events, exact frozen-verifier output, a public Canopus run projection, and a
-public Observatory capture. It never imports a raw run directory, isolated
-home, authentication, unrestricted log, or human key.
+The film combines that sanitized projection with source-bound captures created
+through the Codex Chrome integration. Every capture URL and SHA-256 appears in
+`public/captures/product-demo/manifest.json`. The film never imports a raw run
+directory, isolated home, authentication, unrestricted log, or human key.
 
 The film follows one successful, end-to-end scientific result:
 

@@ -1,7 +1,8 @@
 # Final render QA
 
-The OpenAI Build Week master was rendered from the Remotion project over source
-base commit `d6815fbee072cc723e0a11eff6bcaeee43f33c98` with Remotion `4.0.495`.
+The OpenAI Build Week product-first master was rendered from the Remotion
+project over source base commit `fbcbd2fa47706703eb03b1f26e2c19f542bd6bed`
+with Remotion `4.0.495`.
 The release package is local-only; no video or gallery asset has been uploaded.
 
 ## Encoded master
@@ -13,9 +14,9 @@ The release package is local-only; no video or gallery asset has been uploaded.
 - Sound: AAC, 48 kHz, stereo, `166.250667` seconds
 - Audio/video duration delta: `0.016` seconds
 - Audio check: mean `-18.6 dB`, peak `-3.7 dB`
-- File size: `12,185,964` bytes
+- File size: `78,729,491` bytes
 - MP4 SHA-256:
-  `974d2503a4e6a996b5620b0e4bd8ec614373ac49e1d930e71ee308fa45df9345`
+  `0f91243b3aef300577adf016dd6124c0b8a0e3b91f4081c56f0c8fd7a5fa4d88`
 - SRT SHA-256:
   `732190f8bd498d470222b78e539f6493c50cca24b5ac24760c7ea2637110f754`
 
@@ -26,6 +27,14 @@ manifest under `out/release/`.
 
 ## Content and visual review
 
+- Roughly 71% of the runtime is authentic public product footage captured in
+  Chrome rather than presentation slides.
+- The public Vela homepage, Canopus GitHub repository, exact GPT-5.6 profile,
+  retained artifact, independent verifier, npm package, Build Week ledger, and
+  live Observatory run are all shown directly.
+- Capture URLs, viewport, cropping disclosure, and SHA-256 roots are bound in
+  `public/captures/product-demo/manifest.json`; an automated test recomputes
+  every capture hash.
 - The film opens on the genuine GPT-5.6 Sidon result: the bounded `a(24)`
   construction advances from 7,193 to 7,194.
 - The worker's exact replacement is shown: remove baseline point 72 and add
@@ -42,7 +51,7 @@ manifest under `out/release/`.
   Session ID, or private absolute path appears in generated public surfaces.
 - Burned-in captions and the standalone 54-cue SRT end before the 2:46.27
   composition boundary.
-- A ten-frame encoded contact sheet plus full-resolution cold-open,
+- A ten-frame encoded contact sheet plus full-resolution mission, verifier,
   Observatory, thumbnail, and end-card frames were inspected after rendering.
 
 The committed Samantha narration is a precisely timed production track with
