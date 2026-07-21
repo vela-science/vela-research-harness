@@ -10,15 +10,43 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
+if (args.includes("--help")) {
+  process.stdout.write([
+    "Usage: node scripts/run-product-09-cold-use.mjs --output <new-directory> [options]",
+    "",
+    "Options:",
+    "  --registration <path>  Registration JSON (defaults to product-09-cold-use-v1.json)",
+    "  --output <path>        Required fresh output directory; existing paths are refused",
+    "  --preflight-only       Check fixtures and custody without making model calls",
+    "  --help                 Show this help",
+    "",
+  ].join("\n"));
+  process.exit(0);
+}
 const preflightOnly = args.includes("--preflight-only");
 const option = (name) => {
   const index = args.indexOf(name);
-  return index === -1 ? undefined : args[index + 1];
+  if (index === -1) return undefined;
+  const value = args[index + 1];
+  if (value === undefined || value.startsWith("--")) {
+    throw new Error(`${name} requires a value`);
+  }
+  return value;
 };
+const allowedArguments = new Set(["--help", "--preflight-only", "--registration", "--output"]);
+for (const argument of args) {
+  if (argument.startsWith("--") && !allowedArguments.has(argument)) {
+    throw new Error(`unknown option: ${argument}`);
+  }
+}
 const registrationPath = path.resolve(option("--registration") ?? path.join(root, "benchmarks/registration/product-09-cold-use-v1.json"));
 const registrationBytes = await readFile(registrationPath);
 const registration = JSON.parse(registrationBytes.toString("utf8"));
-const output = path.resolve(option("--output") ?? path.join(root, "benchmarks/results/product-09-cold-use-2026-07-17"));
+const outputArgument = option("--output");
+if (outputArgument === undefined) {
+  throw new Error("--output <new-directory> is required; benchmark evidence is never overwritten");
+}
+const output = path.resolve(outputArgument);
 
 const sha256 = (bytes) => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
 
@@ -334,8 +362,15 @@ function parseTrace(bytes) {
   return { session_id: sessionId, usage, observed_commands: commands };
 }
 
-await rm(output, { recursive: true, force: true });
-await mkdir(output, { recursive: true });
+await mkdir(path.dirname(output), { recursive: true });
+try {
+  await mkdir(output, { recursive: false, mode: 0o700 });
+} catch (error) {
+  if (error instanceof Error && "code" in error && error.code === "EEXIST") {
+    throw new Error(`cold-use output path already exists; choose a fresh --output path: ${output}`);
+  }
+  throw error;
+}
 const workRoot = await mkdtemp(path.join(tmpdir(), "vela-product-09-cold-use-"));
 const records = [];
 let stoppedError = null;

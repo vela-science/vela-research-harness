@@ -8,9 +8,11 @@
   "supersedes_for_future_calls": "product-091-cold-use-v1",
   "prior_evidence_disposition": "All earlier cold-use cells remain immutable diagnostics and are not pooled into this future adoption run.",
   "purpose": "Test whether four fresh sessions can use the released Vela 0.911, Canopus 0.5.1, and Vela Web 0.340.1 surfaces without semantic maintainer hints.",
+  "runner_amended_at": "2026-07-21T12:55:34Z",
+  "runner_amendment": "Before any registered model call, the runner was changed to require a fresh explicit output directory and refuse existing paths after a stopped preflight exposed destructive default-output reuse.",
   "runner": {
     "path": "scripts/run-product-09-cold-use.mjs",
-    "sha256": "sha256:3a4aeb32e0dce59f3adee526c44b908a3fd282a3cc0935ab10a3bff82be2b49d",
+    "sha256": "sha256:dd5956ebd97d46e81b53a1b732887f1a21db490a1706ab1a54346ab66785d148",
     "fixture_phase": "all fixtures and custody profiles must pass before the first model call",
     "partial_evidence": "run.json is serialized on every stopped execution",
     "runtime_setup": "fixture-local agent and temporary directories are idempotent across preflight and execution"
