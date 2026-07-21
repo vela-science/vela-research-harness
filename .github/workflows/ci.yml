@@ -15,12 +15,12 @@ jobs:
         include:
           - runner: macos-15
             archive: vela-macos-aarch64.zip
-            archive_sha256: 2cad12b64a88d76c07b9afb9d940d01cee03f0ded5fb089cc5f69b2044cf1277
-            binary_sha256: d3abf93192709e0d3edd65f01dd13a58822a64367f9b21583d4059a40a9c2dcf
+            archive_sha256: be1caed8eb9c7c69c0d60e1140ba5056f983a5f84802496d7dd8447b43abf2d9
+            binary_sha256: 5510efe75ec202f2b023de4baf72c64c3b21d6017f55d990147b651bce96c6f2
           - runner: ubuntu-24.04
             archive: vela-linux-x86_64.tar.gz
-            archive_sha256: 5917382a188c348fee0162b6f2e267d2a9ba8c1368af9ecbb7ae34da3a8f828e
-            binary_sha256: 2d4bb9abff233fc2b9328d99989714b811a09642e045f01ab98df1c2a77f78b1
+            archive_sha256: faaec7d8d7503b5addd67d8b25fb18fb1abf4fbd24f6a41957fd7653e0be2502
+            binary_sha256: de0ec138fcd2af0212640f67e0c185f67c5036e9b2539bfc776d8c2882ebc0fc
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 15
     steps:
@@ -52,7 +52,7 @@ jobs:
           VELA_SHA256: ${{ matrix.binary_sha256 }}
         run: |
           curl --fail --location --silent --show-error \
-            "https://github.com/vela-science/vela/releases/download/v0.911.1/$VELA_ARCHIVE" \
+            "https://github.com/vela-science/vela/releases/download/v0.912.0/$VELA_ARCHIVE" \
             --output "$RUNNER_TEMP/$VELA_ARCHIVE"
           printf '%s  %s\n' "$VELA_ARCHIVE_SHA256" "$RUNNER_TEMP/$VELA_ARCHIVE" \
             | shasum -a 256 -c -
@@ -169,10 +169,10 @@ jobs:
         run: |
           $archive = "$env:RUNNER_TEMP\vela-windows-x86_64.zip"
           Invoke-WebRequest `
-            -Uri "https://github.com/vela-science/vela/releases/download/v0.911.1/vela-windows-x86_64.zip" `
+            -Uri "https://github.com/vela-science/vela/releases/download/v0.912.0/vela-windows-x86_64.zip" `
             -OutFile $archive
           if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLower() -ne `
-              "666302101c451c549c630b8be32ab7c51c3f7851d8e7a76867f2f385b46522ea") {
+              "2b7445b0781529b1aca0689744d3aa155fc6e82b1fff360005af54dbbb631145") {
             throw "Vela archive checksum mismatch"
           }
           Expand-Archive $archive "$env:RUNNER_TEMP\vela"
