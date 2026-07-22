@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://app.vela.space/build-week">Live evidence</a> ·
+  <a href="https://app.vela.space/frontiers/sidon-sets/runs/run_f68e4cfc-e5c7-4c73-86cb-d79807c47ec4">Retained Sidon run</a> ·
   <a href="BUILD_WEEK.md">Build Week record</a> ·
   <a href="docs/MISSIONS.md">Missions</a> ·
   <a href="docs/RUN_RECORD.md">Run records</a> ·
@@ -29,10 +29,29 @@ Receipt through `vela land`.
 It cannot sign, accept a proposal, or make a scientific decision. Removing
 Canopus does not change accepted state or Vela replay.
 
-## Judge quickstart
+## Where Canopus fits
+
+The Vela product story has five steps:
+
+1. **Produce:** any suitable workbench may produce bounded work; Canopus is the
+   optional isolated producer for Codex.
+2. **Preserve:** the canonical frontier Git repository preserves the exact
+   source, artifacts, and history.
+3. **Check:** Vela replays the frontier and frozen verifiers fail closed.
+4. **Decide:** signed policy or one protected human decision determines
+   scientific standing.
+5. **Reuse:** the read-only Observatory and other replaceable readers help
+   people inspect, reproduce, and continue the work.
+
+Canopus owns **Produce** only. It reuses Git for preservation and Vela for
+checking, landing, replay, and authority; it does not become a second state
+store, verifier authority, or scientific workbench platform.
+
+## Inspect one retained example
 
 **20 seconds — inspect the real result:** open the anonymous
-[Build Week evidence page](https://app.vela.space/build-week) and follow
+[retained Sidon run](https://app.vela.space/frontiers/sidon-sets/runs/run_f68e4cfc-e5c7-4c73-86cb-d79807c47ec4)
+and follow
 Mission → GPT-5.6 → artifact → verifier → Receipt → Defer.
 
 **90 seconds — inspect the shipped product:**
@@ -126,11 +145,11 @@ Advanced profile and withdrawal commands are documented in
 content-addressed contracts that bind the target, packet, objective, artifact
 types, worker, verifier, replay command, budgets, and landing ceiling.
 
-## OpenAI Build Week
+## Retained Build Week evidence
 
 Inspect the retained Mission → worker → artifact → verifier → Receipt → Defer
-chain on the [live evidence surface](https://app.vela.space/build-week). Exact
-commits, run roots, audit evidence, and nonclaims live in
+chain on the [exact Sidon run](https://app.vela.space/frontiers/sidon-sets/runs/run_f68e4cfc-e5c7-4c73-86cb-d79807c47ec4).
+Exact commits, run roots, audit evidence, and nonclaims live in
 [`BUILD_WEEK.md`](BUILD_WEEK.md).
 
 ## Development

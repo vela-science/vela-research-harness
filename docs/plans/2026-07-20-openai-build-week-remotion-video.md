@@ -1,6 +1,10 @@
 # OpenAI Build Week Remotion Video Implementation Plan
 
-> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
+> **Status: Completed historical implementation record.** The film and its
+> evidence were completed during OpenAI Build Week. Commands, versions, routes,
+> and production notes below describe that dated build; they are not current
+> Canopus product guidance. Current usage starts in the repository README and
+> `docs/MISSIONS.md`.
 
 **Goal:** Produce a polished, truthful, public 1920x1080 Remotion film for the OpenAI Build Week submission, with English voiceover and burned-in captions, in 2:46.27 or less.
 

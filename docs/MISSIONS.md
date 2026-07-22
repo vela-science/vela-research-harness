@@ -1,26 +1,12 @@
-# Mission roles
+# Missions
 
-Canopus Mission v0 runs one explicit role per mission. The role changes the worker
-instruction, not the trust boundary:
+Mission v1 is the current Canopus mission contract. Canopus owns only the
+**Produce** step in Vela's five-step product story: produce → preserve → check
+→ decide → reuse. The frontier Git repository preserves; Vela checks and
+governs standing; signed policy or a protected human decision decides; the
+Observatory and other replaceable readers support reuse.
 
-- `producer` constructs the smallest candidate or preserves a null result;
-- `adversary` seeks a concrete counterexample or narrows the claim;
-- `verifier` checks correspondence between the candidate and declared tests,
-  while the separate frozen executable remains the mechanical verifier;
-- `fidelity` checks that prose claims do not outrun frozen artifacts and
-  verifier facts.
-
-A research loop may fan these into separate missions against the same exact
-accepted roots. Each result lands its own Receipt and route. A repair mission
-names an immutable parent candidate, but a substantive downstream mission may
-inherit only state that Vela reports as accepted. Defer, a verifier pass, or a
-Canopus candidate digest is not an inheritance edge.
-
-This deliberately avoids a workflow DSL, agent society, or second graph. Git
-stores the bytes, Vela stores authority and accepted lineage, and Canopus is
-replaceable orchestration over those primitives.
-
-## Mission v1
+## Mission v1: current
 
 Mission v1 keeps the same four roles and authority boundary while adding a
 tool-enabled local worker. `mission prepare` selects the first ranked attack,
@@ -76,3 +62,33 @@ Vela policy derivation, strict replay, and third-party reproduction one shared
 pure verifier and claim-fidelity contract. A target-specific wrapper is kept
 only when Vela has no suitable verifier; it is not duplicated for presentation
 or convenience.
+
+## Mission roles
+
+One Mission v1 bundle runs one explicit role. The role changes the worker
+instruction, not the trust boundary:
+
+- `producer` constructs the smallest candidate or preserves a null result;
+- `adversary` seeks a concrete counterexample or narrows the claim;
+- `verifier` checks correspondence between the candidate and declared tests,
+  while the separate frozen executable remains the mechanical verifier; and
+- `fidelity` checks that prose claims do not outrun frozen artifacts and
+  verifier facts.
+
+A research loop may fan these into separate missions against the same exact
+accepted roots. Each result lands its own Receipt and route. A repair mission
+names an immutable parent candidate, but a substantive downstream mission may
+inherit only state that Vela reports as accepted. Defer, a verifier pass, or a
+Canopus candidate digest is not an inheritance edge.
+
+This deliberately avoids a workflow DSL, agent society, or second graph. Git
+stores the bytes, Vela stores authority and accepted lineage, and Canopus is
+replaceable orchestration over those primitives.
+
+## Mission v0: historical replay only
+
+Mission v0 is retained solely so frozen benchmark registrations and historical
+run records remain reproducible. It used the same four roles with a tool-free
+worker and the older macOS Seatbelt verifier manifest. Do not prepare new
+product missions with v0; use Mission v1. Historical v0 bytes and results remain
+unchanged.
