@@ -1,13 +1,12 @@
-# ADR 0008: Corpus adapters and the knowledge-profile boundary
+# ADR 0008: Source-local workbench adapters and the shared-extraction boundary
 
 - Status: Proposed
 - Release posture: Unscheduled; no Canopus version is reserved
 - Protocol effect: None
-- Entry gate: both conditions below must pass before implementation
-  1. two stable, licensed, machine-readable workbench export formats require
-     the same demonstrably reusable fields; and
-  2. the parent ecosystem's in-place Erdős reader experiment records a GO
-     result without moving authority out of Vela.
+- Source-local experiment gate: one stable, licensed, machine-readable
+  workbench export with a real bounded handoff
+- Shared-extraction gate: two qualifying formats expose duplicated common code
+  that the extraction deletes
 
 ## Context
 
@@ -17,10 +16,11 @@ The Vela product story is intentionally short:
 produce → preserve → check → decide → reuse
 ```
 
-Canopus owns **Produce** only. A canonical frontier Git repository preserves
-the work. Vela checks replay and verifier evidence. Signed policy or a protected
-human decision decides scientific standing. The read-only Observatory and
-other replaceable readers support reuse.
+Canopus is a removable producer and workbench-adapter layer. A canonical
+frontier Git repository preserves the work. Vela is the sole protocol and
+authority boundary: it checks replay and verifier evidence, and only signed
+policy or a protected human decision decides scientific standing. The
+read-only Observatory and other replaceable readers support reuse.
 
 Research tools such as Codex, Entire, OpenScience, OpenResearch, notebooks, and
 batch schedulers can expose useful execution records. That does not by itself
@@ -29,22 +29,26 @@ semantic service. Each abstraction would become permanent product surface and
 could blur Canopus's narrow role.
 
 The evidence currently supports studying source formats, not shipping a new
-interoperability layer. One source-specific path is not a platform boundary.
+interoperability layer. One source-specific path can justify one removable
+source-local adapter experiment; it is not a shared platform boundary.
 
 ## Proposed decision
 
-Do not implement a shared adapter system yet.
+Do not implement a shared adapter system yet. A qualifying source-local
+experiment does not require a Vela reader GO, protocol change, or Canopus
+release.
 
-1. Start with a small source-local export/import script for each independently
-   useful format.
+1. After one format passes the source-format evidence gate, start with one
+   small source-local export/import script for its independently useful
+   handoff.
 2. Keep every script offline, content-addressed, authority-free, and removable.
 3. Record the exact licensed source schema, version, exported bytes, missing
    fields, and any duplicated mapping logic.
-4. Reopen this ADR only after two real formats require the same core and the
-   parent Erdős reader experiment has passed its own authority and loss checks.
+4. Reopen this ADR for shared extraction only after two real formats require
+   the same core.
 5. If the gates pass, promote only the fields and code proved common by those
-   two implementations. Delete the source-local duplication in the same
-   change.
+   two implementations. The promotion change must delete the source-local
+   duplication rather than retaining three implementations.
 
 The following remain candidate ideas, not approved interfaces:
 
@@ -90,8 +94,10 @@ Current candidates:
   the canonical source.
 - OpenScience may qualify only after its exact version, Apache-2.0 source,
   stable export, and redistributable fixtures are pinned.
-- OpenResearch is precedent only while its public export format or license is
-  absent or unstable.
+- OpenResearch does not currently qualify: its public surface does not provide
+  both a stable versioned machine-readable export contract and a license that
+  permits implementation plus fixture redistribution. It remains precedent
+  only until both are available and pinned.
 - Cursor Origin is precedent only while it lacks a stable public schema,
   implementation surface, and license.
 
@@ -101,8 +107,8 @@ for an existing Canopus mission.
 
 ## Candidate contract constraints
 
-If the entry gate passes, any shared activity record must remain a closed,
-authority-free observation. At minimum it would bind:
+If the shared-extraction gate passes, any shared activity record must remain a
+closed, authority-free observation. At minimum it would bind:
 
 - producer and adapter identity and full artifact roots;
 - objective, declared bounds, process outcome, and explicit missing fields;
@@ -142,17 +148,19 @@ version must be byte-identical. Changed source bytes create a new record and
 never overwrite the first. Permissive inspection may report a rooted opaque
 source and diagnostics, but it cannot land a Receipt or supply policy context.
 
-## Evidence required to reopen this ADR
+## Evidence required for shared extraction
 
-Reconsider implementation only when all of the following are recorded:
+Reconsider a shared Canopus implementation only when all of the following are
+recorded:
 
-1. the parent Erdős reader experiment is GO;
-2. two qualifying licensed formats have working source-local scripts;
-3. their independently written mappings expose a concrete common core;
-4. promoting that core removes more maintained code than it adds;
-5. exact replay works offline from retained bytes;
-6. hostile custody fixtures show no secret or human-key exposure; and
-7. Vela state changes only through the released Receipt/proposal/policy path.
+1. two qualifying licensed formats have working source-local scripts;
+2. their independently written mappings expose a concrete common core;
+3. promoting that core deletes the corresponding duplicated code and removes
+   more maintained code than it adds;
+4. exact replay works offline from retained bytes;
+5. hostile custody fixtures show no secret or human-key exposure; and
+6. Vela remains the sole authority boundary, with state changes possible only
+   through the released Receipt/proposal/policy/decision path.
 
 Passing these gates authorizes a new decision, not an automatic release. The
 ADR must then name the smallest exact interface and a release target based on
@@ -169,8 +177,8 @@ the implementation actually selected.
   authority semantics.
 - **Ingest directly into Neon.** The read model is disposable and cannot be the
   only retained or replayable record.
-- **Create a `vela-knowledge` service first.** The reader experiment must prove
-  a missing boundary before a repository, package, or service can be justified.
+- **Create a `vela-knowledge` service first.** A source-local producer adapter
+  does not justify a repository, package, database, protocol, or service.
 - **Accept free-form JSON.** Unknown semantics, secrets, and authority language
   would cross the boundary silently.
 
@@ -178,5 +186,5 @@ the implementation actually selected.
 
 Canopus stays small and understandable. Useful source-specific experiments can
 proceed without reserving a release or creating a framework. A shared contract
-will exist only if two real integrations and the Erdős reader experiment prove
-that it deletes duplication while preserving the Vela authority boundary.
+will exist only if two real integrations prove that it deletes duplication
+while preserving Vela as the sole authority boundary.

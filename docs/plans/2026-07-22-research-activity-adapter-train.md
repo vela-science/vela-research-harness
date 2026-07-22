@@ -7,8 +7,10 @@
 
 ## Purpose
 
-Determine whether two real workbench exports justify any shared Canopus
-activity contract. This is an evidence plan, not an implementation train.
+Determine whether one real workbench export justifies a removable source-local
+adapter and, only after a second qualifying format exists, whether their
+duplicated code justifies any shared Canopus activity contract. This is an
+evidence plan, not an implementation train.
 
 The product story remains:
 
@@ -16,21 +18,25 @@ The product story remains:
 produce → preserve → check → decide → reuse
 ```
 
-Canopus serves **Produce**. Source-local scripts may help one producer hand
-rooted bytes to a frontier Git repository. Git preserves, Vela checks, signed
-policy or a protected human decision decides, and replaceable readers support
-reuse. This plan must not create a second state store, authority path, generic
-research platform, or semantic service.
+Canopus is a removable producer and workbench-adapter layer. Source-local
+scripts may help one producer hand rooted bytes to a frontier Git repository.
+Git preserves; Vela is the sole authority boundary that checks and decides
+through its existing signed-policy or protected-human-decision paths; and
+replaceable readers support reuse. This plan must not create a second state
+store, authority path, generic research platform, or semantic service.
 
 ## Entry gates
 
-Do not start shared Canopus implementation until both gates pass:
+One format is enough for a source-local experiment when it has a stable,
+licensed, machine-readable export, redistributable fixtures, deterministic
+offline parsing, and one real bounded handoff to replace. That experiment may
+start without a Vela protocol change, reader experiment, shared Canopus
+interface, or release.
 
-1. The parent ecosystem's in-place Erdős reader experiment records GO after
-   its loss, round-trip, authority, and reuse checks.
-2. Two stable, licensed, machine-readable workbench formats have independent
-   source-local import scripts whose repeated code demonstrates one smaller
-   common contract.
+Do not start shared Canopus implementation until two stable, licensed,
+machine-readable workbench formats have independent source-local import scripts
+whose repeated code demonstrates one smaller common contract. The promotion
+must delete that duplicate code in the same change.
 
 Until then, the activity envelope, profile v3, adapter SDK, registry, and CLI
 commands remain deferred. No future Canopus version is reserved.
@@ -51,7 +57,9 @@ Candidate order:
 
 1. Entire CLI `v0.8.42`, using only released documented exports;
 2. OpenScience, after pinning its exact Apache-2.0 source and stable export;
-3. OpenResearch only after a stable licensed export exists; and
+3. OpenResearch only after it publishes and pins both a stable versioned
+   machine-readable export contract and a license permitting implementation
+   plus fixture redistribution; it does not currently qualify; and
 4. Cursor Origin only after a public stable schema and license exist.
 
 Direct Codex transcript parsing does not count as an independent second
@@ -82,7 +90,7 @@ normalizes an incomplete capture.
 
 ## Stage 3: Measure commonality
 
-After two source-local scripts exist, compare them mechanically:
+After two qualifying source-local scripts exist, compare them mechanically:
 
 - fields with identical meaning and validation;
 - canonicalization and hostile-input code duplicated byte-for-byte or by
@@ -92,7 +100,9 @@ After two source-local scripts exist, compare them mechanically:
 - code added versus code that a shared layer would delete; and
 - at least one real handoff reused by a second consumer.
 
-Produce a short comparison report with a GO, PIVOT, or NO-GO result.
+Produce a short comparison report with a GO, PIVOT, or NO-GO result. A GO is
+invalid unless the proposed extraction removes the duplicated source-local
+implementation rather than layering a third copy above it.
 
 ### GO
 
@@ -114,7 +124,8 @@ formats do not share a stable boundary. Canopus remains unchanged.
 
 ## Stage 4: Candidate shared contract, only after GO
 
-If both entry gates and Stage 3 return GO, the follow-up plan may consider:
+If the shared-extraction gate and Stage 3 return GO, the follow-up plan may
+consider:
 
 - one closed authority-free activity envelope;
 - one shared adapter boundary limited to the duplicated code;
@@ -153,7 +164,9 @@ removes.
 
 ## Exit condition
 
-This plan is complete when the two entry gates yield a documented decision:
+This plan is complete when one qualifying format has received a source-local
+GO/PIVOT/NO-GO decision and, if a second qualifying format exists, the
+shared-extraction gate receives a documented decision:
 
 - **GO:** a new bounded implementation plan replaces this document;
 - **PIVOT:** only the proved smaller utility is proposed; or
