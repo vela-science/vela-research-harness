@@ -1,14 +1,12 @@
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
 import test from "node:test";
-
-const packageRoot = fileURLToPath(new URL("../../", import.meta.url));
 
 test("published Canopus is one self-contained inert tarball", async () => {
   const manifest = JSON.parse(
     await readFile(new URL("../../package.json", import.meta.url), "utf8"),
   ) as {
+    name?: string;
     bin?: Record<string, string>;
     engines?: Record<string, string>;
     dependencies?: Record<string, string>;
@@ -18,7 +16,7 @@ test("published Canopus is one self-contained inert tarball", async () => {
     files?: string[];
   };
 
-  assert.equal(packageRoot.endsWith("vela-research-harness/"), true);
+  assert.equal(manifest.name, "@vela-science/canopus");
   assert.deepEqual(manifest.dependencies ?? {}, {});
   assert.deepEqual(manifest.optionalDependencies ?? {}, {});
   assert.deepEqual(manifest.peerDependencies ?? {}, {});

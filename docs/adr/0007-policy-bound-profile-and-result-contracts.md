@@ -1,8 +1,11 @@
 # ADR 0007: Policy-bound profile and result contracts
 
-- Status: Proposed
-- Candidate target: Canopus `v0.5.0`
-- Dependency: Vela ADR 0013 entry gate
+- Status: Deferred
+- Historical candidate target: Canopus `v0.5.0` (not released as an enabled
+  profile)
+- Dependency: accepted Vela ADR 0013
+- Implementation status: dormant compatibility machinery shipped; product
+  acceptance gate unmet
 
 ## Context
 
@@ -11,7 +14,7 @@ but Vela policy v0.1 cannot necessarily distinguish the intended profile from
 another computational verifier with the same assurance class. Canopus must not
 solve that by becoming a policy or authority service.
 
-## Candidate decision
+## Deferred decision
 
 Vela ADR 0013 is accepted. Without introducing Mission v2, a closed Canopus
 profile v2 may add one canonical `canopus.result-contract.v1` and register
@@ -49,18 +52,66 @@ It may prepare the exact read-only policy plan for inspection. The human alone
 approves the protected card. A policy mismatch, missing binding, unexpected
 Permit, or unexpected accepted-state delta stops the run.
 
-## Release gate
+## Shipped implementation and release history
 
-The release requires the hostile wrong-profile and wrong-target vectors, one
-hostile claim-substitution vector, one real positive Sidon witness or an honest
-Deferred/null outcome, exact Receipt and policy replay, and unchanged behavior
-for every Canopus 0.3/0.4 run record. A producer-declared Receipt verifier row
-is not by itself load-bearing policy evidence: the release also requires an
-end-to-end Vela route whose assurance derives from retained event evidence or
-the v0.2 exact Vela-native witness floor. Lowering the signed policy's
-assurance threshold is not an acceptable substitute.
+The public package contains a compatibility implementation of this candidate,
+but that does not make the product decision accepted:
 
-The current frozen Sidon candidate binds profile root
+- commit `c3eabca6718be87f67d0cb7181fa4347d8a218a9` added the
+  `vela.execution-binding.v1` and `canopus.result-contract.v1` parsers, Mission
+  v1 validation, profile checks, Receipt mapping, and Vela CLI forwarding;
+- commit `b9f1567498b7c0ebc80007a304a8847353c66734` bound the candidate to exact
+  claim bytes and rejected claim substitution;
+- commit `7ab8236c89d6253a3adc09bc9ce535a3d6892b7c` retained the last frozen
+  `sidon-a24-improve` Permit candidate; and
+- commit `752f674bd32ca94b42bbe55997fea2b08dd172dc` deleted that profile, mission,
+  and result-contract file before any stable public release.
+
+The dormant parser, schema, and forwarding surface first appeared in the
+published stable package at `v0.4.2` and remains present in `v0.6.2`. The
+package exports the contract types, validates all four full roots, substitutes
+the registered exact claim only after verifier success, passes the roots to
+Vela's sole Receipt authoring edge, and checks the retained binding. Unit tests
+cover the fail-closed parser and substitution cases.
+
+That is compatibility and implementation evidence, not evidence that a
+policy-bound Canopus product profile shipped. Every real profile packaged by
+`v0.6.2` is Defer-only and omits `result_contract`. The released-Vela
+integration test exercises Mission v0, Defer, accepted-event delta zero, and
+clean-clone replay. No retained real run in the release records Permit or
+accepted-event delta one. The ADR itself is not part of the npm package.
+
+Vela ADR 0013 being Accepted proves that released Vela can interpret an exact
+execution binding under a matching signed policy. It does not prove that
+Canopus registered, shipped, or exercised such a profile. This ADR therefore
+remains Deferred. Historical package behavior and public API bytes remain
+auditable without claiming the unexercised product path is current.
+
+## Future acceptance gate
+
+Acceptance requires a new dated candidate and all of the following evidence:
+
+1. one exact Permit profile and its result contract are included in the packed
+   public package;
+2. hostile wrong-profile, wrong-target, wrong-packet, wrong-capsule,
+   wrong-result-contract, wrong-artifact-kind, and claim-substitution vectors
+   fail before landing or route away from Permit;
+3. a released Vela binary evaluates an exact signed policy over the retained
+   Receipt binding rather than trusting a producer-declared verifier row;
+4. one real positive result follows the registered profile through verifier
+   success, Permit, accepted-event delta one, retained binding verification,
+   and clean-clone replay; and
+5. historical Canopus run records and every packaged Defer profile replay
+   unchanged.
+
+A null, failed, unverifiable, or Deferred run is useful evidence but cannot
+exercise this positive Permit contract. Lowering the signed policy's assurance
+threshold is not an acceptable substitute. Until every gate passes, ordinary
+profiles remain Defer-only and the dormant compatibility surface confers no
+authority.
+
+The retired Sidon candidate at commit `7ab8236c89d6253a3adc09bc9ce535a3d6892b7c`
+bound profile root
 `sha256:75ad68706fd74650b6d82c2820dc9aae78d20995e7d89b0045519383bbb4ed92`,
 result-contract root
 `sha256:092c30d5309701b6e2bd61c37b6c47f6a9abfcb768a326d06ba85aabf10dc6ca`,
@@ -68,5 +119,6 @@ arm64 capsule root
 `sha256:7641fdaf11a3ad0c4110ade53b7d905c1ce1dae5a16234ed0d4e8d1dc79f548c`,
 and x86-64 capsule root
 `sha256:799b6ba5afb372dd74abd7952b76640d19a2edca9fdd9c54aecb024de5e100cd`.
-These remain non-authoritative until the release and protected-policy gates
-pass.
+Those bytes remain historical, non-authoritative evidence. A future candidate
+must be registered from current exact roots and pass the gate above; it must
+not revive the retired profile by name alone.
