@@ -49,6 +49,44 @@ if (outputArgument === undefined) {
 const output = path.resolve(outputArgument);
 
 const sha256 = (bytes) => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+const supportedFixtures = new Set([
+  "empty_disposable_git_repository",
+  "exact_disposable_erdos_checkout",
+  "rendered_site_pages_at_exact_commit",
+]);
+
+function validateRegistration(value) {
+  if (value?.schema !== "canopus.product-09-cold-use-registration.v1") {
+    throw new Error("unsupported cold-use registration schema");
+  }
+  if (!Array.isArray(value.tasks) || value.tasks.length === 0) {
+    throw new Error("cold-use registration must contain at least one task");
+  }
+  if (value.limits?.model_calls !== value.tasks.length) {
+    throw new Error("registered model-call count must equal the number of tasks");
+  }
+  const roles = new Set();
+  for (const task of value.tasks) {
+    if (typeof task.role !== "string" || task.role.length === 0 || roles.has(task.role)) {
+      throw new Error("cold-use task roles must be unique non-empty strings");
+    }
+    roles.add(task.role);
+    if (!supportedFixtures.has(task.fixture)) {
+      throw new Error(`unsupported cold-use fixture: ${task.fixture}`);
+    }
+    if (task.access !== "read_only" && task.access !== "writable") {
+      throw new Error(`unsupported cold-use access mode: ${task.access}`);
+    }
+    if (task.fixture === "rendered_site_pages_at_exact_commit" && task.access !== "read_only") {
+      throw new Error("rendered site fixtures must be read-only");
+    }
+    if (typeof task.prompt !== "string" || task.prompt.trim().length === 0) {
+      throw new Error(`cold-use task ${task.role} has no prompt`);
+    }
+  }
+}
+
+validateRegistration(registration);
 
 const disabledFeatures = [
   "apps", "artifact", "auth_elicitation", "browser_use", "browser_use_external",
@@ -218,72 +256,101 @@ async function cloneExact(remote, commit, target) {
   await checked(["git", "checkout", "--quiet", commit], { cwd: target });
 }
 
-async function renderReaderFixture(target) {
-  const renderedSource = process.env.CANOPUS_SITE_RENDERED_SOURCE;
-  if (renderedSource !== undefined) {
-    const source = path.resolve(renderedSource);
-    const state = await gitState(source);
-    if (state.commit !== registration.products.site_commit || state.status.length !== 0) {
-      throw new Error("local rendered site source is not the registered clean exact commit");
-    }
-    const remote = await checked(["git", "remote", "get-url", "origin"], { cwd: source });
-    if (remote.stdout.toString("utf8").trim() !== registration.products.site_remote) {
-      throw new Error("local rendered site source remote does not match the registration");
-    }
-    await Promise.all([
-      copyFile(path.join(source, "apps/observatory/.next/server/app/index.html"), path.join(target, "home.html")),
-      copyFile(path.join(source, "apps/observatory/.next/server/app/frontiers/erdos.html"), path.join(target, "erdos.html")),
-      copyFile(
-        path.join(source, "apps/observatory/.next/server/app/frontiers/erdos/reproduce.html"),
-        path.join(target, "erdos-reproduce.html"),
-      ),
+async function fetchJson(url) {
+  const response = await fetch(url, {
+    headers: { accept: "application/json", "user-agent": "canopus-cold-use-fixture/1" },
+  });
+  if (!response.ok) throw new Error(`${url} returned ${response.status}`);
+  const bytes = Buffer.from(await response.arrayBuffer());
+  return { bytes, value: JSON.parse(bytes.toString("utf8")) };
+}
+
+let liveManifestPromise;
+async function validateLiveManifests() {
+  if (liveManifestPromise !== undefined) return await liveManifestPromise;
+  liveManifestPromise = (async () => {
+    const [editorialResult, observatoryResult] = await Promise.all([
+      fetchJson(registration.products.editorial_manifest_url),
+      fetchJson(registration.products.observatory_manifest_url),
     ]);
-    return;
-  }
-  const site = await mkdtemp(path.join(tmpdir(), "vela-site-cold-use-"));
-  try {
-    const source = process.env.CANOPUS_SITE_SOURCE ?? registration.products.site_remote;
-    if (process.env.CANOPUS_SITE_SOURCE !== undefined) {
-      const state = await gitState(source);
-      if (state.commit !== registration.products.site_commit || state.status.length !== 0) {
-        throw new Error("local site source is not the registered clean exact commit");
-      }
-      const remote = await checked(["git", "remote", "get-url", "origin"], { cwd: source });
-      if (remote.stdout.toString("utf8").trim() !== registration.products.site_remote) {
-        throw new Error("local site source remote does not match the registration");
-      }
+    const editorial = editorialResult.value;
+    const observatory = observatoryResult.value;
+    const expected = registration.products.web;
+    if (
+      editorial.schema !== "vela.web-deployment.v2"
+      || editorial.web?.version !== expected.version
+      || editorial.web?.tag !== expected.tag
+      || editorial.web?.commit !== expected.commit
+      || editorial.web?.brand?.root !== expected.brand_root
+    ) {
+      throw new Error("live editorial manifest does not match the registered Web release");
     }
-    await cloneExact(source, registration.products.site_commit, site);
-    await checked(["bun", "install", "--frozen-lockfile"], { cwd: site });
-    await checked(["bun", "run", "build"], { cwd: site, timeoutMs: 300000 });
-    const port = 33117;
-    const server = spawn("bun", ["run", "start", "--", "-p", String(port)], {
-      cwd: site,
-      stdio: ["ignore", "pipe", "pipe"],
+    if (
+      observatory.schema !== "vela.site-deployment.v3"
+      || observatory.site?.version !== expected.version
+      || observatory.site?.tag !== expected.tag
+      || observatory.site?.commit !== expected.commit
+      || observatory.site?.brand?.root !== expected.brand_root
+      || observatory.projection?.release_root !== expected.projection_root
+      || observatory.projection?.vela_version !== registration.products.vela_version
+    ) {
+      throw new Error("live Observatory manifest does not match the registered Web and projection release");
+    }
+    const erdos = observatory.projection?.source_frontiers?.find((item) => item.slug === "erdos");
+    if (
+      erdos?.commit !== registration.products.erdos_commit
+      || erdos?.tree !== registration.products.erdos_tree
+      || erdos?.event_log_root !== registration.products.erdos_event_log_root
+      || erdos?.proposal_root !== registration.products.erdos_proposal_root
+    ) {
+      throw new Error("live Observatory Erdős source does not match the registered canonical checkout");
+    }
+    return {
+      editorial,
+      observatory,
+      editorial_manifest_sha256: sha256(editorialResult.bytes),
+      observatory_manifest_sha256: sha256(observatoryResult.bytes),
+    };
+  })();
+  return await liveManifestPromise;
+}
+
+async function renderReaderFixture(target, task) {
+  if (!Array.isArray(task.routes) || task.routes.length === 0) {
+    throw new Error(`rendered fixture ${task.role} has no registered routes`);
+  }
+  const manifests = await validateLiveManifests();
+  const pages = [];
+  for (const route of task.routes) {
+    if (
+      typeof route.file !== "string"
+      || !/^[a-z0-9][a-z0-9.-]*\.html$/u.test(route.file)
+      || typeof route.url !== "string"
+    ) {
+      throw new Error(`rendered fixture ${task.role} has an invalid route`);
+    }
+    const url = new URL(route.url);
+    if (
+      url.protocol !== "https:"
+      || (url.origin !== "https://www.vela.space" && url.origin !== "https://app.vela.space")
+    ) {
+      throw new Error(`rendered fixture ${task.role} has an untrusted route origin`);
+    }
+    const response = await fetch(url, {
+      headers: { accept: "text/html", "user-agent": "canopus-cold-use-fixture/1" },
     });
-    try {
-      let ready = false;
-      for (let attempt = 0; attempt < 60; attempt += 1) {
-        const response = await fetch(`http://127.0.0.1:${port}/`).catch(() => null);
-        if (response?.ok) {
-          ready = true;
-          break;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 250));
-      }
-      if (!ready) throw new Error("site server did not become ready");
-      for (const [name, route] of [["home.html", "/"], ["erdos-reproduce.html", "/frontiers/erdos/reproduce"]]) {
-        const response = await fetch(`http://127.0.0.1:${port}${route}`);
-        if (!response.ok) throw new Error(`${route} returned ${response.status}`);
-        await writeFile(path.join(target, name), await response.text());
-      }
-    } finally {
-      server.kill("SIGTERM");
-      await new Promise((resolve) => server.once("close", resolve));
-    }
-  } finally {
-    await rm(site, { recursive: true, force: true });
+    if (!response.ok) throw new Error(`${url} returned ${response.status}`);
+    const bytes = Buffer.from(await response.arrayBuffer());
+    await writeFile(path.join(target, route.file), bytes);
+    pages.push({ file: route.file, url: url.toString(), sha256: sha256(bytes) });
   }
+  await writeFile(path.join(target, "fixture-manifest.json"), `${JSON.stringify({
+    schema: "canopus.rendered-cold-use-fixture.v1",
+    web: registration.products.web,
+    editorial_manifest_sha256: manifests.editorial_manifest_sha256,
+    observatory_manifest_sha256: manifests.observatory_manifest_sha256,
+    pages,
+  }, null, 2)}\n`);
 }
 
 async function addFixtureExcludes(fixture, entries) {
@@ -301,43 +368,81 @@ async function installRegisteredVela(fixture) {
   if (sha256(bytes) !== registration.products.vela_binary_sha256) {
     throw new Error("installed Vela binary does not match the registration");
   }
+  const version = await checked([source, "--version"]);
+  if (version.stdout.toString("utf8").trim() !== registration.products.vela_version) {
+    throw new Error("installed Vela version does not match the registration");
+  }
   const destination = path.join(fixture, "vela");
   await copyFile(source, destination);
   await chmod(destination, 0o755);
   await addFixtureExcludes(fixture, ["/vela", "/.agent-home/", "/.tmp/"]);
 }
 
+async function assertRegisteredRuntime() {
+  const runnerBytes = await readFile(fileURLToPath(import.meta.url));
+  if (sha256(runnerBytes) !== registration.runner.sha256) {
+    throw new Error("cold-use runner bytes do not match the registration");
+  }
+  const resolved = await checked(["sh", "-c", "command -v codex"]);
+  const codexPath = resolved.stdout.toString("utf8").trim();
+  const [codexBytes, version] = await Promise.all([
+    readFile(codexPath),
+    checked([codexPath, "--version"]),
+  ]);
+  if (version.stdout.toString("utf8").trim() !== registration.runtime.codex_version) {
+    throw new Error("installed Codex version does not match the registration");
+  }
+  if (sha256(codexBytes) !== registration.runtime.codex_binary_sha256) {
+    throw new Error("installed Codex binary does not match the registration");
+  }
+  return {
+    runner_sha256: sha256(runnerBytes),
+    codex_version: version.stdout.toString("utf8").trim(),
+    codex_binary_sha256: sha256(codexBytes),
+  };
+}
+
 async function prepareFixture(task, workRoot) {
   const fixture = path.join(workRoot, task.role);
   await mkdir(fixture, { recursive: true });
-  if (task.role === "operator") {
+  if (task.fixture === "empty_disposable_git_repository") {
     await checked(["git", "init", "--quiet"], { cwd: fixture });
     await checked(["git", "config", "user.name", "Vela Cold Use"], { cwd: fixture });
     await checked(["git", "config", "user.email", "cold-use@vela.invalid"], { cwd: fixture });
     await writeFile(path.join(fixture, ".gitignore"), "\n");
     await checked(["git", "add", ".gitignore"], { cwd: fixture });
     await checked(["git", "commit", "--quiet", "-m", "fixture"], { cwd: fixture });
-  } else if (task.role === "producer" || task.role === "reviewer") {
+  } else if (task.fixture === "exact_disposable_erdos_checkout") {
     await rm(fixture, { recursive: true, force: true });
     const source = process.env.CANOPUS_ERDOS_SOURCE ?? registration.products.erdos_remote;
     if (process.env.CANOPUS_ERDOS_SOURCE !== undefined) {
       const state = await gitState(source);
-      if (state.commit !== registration.products.erdos_commit || state.status.length !== 0) {
+      const remote = await checked(["git", "remote", "get-url", "origin"], { cwd: source });
+      if (
+        state.commit !== registration.products.erdos_commit
+        || state.tree !== registration.products.erdos_tree
+        || state.status.length !== 0
+        || remote.stdout.toString("utf8").trim() !== registration.products.erdos_remote
+      ) {
         throw new Error("local Erdős source is not the registered clean exact commit");
       }
     }
     await cloneExact(source, registration.products.erdos_commit, fixture);
-  } else if (task.role === "reader") {
-    await renderReaderFixture(fixture);
+    const state = await gitState(fixture);
+    if (state.commit !== registration.products.erdos_commit || state.tree !== registration.products.erdos_tree) {
+      throw new Error("cloned Erdős fixture does not match the registered commit and tree");
+    }
+  } else if (task.fixture === "rendered_site_pages_at_exact_commit") {
+    await renderReaderFixture(fixture, task);
     await checked(["git", "init", "--quiet"], { cwd: fixture });
     await checked(["git", "config", "user.name", "Vela Cold Use"], { cwd: fixture });
     await checked(["git", "config", "user.email", "cold-use@vela.invalid"], { cwd: fixture });
     await checked(["git", "add", "."], { cwd: fixture });
     await checked(["git", "commit", "--quiet", "-m", "rendered fixture"], { cwd: fixture });
   } else {
-    throw new Error(`unknown cold-use role ${task.role}`);
+    throw new Error(`unknown cold-use fixture ${task.fixture}`);
   }
-  if (task.role === "reader") {
+  if (task.fixture === "rendered_site_pages_at_exact_commit") {
     await addFixtureExcludes(fixture, ["/.agent-home/", "/.tmp/"]);
   } else {
     await installRegisteredVela(fixture);
@@ -374,9 +479,11 @@ try {
 const workRoot = await mkdtemp(path.join(tmpdir(), "vela-product-09-cold-use-"));
 const records = [];
 let stoppedError = null;
+let runtimeIdentity = null;
 const fixtures = new Map();
 
 try {
+  runtimeIdentity = await assertRegisteredRuntime();
   for (const task of registration.tasks) {
     fixtures.set(task.role, await prepareFixture(task, workRoot));
   }
@@ -413,6 +520,9 @@ try {
         timeoutMs: registration.limits.wall_time_seconds_per_call * 1000,
       });
       const after = await gitState(fixture);
+      const fixtureManifest = await readFile(path.join(fixture, "fixture-manifest.json"), "utf8")
+        .then((bytes) => JSON.parse(bytes))
+        .catch(() => null);
       const tracePath = path.join(output, `${task.role}.jsonl`);
       await writeFile(tracePath, run.stdout);
       await writeFile(path.join(output, `${task.role}.stderr.txt`), run.stderr);
@@ -422,7 +532,9 @@ try {
       const parsed = parseTrace(run.stdout);
       records.push({
         role: task.role,
+        fixture: task.fixture,
         prompt: task.prompt,
+        prompt_sha256: sha256(Buffer.from(task.prompt)),
         access: task.access,
         exit_code: run.code,
         signal: run.signal,
@@ -432,6 +544,7 @@ try {
         observed_commands: parsed.observed_commands,
         fixture_before: before,
         fixture_after: after,
+        fixture_manifest: fixtureManifest,
         permission_profile_sha256: sha256(runtime.profile),
         custody_preflight: "passed",
         trace_sha256: sha256(run.stdout),
@@ -462,6 +575,7 @@ const record = {
   completed_at: new Date().toISOString(),
   products: registration.products,
   runtime: registration.runtime,
+  runtime_identity: runtimeIdentity,
   records,
   status: stoppedError !== null
     ? "stopped"
