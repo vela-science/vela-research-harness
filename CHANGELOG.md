@@ -25,6 +25,12 @@
   `gpt-5.6` request was rejected by Codex before inference because ChatGPT
   account authentication does not expose that model; it produced no research
   artifact or frontier publication.
+- Preserve the first `gpt-5.4` run as a stopped non-authoritative result after
+  provider-reported usage exceeded its 100,000-token postcondition: 136,448
+  input tokens, including 100,352 cached input tokens, plus 3,442 output
+  tokens. Register one distinct retry with no prior candidate or search hint,
+  one attempt, and a 160,000-token postcondition that remains below the
+  original 187,013-token Erdős run.
 
 ## 0.6.2 - 2026-07-21
 

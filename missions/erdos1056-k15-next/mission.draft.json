@@ -1,5 +1,5 @@
 {
-  "id": "mission_erdos1056_k15_range_10428601_10428800_native1",
+  "id": "mission_erdos1056_k15_range_10428601_10428800_native2_retry",
   "target": "auto",
   "frontier": ".",
   "actor": "agent:canopus-local",
@@ -18,7 +18,7 @@
     "max_prompt_bytes": 2097152,
     "max_artifact_bytes": 1048576,
     "max_attempts": 1,
-    "max_observed_tokens": 100000
+    "max_observed_tokens": 160000
   },
   "worker": {
     "model": "gpt-5.4"

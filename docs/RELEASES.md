@@ -26,6 +26,14 @@ after a successful disposable work claim, then received an HTTP 400 before
 inference because ChatGPT-account Codex does not expose that model. The active
 registration uses the previously proven `gpt-5.4` worker and a new draft root;
 the failed run remains separate non-authoritative evidence.
+The first `gpt-5.4` run independently completed the bounded computation, but
+Canopus stopped it before verification or landing because provider-reported
+usage exceeded the frozen 100,000-token postcondition: 136,448 input tokens,
+including 100,352 cached input tokens, plus 3,442 output tokens. Run
+`run_6a11f27e-fddd-4963-94cf-23e8abc2e774` remains failed evidence; its
+candidate is not salvaged or supplied to the retry. A distinct one-attempt
+registration raises only the observed-token postcondition to 160,000, still
+below the original 187,013-token Erdős run.
 
 Release identities, package hashes, attestations, registry integrity, and the
 installed-package smoke are filled only after the exact tag workflow succeeds.

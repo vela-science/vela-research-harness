@@ -4,11 +4,11 @@
   "target": "erdos:1056",
   "target_packet_schema": "erdos-frontier.problem-work.v1",
   "draft": "missions/erdos1056-k15-next/mission.draft.json",
-  "draft_sha256": "sha256:af4c14106d8a5309cd5e85c2ac3f92838816731d4426f746a823aedfd245c1d6",
+  "draft_sha256": "sha256:31f0d178472b2eb904d081be09a78fdeb2f65091389e4b09650064e71f31c91f",
   "objective_sha256": "sha256:b70c05cfe940c96610386c1abf51507e3282c2f96f3c6ef8ae85b1216a2f4b0a",
   "completion_condition_sha256": "sha256:4a4a06e2c867867a191af27900e96c23e677db2775783f1829c31e4867a7f270",
   "allowed_artifacts_sha256": "sha256:11c82c9b03ba9cb220187160fac0923a38a533a5d7f05cc6749eaadfafa98d90",
-  "budgets_sha256": "sha256:26e3697f491461dd3073ebfb9960fcaf70e6412095fd4eeade7169fb79a4b070",
+  "budgets_sha256": "sha256:5457a393d492978d8f191aca42fde0bf95261d74d701ce7ecd1b99f6e0dcbc0c",
   "replay_argv_sha256": "sha256:d39c48fc7f6fe2d052e15d3454fecbd7db81b6eb764b01fd3d80dc96393c146c",
   "landing": {
     "expected_routes": ["defer"],
