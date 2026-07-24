@@ -55,6 +55,10 @@ test("cold-use runner grants only the registered public trust anchor", async () 
   assert.match(source, /registeredGitRuntime/u);
   assert.match(source, /\[\.\.\.readablePaths, git\.read_root\]/u);
   assert.match(source, /permissionProfile\(\s*task\.access,/u);
+  assert.match(
+    source,
+    /\[permissions\.canopus-worker\.filesystem\.":workspace_roots"\][\s\S]*'"\.tmp" = "write"'/u,
+  );
   assert.doesNotMatch(source, /":root"\]?\s*=\s*"read"/u);
 });
 

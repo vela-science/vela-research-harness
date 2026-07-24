@@ -120,6 +120,7 @@ function permissionProfile(access, readablePaths = [], gitPath = "git") {
     '',
     '[permissions.canopus-worker.filesystem.":workspace_roots"]',
     `"." = "${access === "read_only" ? "read" : "write"}"`,
+    '".tmp" = "write"',
     '',
     '[permissions.canopus-worker.network]',
     'enabled = false',
