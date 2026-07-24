@@ -18,6 +18,10 @@ const repairedRegistrationPath = path.join(
   repoRoot,
   "benchmarks/registration/adoption-0.914-repaired-three-role-v1.json",
 );
+const repairedV2RegistrationPath = path.join(
+  repoRoot,
+  "benchmarks/registration/adoption-0.914-repaired-three-role-v2.json",
+);
 const preflightPath = path.join(
   repoRoot,
   "benchmarks/results/adoption-0.914-six-role-preflight-2026-07-23/run.json",
@@ -122,6 +126,27 @@ test("repaired adoption gate binds only the three reproduced gaps", async () => 
     registration.products.erdos_event_log_root,
     "sha256:12daf8cc1e4f2777629ca953e081c99b2931a60b8245273b9085a5c0add53c3b",
   );
+  assert.equal(sha256(runnerBytes), registration.runner.sha256);
+});
+
+test("second repaired gate binds the exact public pin and text-only reader fixture", async () => {
+  const registration = JSON.parse(await readFile(repairedV2RegistrationPath, "utf8"));
+  const runnerBytes = execFileSync(
+    "git",
+    ["show", `${registration.runner.source_commit}:${registration.runner.path}`],
+    { cwd: repoRoot },
+  );
+
+  assert.deepEqual(
+    registration.tasks.map((task: { role: string }) => task.role),
+    ["producer", "correction_reader", "downstream_consumer"],
+  );
+  assert.equal(
+    registration.products.erdos_trust_anchor.file_sha256,
+    "sha256:87f7c68eb113686642850a41cde35e381727fc15502ef00357844bc16c3d1dd3",
+  );
+  assert.match(registration.runner.reader_transport, /outside the model workspace/u);
+  assert.equal(registration.products.web.commit, "5942756bcd7879b5a5f44200b2de9397ef26d2dc");
   assert.equal(sha256(runnerBytes), registration.runner.sha256);
 });
 
