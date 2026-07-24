@@ -26,6 +26,10 @@ const repairedV3RegistrationPath = path.join(
   repoRoot,
   "benchmarks/registration/adoption-0.914-repaired-three-role-v3.json",
 );
+const repairedReaderContinuationPath = path.join(
+  repoRoot,
+  "benchmarks/registration/adoption-0.914-repaired-reader-continuation-v1.json",
+);
 const preflightPath = path.join(
   repoRoot,
   "benchmarks/results/adoption-0.914-six-role-preflight-2026-07-23/run.json",
@@ -169,6 +173,26 @@ test("third repaired gate pins the sandbox Git runtime", async () => {
     registration.runtime.git.binary_sha256,
     "sha256:eae3993b7ab5616f0c16da4fa2b13e195cd30b542a7cc4bb265c4a46c934e4c4",
   );
+  assert.equal(sha256(runnerBytes), registration.runner.sha256);
+});
+
+test("reader continuation runs only roles not started by the transport-interrupted gate", async () => {
+  const registration = JSON.parse(await readFile(repairedReaderContinuationPath, "utf8"));
+  const runnerBytes = execFileSync(
+    "git",
+    ["show", `${registration.runner.source_commit}:${registration.runner.path}`],
+    { cwd: repoRoot },
+  );
+
+  assert.deepEqual(
+    registration.tasks.map((task: { role: string }) => task.role),
+    ["correction_reader", "downstream_consumer"],
+  );
+  assert.deepEqual(
+    registration.continuation.unfinished_roles,
+    ["correction_reader", "downstream_consumer"],
+  );
+  assert.equal(registration.limits.model_calls, 2);
   assert.equal(sha256(runnerBytes), registration.runner.sha256);
 });
 
