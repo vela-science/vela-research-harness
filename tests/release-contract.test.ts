@@ -17,6 +17,11 @@ test("current product release pins the tested Vela and Codex boundaries", async 
   assert.equal(SUPPORTED_CODEX_VERSION, "0.145.0");
   assert.match(workflow, /releases\/download\/v0\.914\.0/u);
   assert.match(workflow, /codex-0\.145\.0-linux-x64\.tgz/u);
+  assert.match(
+    workflow,
+    /actions\/checkout@[^\n]+\n\s+with:\n\s+fetch-depth: 0/u,
+    "historical registration checks require full Git history",
+  );
   assert.doesNotMatch(workflow, /releases\/download\/v0\.912\.0/u);
   assert.doesNotMatch(workflow, /codex-0\.144\.6-linux-x64\.tgz/u);
 });
@@ -46,6 +51,11 @@ test("release binds tag, GitHub attestation, and npm trusted provenance", async 
   }
   assert.doesNotMatch(workflow, /NPM_TOKEN|NODE_AUTH_TOKEN/u);
   assert.doesNotMatch(workflow, /shasum -a 256 release\/\*\.tgz/u);
+  assert.match(
+    workflow,
+    /actions\/checkout@[^\n]+\n\s+with:\n\s+fetch-depth: 0/u,
+    "release validation must retain history for immutable registration replay",
+  );
 });
 
 test("published package carries the exact Build Week judge path", async () => {
