@@ -21,6 +21,10 @@
   the real Erdős `vela work` transaction required 38.6 seconds. The original
   timeout left only a recoverable `Prepared` journal in a disposable clone and
   made no canonical-frontier change.
+- Pin the active mission to account-compatible `gpt-5.4`. The attempted
+  `gpt-5.6` request was rejected by Codex before inference because ChatGPT
+  account authentication does not expose that model; it produced no research
+  artifact or frontier publication.
 
 ## 0.6.2 - 2026-07-21
 

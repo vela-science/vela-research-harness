@@ -21,6 +21,11 @@ was `Prepared`. A fresh disposable-clone measurement completed the same exact
 operation in 38.6 seconds. Canopus now uses a bounded 120-second control-command
 ceiling; the failed run remains non-authoritative evidence and the canonical
 frontier remained unchanged.
+The subsequent `gpt-5.6` compatibility probe reached the isolated engine only
+after a successful disposable work claim, then received an HTTP 400 before
+inference because ChatGPT-account Codex does not expose that model. The active
+registration uses the previously proven `gpt-5.4` worker and a new draft root;
+the failed run remains separate non-authoritative evidence.
 
 Release identities, package hashes, attestations, registry integrity, and the
 installed-package smoke are filled only after the exact tag workflow succeeds.
