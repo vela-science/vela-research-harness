@@ -52,7 +52,9 @@ test("cold-use runner grants only the registered public trust anchor", async () 
   assert.match(source, /registeredTrustAnchorPath/u);
   assert.match(source, /file_sha256/u);
   assert.match(source, /must be private to the OS account/u);
-  assert.match(source, /permissionProfile\(task\.access, readablePaths\)/u);
+  assert.match(source, /registeredGitRuntime/u);
+  assert.match(source, /\[\.\.\.readablePaths, git\.read_root\]/u);
+  assert.match(source, /permissionProfile\(\s*task\.access,/u);
   assert.doesNotMatch(source, /":root"\]?\s*=\s*"read"/u);
 });
 

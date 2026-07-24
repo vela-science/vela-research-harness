@@ -97,8 +97,18 @@ const disabledFeatures = [
   "workspace_dependencies",
 ];
 
-function permissionProfile(access, readablePaths = []) {
+function permissionProfile(access, readablePaths = [], gitPath = "git") {
   const filesystemEntries = readablePaths.map((entry) => `${JSON.stringify(entry)} = "read"`);
+  const commandPath = [
+    ".",
+    "..",
+    path.dirname(gitPath),
+    "/usr/local/bin",
+    "/usr/bin",
+    "/bin",
+    "/usr/sbin",
+    "/sbin",
+  ].filter((entry, index, values) => values.indexOf(entry) === index).join(":");
   return Buffer.from([
     'default_permissions = "canopus-worker"',
     'approval_policy = "never"',
@@ -116,7 +126,7 @@ function permissionProfile(access, readablePaths = []) {
     '',
     '[shell_environment_policy]',
     'inherit = "none"',
-    'set = { PATH = ".:..:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin", HOME = ".agent-home", TMPDIR = ".tmp", LANG = "C.UTF-8", LC_ALL = "C.UTF-8", GIT_CONFIG_NOSYSTEM = "1", GIT_CONFIG_GLOBAL = "/dev/null", GIT_TERMINAL_PROMPT = "0", VELA_NO_KEY_ACCESS = "1", NO_PROXY = "*", no_proxy = "*" }',
+    `set = { PATH = ${JSON.stringify(commandPath)}, HOME = ".agent-home", TMPDIR = ".tmp", LANG = "C.UTF-8", LC_ALL = "C.UTF-8", GIT_CONFIG_NOSYSTEM = "1", GIT_CONFIG_GLOBAL = "/dev/null", GIT_TERMINAL_PROMPT = "0", VELA_NO_KEY_ACCESS = "1", NO_PROXY = "*", no_proxy = "*" }`,
     '',
   ].join("\n"));
 }
@@ -146,7 +156,12 @@ async function prepareRuntime(task, fixture, readablePaths = []) {
   await writeFile(path.join(codexHome, "auth.json"), auth, { mode: 0o600 });
   const catalog = await readFile(path.join(sourceHome, "models_cache.json")).catch(() => null);
   if (catalog !== null) await writeFile(path.join(codexHome, "models_cache.json"), catalog, { mode: 0o600 });
-  const profile = permissionProfile(task.access, readablePaths);
+  const git = await registeredGitRuntime();
+  const profile = permissionProfile(
+    task.access,
+    [...readablePaths, git.read_root],
+    git.path,
+  );
   await writeFile(path.join(codexHome, "config.toml"), profile, { mode: 0o600 });
   const canary = Buffer.from(`canopus-host-secret-${randomBytes(32).toString("hex")}`);
   const canaryPath = path.join(runtimeRoot, "host-secret");
@@ -179,6 +194,47 @@ async function prepareRuntime(task, fixture, readablePaths = []) {
     canaryPath,
     secrets: [...authSecrets(auth), canary],
   };
+}
+
+let registeredGitPromise;
+async function registeredGitRuntime() {
+  if (registeredGitPromise !== undefined) return await registeredGitPromise;
+  registeredGitPromise = (async () => {
+    const expected = registration.runtime.git;
+    if (
+      typeof expected?.path !== "string"
+      || !path.isAbsolute(expected.path)
+      || typeof expected.read_root !== "string"
+      || !path.isAbsolute(expected.read_root)
+      || typeof expected.version !== "string"
+      || typeof expected.binary_sha256 !== "string"
+    ) {
+      throw new Error("registered Git runtime is incomplete");
+    }
+    const [resolved, bytes, version] = await Promise.all([
+      realpath(expected.path),
+      readFile(expected.path),
+      checked([expected.path, "--version"]),
+    ]);
+    const relative = path.relative(expected.read_root, resolved);
+    if (relative.startsWith("..") || path.isAbsolute(relative)) {
+      throw new Error("registered Git binary must resolve below its read-only runtime root");
+    }
+    if (
+      version.stdout.toString("utf8").trim() !== expected.version
+      || sha256(bytes) !== expected.binary_sha256
+    ) {
+      throw new Error("installed Git runtime does not match the registration");
+    }
+    return {
+      path: expected.path,
+      resolved_path: resolved,
+      read_root: expected.read_root,
+      version: expected.version,
+      binary_sha256: expected.binary_sha256,
+    };
+  })();
+  return await registeredGitPromise;
 }
 
 async function command(argv, options = {}) {
@@ -545,10 +601,12 @@ async function assertRegisteredRuntime() {
   if (sha256(codexBytes) !== registration.runtime.codex_binary_sha256) {
     throw new Error("installed Codex binary does not match the registration");
   }
+  const git = await registeredGitRuntime();
   return {
     runner_sha256: sha256(runnerBytes),
     codex_version: version.stdout.toString("utf8").trim(),
     codex_binary_sha256: sha256(codexBytes),
+    git,
   };
 }
 
