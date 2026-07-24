@@ -154,7 +154,7 @@ Exact commits, run roots, audit evidence, and nonclaims live in
 
 ## Development
 
-Requires Bun 1.3.12, Vela 0.914.0, Codex CLI 0.145.0, and Docker. The built
+Requires Bun 1.3.12, Vela 0.914.1, Codex CLI 0.145.0, and Docker. The built
 package also runs under Node 22 or 24; unsupported odd-numbered Node releases
 are rejected rather than silently treated as supported.
 

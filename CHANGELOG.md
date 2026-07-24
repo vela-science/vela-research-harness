@@ -2,8 +2,11 @@
 
 ## 0.6.3 - 2026-07-24
 
-- Restore exact composition with released Vela `0.914.0` after Canopus
-  `0.6.2` correctly refused the newer binary at its version boundary.
+- Restore exact composition with released Vela `0.914.1` after Canopus
+  `0.6.2` correctly refused the newer binary at its version boundary. The
+  maintenance release preserves an exact legacy signature without
+  authenticating it, fixing the false Erdős repository-boundary blocker while
+  retaining all historical strict debt.
 - Advance the current native-worker boundary to Codex CLI `0.145.0` and pin
   the exact Linux archive and binary digests used by CI. Immutable missions
   continue to require their own recorded Codex versions and hashes.

@@ -2,7 +2,7 @@
 
 ## Canopus v0.6.3
 
-Version `0.6.3` is a narrow composition repair for released Vela `0.914.0`.
+Version `0.6.3` is a narrow composition repair for released Vela `0.914.1`.
 It changes no mission, Receipt, verifier, policy, proposal, or authority
 contract. The release gate requires the exact installed Vela binary to pass
 work, authored Defer landing, accepted-event delta zero, retained-artifact
