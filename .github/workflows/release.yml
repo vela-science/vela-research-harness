@@ -100,14 +100,7 @@ jobs:
           audit_ok=false
           for attempt in $(seq 1 24); do
             if npm audit signatures --json --include-attestations > audit.json 2> audit.err; then
-              audit_ok=true
-              break
-            fi
-            sleep 10
-          done
-          test "$audit_ok" = true || cat audit.err
-          test "$audit_ok" = true
-          node - "$package" "$version" <<'NODE'
+              if node - "$package" "$version" <<'NODE'
           const fs = require("node:fs");
           const audit = JSON.parse(fs.readFileSync("audit.json", "utf8"));
           if (audit.invalid?.length || audit.missing?.length) process.exit(1);
@@ -117,6 +110,15 @@ jobs:
             entry.attestationBundles?.some((bundle) =>
               bundle.predicateType === "https://slsa.dev/provenance/v1"))) process.exit(1);
           NODE
+              then
+                audit_ok=true
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test "$audit_ok" = true || cat audit.err
+          test "$audit_ok" = true
       - name: Publish matching GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
