@@ -31,6 +31,15 @@
   tokens. Register one distinct retry with no prior candidate or search hint,
   one attempt, and a 160,000-token postcondition that remains below the
   original 187,013-token Erdős run.
+- Complete the separately registered retry in 72,454 observed tokens. The
+  frozen verifier independently confirms the exhaustive negative result over
+  `10428601..10428800`; Vela lands Receipt
+  `sha256:7400662ed6493aa6dc49a31c0d2ea1099a5380a272914b13325aaf088ba58b57`
+  as proposal `vpr_a845ae60ed695b93` through Defer with accepted-event delta
+  zero, and clean-clone reproduction matches.
+- Publish only the sanitized, read-only run projection at
+  `evidence/erdos/run_192b3bef-9d6e-49e5-b72d-7ae903b29d5e`; the raw worker
+  directory, credentials, and unrestricted logs remain outside the package.
 
 ## 0.6.2 - 2026-07-21
 

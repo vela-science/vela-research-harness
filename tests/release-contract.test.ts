@@ -60,7 +60,13 @@ test("published package carries the exact Build Week judge path", async () => {
   const velaRelease = "https://github.com/vela-science/vela/releases/tag/v0.912.0";
 
   assert.equal(packageJson.version, "0.6.3");
-  for (const file of ["README.md", "BUILD_WEEK.md", "THIRD_PARTY.md", "docs/RELEASES.md"]) {
+  for (const file of [
+    "README.md",
+    "BUILD_WEEK.md",
+    "THIRD_PARTY.md",
+    "docs/RELEASES.md",
+    "evidence/erdos",
+  ]) {
     assert.ok(packageJson.files?.includes(file), `${file} must ship in the npm package`);
   }
   for (const document of [readme, buildWeek]) {

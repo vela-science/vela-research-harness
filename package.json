@@ -64,6 +64,7 @@
     "runtime",
     "advisories",
     "evidence/build-week",
+    "evidence/erdos",
     "scripts/run-claim-fidelity-advisory.mjs",
     "scripts/run-hostile-native-custody-fixture.mjs",
     "scripts/run-hostile-verifier-fixture.mjs",

@@ -35,6 +35,40 @@ candidate is not salvaged or supplied to the retry. A distinct one-attempt
 registration raises only the observed-token postcondition to 160,000, still
 below the original 187,013-token Erdős run.
 
+That distinct retry completed the full bounded path without semantic hints:
+
+- Run: `run_192b3bef-9d6e-49e5-b72d-7ae903b29d5e`
+- Model/runtime: `gpt-5.4` / Codex CLI `0.145.0`
+- Scope: every prime in the exact inclusive range `10428601..10428800`
+- Result: 13 primes checked; no factorial-residue fiber reached size 16; the
+  maximum was 11 at `p=10428703`, residue `8615683`
+- Observed usage: 72,454 tokens, below the separately registered 160,000-token
+  ceiling
+- Artifact:
+  `sha256:0547b0dba763c44b7c29f25407c66c3fe378ad64e164713d9c40a2caab96b088`
+- Frozen verifier executable:
+  `sha256:875a28177ef9b29d2480a8fe7906eddc3e809824190083abc885609555f8e52d`
+- Verifier output:
+  `sha256:aa19c8c445b550161ee14a95da82e1edcc2882dbd0e2880710d5a34d53bca597`
+- Receipt:
+  `sha256:7400662ed6493aa6dc49a31c0d2ea1099a5380a272914b13325aaf088ba58b57`
+- Proposal: `vpr_a845ae60ed695b93`
+- Route and authority effect: Defer; accepted-event delta zero
+- Clean-clone reproduction: matched
+- Sanitized public projection:
+  `sha256:8809e983e526a4065c626ae4b9c27032082fbdc87ddb508009d35e4a620b330d`
+- Publication bundle:
+  `sha256:d4d4121f790e00c41a5363f09eab76cc1764c94e4d7ae4e8f73a122f629282dc`
+- Canonical frontier landing commit:
+  `e9ae9d3dd2ef5cae18346ee892451a091159f232`
+
+The bounded negative result is evidence only; it neither proves the universal
+Erdős statement nor constitutes scientific acceptance. The exact proposal is
+pending human review, and its acceptance path remains blocked by the durable
+Engine gate because it has no independent retained attachment or surviving
+adversarial probe. The raw run directory remains local. Only the sanitized
+projection and its content-addressed manifest enter this repository.
+
 Release identities, package hashes, attestations, registry integrity, and the
 installed-package smoke are filled only after the exact tag workflow succeeds.
 
