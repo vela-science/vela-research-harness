@@ -2,7 +2,7 @@
 
 import { spawn } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
-import { chmod, copyFile, mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { chmod, copyFile, lstat, mkdtemp, mkdir, readFile, realpath, rm, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import path from "node:path";
 import process from "node:process";
@@ -97,7 +97,8 @@ const disabledFeatures = [
   "workspace_dependencies",
 ];
 
-function permissionProfile(access) {
+function permissionProfile(access, readablePaths = []) {
+  const filesystemEntries = readablePaths.map((entry) => `${JSON.stringify(entry)} = "read"`);
   return Buffer.from([
     'default_permissions = "canopus-worker"',
     'approval_policy = "never"',
@@ -105,6 +106,7 @@ function permissionProfile(access) {
     '',
     '[permissions.canopus-worker.filesystem]',
     '":minimal" = "read"',
+    ...filesystemEntries,
     '',
     '[permissions.canopus-worker.filesystem.":workspace_roots"]',
     `"." = "${access === "read_only" ? "read" : "write"}"`,
@@ -135,7 +137,7 @@ function assertNoSecrets(buffers, secrets) {
   }
 }
 
-async function prepareRuntime(task, fixture) {
+async function prepareRuntime(task, fixture, readablePaths = []) {
   const runtimeRoot = await mkdtemp(path.join(tmpdir(), `vela-cold-${task.role}-runtime-`));
   const codexHome = path.join(runtimeRoot, "codex-runtime");
   await mkdir(codexHome, { mode: 0o700 });
@@ -144,7 +146,7 @@ async function prepareRuntime(task, fixture) {
   await writeFile(path.join(codexHome, "auth.json"), auth, { mode: 0o600 });
   const catalog = await readFile(path.join(sourceHome, "models_cache.json")).catch(() => null);
   if (catalog !== null) await writeFile(path.join(codexHome, "models_cache.json"), catalog, { mode: 0o600 });
-  const profile = permissionProfile(task.access);
+  const profile = permissionProfile(task.access, readablePaths);
   await writeFile(path.join(codexHome, "config.toml"), profile, { mode: 0o600 });
   const canary = Buffer.from(`canopus-host-secret-${randomBytes(32).toString("hex")}`);
   const canaryPath = path.join(runtimeRoot, "host-secret");
@@ -411,7 +413,8 @@ async function renderReaderFixture(target, task) {
     });
     if (!response.ok) throw new Error(`${url} returned ${response.status}`);
     const bytes = Buffer.from(await response.arrayBuffer());
-    const htmlPath = path.join(target, route.file);
+    const evidenceFile = `${task.role}.${route.file}`;
+    const htmlPath = path.join(output, evidenceFile);
     await writeFile(htmlPath, bytes);
     const textResult = await checked([
       "xmllint",
@@ -430,6 +433,7 @@ async function renderReaderFixture(target, task) {
     await writeFile(path.join(target, textFile), textBytes);
     pages.push({
       file: route.file,
+      retained_evidence_file: evidenceFile,
       url: url.toString(),
       sha256: sha256(bytes),
       accessibility_text_file: textFile,
@@ -445,6 +449,58 @@ async function renderReaderFixture(target, task) {
     candidate_source: candidate?.source ?? null,
     pages,
   }, null, 2)}\n`);
+}
+
+async function registeredTrustAnchorPath(task) {
+  if (task.fixture !== "exact_disposable_erdos_checkout") return null;
+  const expected = registration.products.erdos_trust_anchor;
+  if (expected === undefined) return null;
+  if (
+    expected?.schema !== "vela.repository-trust-anchor.v1"
+    || typeof expected.frontier_id !== "string"
+    || typeof expected.identity_root !== "string"
+    || typeof expected.boundary_content_root !== "string"
+    || typeof expected.administrator_actor_id !== "string"
+    || typeof expected.administrator_public_key !== "string"
+    || typeof expected.file_sha256 !== "string"
+  ) {
+    throw new Error("registered Erdős trust anchor is incomplete");
+  }
+  const anchorPath = path.join(
+    homedir(),
+    ".vela",
+    "trust",
+    "frontiers",
+    `${expected.frontier_id}.json`,
+  );
+  const [metadata, resolved, bytes] = await Promise.all([
+    lstat(anchorPath),
+    realpath(anchorPath),
+    readFile(anchorPath),
+  ]);
+  if (!metadata.isFile() || resolved !== anchorPath) {
+    throw new Error("registered Erdős trust anchor must be an exact regular file, not a symlink");
+  }
+  if ((metadata.mode & 0o077) !== 0) {
+    throw new Error("registered Erdős trust anchor must be private to the OS account");
+  }
+  if (sha256(bytes) !== expected.file_sha256) {
+    throw new Error("installed Erdős trust anchor bytes do not match the registration");
+  }
+  const observed = JSON.parse(bytes.toString("utf8"));
+  for (const field of [
+    "schema",
+    "frontier_id",
+    "identity_root",
+    "boundary_content_root",
+    "administrator_actor_id",
+    "administrator_public_key",
+  ]) {
+    if (observed[field] !== expected[field]) {
+      throw new Error(`installed Erdős trust anchor ${field} does not match the registration`);
+    }
+  }
+  return anchorPath;
 }
 
 async function addFixtureExcludes(fixture, entries) {
@@ -583,7 +639,8 @@ try {
   }
   for (const task of registration.tasks) {
     const fixture = fixtures.get(task.role);
-    const runtime = await prepareRuntime(task, fixture);
+    const trustAnchorPath = await registeredTrustAnchorPath(task);
+    const runtime = await prepareRuntime(task, fixture, trustAnchorPath === null ? [] : [trustAnchorPath]);
     try {
       await assertCustody(fixture, runtime);
     } finally {
@@ -593,7 +650,8 @@ try {
   if (!preflightOnly) {
     for (const task of registration.tasks) {
       const fixture = fixtures.get(task.role);
-      const runtime = await prepareRuntime(task, fixture);
+      const trustAnchorPath = await registeredTrustAnchorPath(task);
+      const runtime = await prepareRuntime(task, fixture, trustAnchorPath === null ? [] : [trustAnchorPath]);
       try {
       const before = await gitState(fixture);
       await assertCustody(fixture, runtime);

@@ -45,3 +45,22 @@ test("cold-use runner enforces registered wall-time and token limits", async () 
   assert.match(source, /token_budget_passed/u);
   assert.match(source, /exceeded the registered token limit/u);
 });
+
+test("cold-use runner grants only the registered public trust anchor", async () => {
+  const source = await readFile(runner, "utf8");
+
+  assert.match(source, /registeredTrustAnchorPath/u);
+  assert.match(source, /file_sha256/u);
+  assert.match(source, /must be private to the OS account/u);
+  assert.match(source, /permissionProfile\(task\.access, readablePaths\)/u);
+  assert.doesNotMatch(source, /":root"\]?\s*=\s*"read"/u);
+});
+
+test("raw rendered HTML is retained as evidence outside the model fixture", async () => {
+  const source = await readFile(runner, "utf8");
+
+  assert.match(source, /const htmlPath = path\.join\(output, evidenceFile\)/u);
+  assert.match(source, /accessibility_text_file/u);
+  assert.match(source, /retained_evidence_file/u);
+  assert.doesNotMatch(source, /const htmlPath = path\.join\(target, route\.file\)/u);
+});
