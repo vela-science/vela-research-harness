@@ -4,6 +4,7 @@ import test from "node:test";
 
 import type { Mission, MissionV1 } from "../src/contracts/mission.js";
 import {
+  DEFAULT_VELA_COMMAND_TIMEOUT_MS,
   strictBaselineFromCheck,
   validateLandResult,
   VelaClient,
@@ -16,6 +17,10 @@ const gitCommit = "b".repeat(40);
 const gitTree = "c".repeat(40);
 const root = `sha256:${"a".repeat(64)}`;
 const velaBinaryDigest = sha256Bytes(readFileSync(process.execPath));
+
+test("large-frontier Vela operations retain a bounded transaction-safe timeout", () => {
+  assert.equal(DEFAULT_VELA_COMMAND_TIMEOUT_MS, 120_000);
+});
 
 function result(argv: readonly string[], stdout: unknown, exitCode = 0): Awaited<ReturnType<CommandRunner>> {
   return {

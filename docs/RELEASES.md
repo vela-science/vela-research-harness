@@ -15,6 +15,12 @@ The sole active Erdős 1056 profile is preregistered for the next
 non-overlapping range `10428601..10428800`. Its frozen ARM64 and x86-64
 verifiers reject a malformed candidate after recomputing the complete range;
 no model call or scientific landing is part of the registration commit.
+The first live attempt stopped during initialization because the 30-second
+Canopus Vela-command ceiling killed `vela work` while its recoverable journal
+was `Prepared`. A fresh disposable-clone measurement completed the same exact
+operation in 38.6 seconds. Canopus now uses a bounded 120-second control-command
+ceiling; the failed run remains non-authoritative evidence and the canonical
+frontier remained unchanged.
 
 Release identities, package hashes, attestations, registry integrity, and the
 installed-package smoke are filled only after the exact tag workflow succeeds.

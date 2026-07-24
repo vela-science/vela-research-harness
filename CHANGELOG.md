@@ -17,6 +17,10 @@
 - Advance the sole runnable Erdős 1056 profile to the adjacent, non-overlapping
   range `10428601..10428800`; the completed `10428401..10428600` capsule remains
   reproducible from Canopus `0.6.2` and its immutable run evidence.
+- Raise the bounded Vela control-command ceiling from 30 to 120 seconds after
+  the real Erdős `vela work` transaction required 38.6 seconds. The original
+  timeout left only a recoverable `Prepared` journal in a disposable clone and
+  made no canonical-frontier change.
 
 ## 0.6.2 - 2026-07-21
 

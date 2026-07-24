@@ -28,6 +28,13 @@ import type { LandResult, VelaCommandResponse, VelaInspection } from "./types.js
 
 export type { CommandRunner } from "../util/command.js";
 
+// Real large frontiers can spend tens of seconds in Vela's recoverable
+// transaction preparation and derived-view materialization. Keep this well
+// below mission wall-time budgets while allowing the measured 38.6-second
+// Erdős work operation to reach its atomic commit instead of being killed in
+// Prepared state.
+export const DEFAULT_VELA_COMMAND_TIMEOUT_MS = 120_000;
+
 export function retainedArtifactPath(
   repoRoot: string,
   frontier: string,
@@ -473,7 +480,7 @@ export class VelaClient {
     this.#expectedSha256 = options.expectedSha256;
     this.#home = options.home;
     this.#maxOutputBytes = options.maxOutputBytes ?? 16 * 1024 * 1024;
-    this.#timeoutMs = options.timeoutMs ?? 30_000;
+    this.#timeoutMs = options.timeoutMs ?? DEFAULT_VELA_COMMAND_TIMEOUT_MS;
     // Deliberately do not accept caller-supplied environment entries. In
     // particular, this prevents a harness integration from forwarding human
     // key variables into the Vela control lane. Agent actors auto-mint only an
