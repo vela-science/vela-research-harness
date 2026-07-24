@@ -22,6 +22,10 @@ const repairedV2RegistrationPath = path.join(
   repoRoot,
   "benchmarks/registration/adoption-0.914-repaired-three-role-v2.json",
 );
+const repairedV3RegistrationPath = path.join(
+  repoRoot,
+  "benchmarks/registration/adoption-0.914-repaired-three-role-v3.json",
+);
 const preflightPath = path.join(
   repoRoot,
   "benchmarks/results/adoption-0.914-six-role-preflight-2026-07-23/run.json",
@@ -147,6 +151,24 @@ test("second repaired gate binds the exact public pin and text-only reader fixtu
   );
   assert.match(registration.runner.reader_transport, /outside the model workspace/u);
   assert.equal(registration.products.web.commit, "5942756bcd7879b5a5f44200b2de9397ef26d2dc");
+  assert.equal(sha256(runnerBytes), registration.runner.sha256);
+});
+
+test("third repaired gate pins the sandbox Git runtime", async () => {
+  const registration = JSON.parse(await readFile(repairedV3RegistrationPath, "utf8"));
+  const runnerBytes = execFileSync(
+    "git",
+    ["show", `${registration.runner.source_commit}:${registration.runner.path}`],
+    { cwd: repoRoot },
+  );
+
+  assert.equal(registration.runtime.git.path, "/opt/homebrew/bin/git");
+  assert.equal(registration.runtime.git.read_root, "/opt/homebrew");
+  assert.equal(registration.runtime.git.version, "git version 2.53.0");
+  assert.equal(
+    registration.runtime.git.binary_sha256,
+    "sha256:eae3993b7ab5616f0c16da4fa2b13e195cd30b542a7cc4bb265c4a46c934e4c4",
+  );
   assert.equal(sha256(runnerBytes), registration.runner.sha256);
 });
 
