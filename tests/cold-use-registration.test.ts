@@ -78,7 +78,11 @@ test("rendered cold-use fixtures use only registered canonical product hosts", a
 
 test("reader retry is bounded to unfinished roles and the hardened runner", async () => {
   const registration = JSON.parse(await readFile(retryRegistrationPath, "utf8"));
-  const runnerBytes = await readFile(path.join(repoRoot, registration.runner.path));
+  const runnerBytes = execFileSync(
+    "git",
+    ["show", `${registration.runner.source_commit}:${registration.runner.path}`],
+    { cwd: repoRoot },
+  );
 
   assert.deepEqual(
     registration.tasks.map((task: { role: string }) => task.role),

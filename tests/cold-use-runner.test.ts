@@ -36,3 +36,12 @@ test("cold-use runner refuses an existing output path without changing it", asyn
   assert.match(result.stderr, /output path already exists/u);
   assert.equal(await readFile(sentinel, "utf8"), "historical evidence\n");
 });
+
+test("cold-use runner enforces registered wall-time and token limits", async () => {
+  const source = await readFile(runner, "utf8");
+
+  assert.match(source, /kill\("SIGKILL"\)/u);
+  assert.match(source, /exceeded the registered wall-time limit/u);
+  assert.match(source, /token_budget_passed/u);
+  assert.match(source, /exceeded the registered token limit/u);
+});

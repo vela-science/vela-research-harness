@@ -576,6 +576,11 @@ try {
       assertNoSecrets([run.stdout, run.stderr, final], runtime.secrets);
       await writeFile(path.join(output, `${task.role}.final.txt`), final);
       const parsed = parseTrace(run.stdout);
+      const observedTokens = parsed.usage === null
+        ? null
+        : (parsed.usage.input_tokens ?? 0) + (parsed.usage.output_tokens ?? 0);
+      const tokenBudgetPassed = observedTokens !== null
+        && observedTokens <= registration.limits.max_observed_tokens_per_call;
       records.push({
         role: task.role,
         fixture: task.fixture,
@@ -588,6 +593,8 @@ try {
         wall_time_ms: run.wall_time_ms,
         session_id: parsed.session_id,
         usage: parsed.usage,
+        observed_tokens: observedTokens,
+        token_budget_passed: tokenBudgetPassed,
         observed_commands: parsed.observed_commands,
         fixture_before: before,
         fixture_after: after,
@@ -604,6 +611,12 @@ try {
         stoppedError = run.timed_out
           ? `role ${task.role} exceeded the registered wall-time limit`
           : `role ${task.role} exited ${run.code}`;
+        break;
+      }
+      if (!tokenBudgetPassed) {
+        stoppedError = observedTokens === null
+          ? `role ${task.role} produced no token-usage record`
+          : `role ${task.role} exceeded the registered token limit`;
         break;
       }
       } finally {
