@@ -14,6 +14,10 @@ const retryRegistrationPath = path.join(
   repoRoot,
   "benchmarks/registration/adoption-0.914-six-role-reader-retry-v1.json",
 );
+const repairedRegistrationPath = path.join(
+  repoRoot,
+  "benchmarks/registration/adoption-0.914-repaired-three-role-v1.json",
+);
 const preflightPath = path.join(
   repoRoot,
   "benchmarks/results/adoption-0.914-six-role-preflight-2026-07-23/run.json",
@@ -94,6 +98,30 @@ test("reader retry is bounded to unfinished roles and the hardened runner", asyn
   );
   assert.equal(registration.continuation.unscored_interrupted_role, "reader");
   assert.equal(registration.limits.model_calls, 3);
+  assert.equal(sha256(runnerBytes), registration.runner.sha256);
+});
+
+test("repaired adoption gate binds only the three reproduced gaps", async () => {
+  const registration = JSON.parse(await readFile(repairedRegistrationPath, "utf8"));
+  const runnerBytes = execFileSync(
+    "git",
+    ["show", `${registration.runner.source_commit}:${registration.runner.path}`],
+    { cwd: repoRoot },
+  );
+
+  assert.deepEqual(
+    registration.tasks.map((task: { role: string }) => task.role),
+    ["producer", "correction_reader", "downstream_consumer"],
+  );
+  assert.equal(registration.limits.model_calls, 3);
+  assert.equal(registration.limits.max_observed_tokens_per_call, 100000);
+  assert.equal(registration.products.web.fixture_mode, "verified_local_candidate");
+  assert.equal(new URL(registration.products.web.fixture_origin).hostname, "127.0.0.1");
+  assert.equal(registration.products.first_ranked_target.target_id, "erdos:1056");
+  assert.equal(
+    registration.products.erdos_event_log_root,
+    "sha256:12daf8cc1e4f2777629ca953e081c99b2931a60b8245273b9085a5c0add53c3b",
+  );
   assert.equal(sha256(runnerBytes), registration.runner.sha256);
 });
 
