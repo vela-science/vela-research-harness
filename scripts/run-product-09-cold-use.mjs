@@ -338,11 +338,57 @@ async function validateLiveManifests() {
   return await liveManifestPromise;
 }
 
+let candidateWebPromise;
+async function validateCandidateWeb() {
+  if (candidateWebPromise !== undefined) return await candidateWebPromise;
+  candidateWebPromise = (async () => {
+    const expected = registration.products.web;
+    if (expected.fixture_mode !== "verified_local_candidate") {
+      throw new Error("unsupported candidate Web fixture mode");
+    }
+    const source = process.env.CANOPUS_WEB_SOURCE;
+    if (source === undefined) {
+      throw new Error("CANOPUS_WEB_SOURCE is required for a registered local Web candidate");
+    }
+    const sourcePath = path.resolve(source);
+    const state = await gitState(sourcePath);
+    const remote = await checked(["git", "remote", "get-url", "origin"], { cwd: sourcePath });
+    if (
+      state.commit !== expected.commit
+      || state.tree !== expected.tree
+      || state.status.length !== 0
+      || remote.stdout.toString("utf8").trim() !== expected.repository
+    ) {
+      throw new Error("local Web candidate is not the registered clean exact commit");
+    }
+    const origin = new URL(expected.fixture_origin);
+    if (
+      origin.protocol !== "http:"
+      || origin.hostname !== "127.0.0.1"
+      || origin.pathname !== "/"
+      || origin.search !== ""
+      || origin.hash !== ""
+    ) {
+      throw new Error("registered candidate Web origin must be loopback HTTP");
+    }
+    const response = await fetch(new URL("/frontiers", origin), {
+      headers: { accept: "text/html", "user-agent": "canopus-cold-use-fixture/1" },
+    });
+    if (!response.ok) {
+      throw new Error(`registered candidate Web origin returned ${response.status}`);
+    }
+    return { source: state, origin: origin.origin };
+  })();
+  return await candidateWebPromise;
+}
+
 async function renderReaderFixture(target, task) {
   if (!Array.isArray(task.routes) || task.routes.length === 0) {
     throw new Error(`rendered fixture ${task.role} has no registered routes`);
   }
-  const manifests = await validateLiveManifests();
+  const candidateMode = registration.products.web.fixture_mode === "verified_local_candidate";
+  const manifests = candidateMode ? null : await validateLiveManifests();
+  const candidate = candidateMode ? await validateCandidateWeb() : null;
   const pages = [];
   for (const route of task.routes) {
     if (
@@ -353,10 +399,11 @@ async function renderReaderFixture(target, task) {
       throw new Error(`rendered fixture ${task.role} has an invalid route`);
     }
     const url = new URL(route.url);
-    if (
-      url.protocol !== "https:"
-      || (url.origin !== "https://www.vela.space" && url.origin !== "https://app.vela.space")
-    ) {
+    const trustedProductionOrigin =
+      url.protocol === "https:"
+      && (url.origin === "https://www.vela.space" || url.origin === "https://app.vela.space");
+    const trustedCandidateOrigin = candidate !== null && url.origin === candidate.origin;
+    if (!trustedProductionOrigin && !trustedCandidateOrigin) {
       throw new Error(`rendered fixture ${task.role} has an untrusted route origin`);
     }
     const response = await fetch(url, {
@@ -393,8 +440,9 @@ async function renderReaderFixture(target, task) {
   await writeFile(path.join(target, "fixture-manifest.json"), `${JSON.stringify({
     schema: "canopus.rendered-cold-use-fixture.v1",
     web: registration.products.web,
-    editorial_manifest_sha256: manifests.editorial_manifest_sha256,
-    observatory_manifest_sha256: manifests.observatory_manifest_sha256,
+    editorial_manifest_sha256: manifests?.editorial_manifest_sha256 ?? null,
+    observatory_manifest_sha256: manifests?.observatory_manifest_sha256 ?? null,
+    candidate_source: candidate?.source ?? null,
     pages,
   }, null, 2)}\n`);
 }
