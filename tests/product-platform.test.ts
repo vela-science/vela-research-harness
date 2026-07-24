@@ -69,7 +69,7 @@ test("native Windows doctor remains read-only and does not probe worker runtimes
     const result = await doctorProduct({
       frontier,
       platform: "win32",
-      profileName: "erdos1056-k15-10428401-10428600",
+      profileName: "erdos1056-k15-10428601-10428800",
       runner: async (options) => {
         const executable = path.basename(options.argv[0] ?? "");
         observed.push(`${executable} ${options.argv.slice(1).join(" ")}`);

@@ -11,6 +11,10 @@ Codex CLI `0.145.0`; CI verifies the exact Linux package and executable digests,
 while every mission continues to bind its observed platform binary hash.
 The diagnostic projection now names Vela's `scientific_state_root` directly;
 the retired `snapshot_root` label is not carried forward into new output.
+The sole active Erdős 1056 profile is preregistered for the next
+non-overlapping range `10428601..10428800`. Its frozen ARM64 and x86-64
+verifiers reject a malformed candidate after recomputing the complete range;
+no model call or scientific landing is part of the registration commit.
 
 Release identities, package hashes, attestations, registry integrity, and the
 installed-package smoke are filled only after the exact tag workflow succeeds.

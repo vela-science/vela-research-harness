@@ -14,6 +14,9 @@
 - Replace the brittle list of individual Vela 0.9 patch versions with one
   bounded compact-status compatibility rule. Historical missions still require
   their exact recorded binary and digest.
+- Advance the sole runnable Erdős 1056 profile to the adjacent, non-overlapping
+  range `10428601..10428800`; the completed `10428401..10428600` capsule remains
+  reproducible from Canopus `0.6.2` and its immutable run evidence.
 
 ## 0.6.2 - 2026-07-21
 
