@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -20,7 +21,11 @@ const sha256 = (bytes: Buffer) =>
 test("six-role adoption registration binds the exact runner and product identities", async () => {
   const registrationBytes = await readFile(registrationPath);
   const registration = JSON.parse(registrationBytes.toString("utf8"));
-  const runnerBytes = await readFile(path.join(repoRoot, registration.runner.path));
+  const runnerBytes = execFileSync(
+    "git",
+    ["show", `${registration.runner.source_commit}:${registration.runner.path}`],
+    { cwd: repoRoot },
+  );
 
   assert.equal(registration.schema, "canopus.product-09-cold-use-registration.v1");
   assert.equal(registration.limits.model_calls, 6);

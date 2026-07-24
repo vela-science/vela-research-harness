@@ -182,29 +182,52 @@ async function prepareRuntime(task, fixture) {
 async function command(argv, options = {}) {
   const started = Date.now();
   return await new Promise((resolve, reject) => {
+    let timedOut = false;
+    let terminateTimer;
     const child = spawn(argv[0], argv.slice(1), {
       cwd: options.cwd,
       env: options.env ?? process.env,
       stdio: [options.input === undefined ? "ignore" : "pipe", "pipe", "pipe"],
+      detached: process.platform !== "win32",
     });
+    const kill = (signal) => {
+      try {
+        if (process.platform !== "win32" && child.pid !== undefined) {
+          process.kill(-child.pid, signal);
+        } else {
+          child.kill(signal);
+        }
+      } catch {
+        child.kill(signal);
+      }
+    };
     const stdout = [];
     const stderr = [];
     child.stdout.on("data", (chunk) => stdout.push(chunk));
     child.stderr.on("data", (chunk) => stderr.push(chunk));
     child.on("error", reject);
-    child.on("close", (code, signal) => resolve({
-      argv,
-      code,
-      signal,
-      stdout: Buffer.concat(stdout),
-      stderr: Buffer.concat(stderr),
-      wall_time_ms: Date.now() - started,
-    }));
+    child.on("close", (code, signal) => {
+      if (terminateTimer !== undefined) clearTimeout(terminateTimer);
+      resolve({
+        argv,
+        code,
+        signal,
+        timed_out: timedOut,
+        stdout: Buffer.concat(stdout),
+        stderr: Buffer.concat(stderr),
+        wall_time_ms: Date.now() - started,
+      });
+    });
     if (options.input !== undefined) {
       child.stdin.end(options.input);
     }
     if (options.timeoutMs !== undefined) {
-      const timer = setTimeout(() => child.kill("SIGTERM"), options.timeoutMs);
+      const timer = setTimeout(() => {
+        timedOut = true;
+        kill("SIGTERM");
+        terminateTimer = setTimeout(() => kill("SIGKILL"), 5000);
+        terminateTimer.unref();
+      }, options.timeoutMs);
       timer.unref();
       child.on("close", () => clearTimeout(timer));
     }
@@ -341,8 +364,31 @@ async function renderReaderFixture(target, task) {
     });
     if (!response.ok) throw new Error(`${url} returned ${response.status}`);
     const bytes = Buffer.from(await response.arrayBuffer());
-    await writeFile(path.join(target, route.file), bytes);
-    pages.push({ file: route.file, url: url.toString(), sha256: sha256(bytes) });
+    const htmlPath = path.join(target, route.file);
+    await writeFile(htmlPath, bytes);
+    const textResult = await checked([
+      "xmllint",
+      "--html",
+      "--xpath",
+      "//body//*[not(self::script) and not(*)]/text()",
+      htmlPath,
+    ]);
+    const text = `${textResult.stdout.toString("utf8")
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .join("\n")}\n`;
+    const textFile = route.file.replace(/\.html$/u, ".txt");
+    const textBytes = Buffer.from(text);
+    await writeFile(path.join(target, textFile), textBytes);
+    pages.push({
+      file: route.file,
+      url: url.toString(),
+      sha256: sha256(bytes),
+      accessibility_text_file: textFile,
+      accessibility_text_sha256: sha256(textBytes),
+      accessibility_text_transform: "xmllint --html --xpath //body//*[not(self::script) and not(*)]/text()",
+    });
   }
   await writeFile(path.join(target, "fixture-manifest.json"), `${JSON.stringify({
     schema: "canopus.rendered-cold-use-fixture.v1",
@@ -538,6 +584,7 @@ try {
         access: task.access,
         exit_code: run.code,
         signal: run.signal,
+        timed_out: run.timed_out,
         wall_time_ms: run.wall_time_ms,
         session_id: parsed.session_id,
         usage: parsed.usage,
@@ -554,7 +601,9 @@ try {
         external_gate_credit: false,
       });
       if (run.code !== 0) {
-        stoppedError = `role ${task.role} exited ${run.code}`;
+        stoppedError = run.timed_out
+          ? `role ${task.role} exceeded the registered wall-time limit`
+          : `role ${task.role} exited ${run.code}`;
         break;
       }
       } finally {
