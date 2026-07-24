@@ -125,6 +125,13 @@ function parseJsonObject(stdout: Buffer, command: string): Record<string, unknow
   }
 }
 
+function usesCompactStatusProjection(version: string): boolean {
+  const match = /^0\.(\d+)\.(\d+)$/u.exec(version);
+  if (match === null) return false;
+  const minor = Number(match[1]);
+  return Number.isSafeInteger(minor) && minor >= 900 && minor <= 914;
+}
+
 function safeFailureMessage(value: unknown): string | undefined {
   if (typeof value !== "string" || value.length === 0) return undefined;
   const normalized = value
@@ -623,7 +630,7 @@ export class VelaClient {
       );
     }
 
-    const proof = version === "0.900.0" || version === "0.900.1" || version === "0.900.2" || version === "0.901.0" || version === "0.910.0" || version === "0.911.0" || version === "0.911.1" || version === "0.912.0"
+    const proof = usesCompactStatusProjection(version)
       ? {
           ok: true,
           command: "status_root_projection",

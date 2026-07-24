@@ -15,12 +15,12 @@ jobs:
         include:
           - runner: macos-15
             archive: vela-macos-aarch64.zip
-            archive_sha256: be1caed8eb9c7c69c0d60e1140ba5056f983a5f84802496d7dd8447b43abf2d9
-            binary_sha256: 5510efe75ec202f2b023de4baf72c64c3b21d6017f55d990147b651bce96c6f2
+            archive_sha256: 949848c940683273f3e63f08f4c12e4f4ca508df00bb6f4f0de797b0258a7cf8
+            binary_sha256: 02e2c3eb40fb18c223f22cf075cc6c917ed639c7eaab7ca6080d2482423eb9d0
           - runner: ubuntu-24.04
             archive: vela-linux-x86_64.tar.gz
-            archive_sha256: faaec7d8d7503b5addd67d8b25fb18fb1abf4fbd24f6a41957fd7653e0be2502
-            binary_sha256: de0ec138fcd2af0212640f67e0c185f67c5036e9b2539bfc776d8c2882ebc0fc
+            archive_sha256: c04338e952aae0fe52727be0dc4207854a4094e51147f6f86e9c3865aedb1556
+            binary_sha256: 29a351f0840d36beaa10156167a42de9ca1652d2a3c8953f1145725f3ada3470
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 15
     steps:
@@ -52,7 +52,7 @@ jobs:
           VELA_SHA256: ${{ matrix.binary_sha256 }}
         run: |
           curl --fail --location --silent --show-error \
-            "https://github.com/vela-science/vela/releases/download/v0.912.0/$VELA_ARCHIVE" \
+            "https://github.com/vela-science/vela/releases/download/v0.914.0/$VELA_ARCHIVE" \
             --output "$RUNNER_TEMP/$VELA_ARCHIVE"
           printf '%s  %s\n' "$VELA_ARCHIVE_SHA256" "$RUNNER_TEMP/$VELA_ARCHIVE" \
             | shasum -a 256 -c -
@@ -74,8 +74,8 @@ jobs:
       - name: Run real Linux sandbox custody preflight
         if: runner.os == 'Linux'
         env:
-          CODEX_TARBALL_SHA256: b6752eb2e8c10e6fcc96ac5c1c8ad8342cdb9a74504fb84686addf081a7d2868
-          CODEX_BINARY_SHA256: a31ae9450a26216eb1e7c53102fd42123dd675974310b0e2ca3aa4cb622a2c15
+          CODEX_TARBALL_SHA256: 11239480f8e3efd1430f23bbe91c1a397856b8bbe6185ccbaee2382d25e03df2
+          CODEX_BINARY_SHA256: a2a05dafaa1acb002a45eaec0a462de5b13694fcfcd7bc43305f14781ce7be14
         run: |
           sudo apt-get update
           sudo apt-get install --yes apparmor-profiles apparmor-utils bubblewrap
@@ -84,17 +84,17 @@ jobs:
             /etc/apparmor.d/bwrap-userns-restrict
           sudo apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict
           curl --fail --location --silent --show-error \
-            "https://registry.npmjs.org/@openai/codex/-/codex-0.144.6-linux-x64.tgz" \
-            --output "$RUNNER_TEMP/codex-0.144.6-linux-x64.tgz"
+            "https://registry.npmjs.org/@openai/codex/-/codex-0.145.0-linux-x64.tgz" \
+            --output "$RUNNER_TEMP/codex-0.145.0-linux-x64.tgz"
           printf '%s  %s\n' "$CODEX_TARBALL_SHA256" \
-            "$RUNNER_TEMP/codex-0.144.6-linux-x64.tgz" | shasum -a 256 -c -
-          mkdir "$RUNNER_TEMP/codex-0.144.6-linux-x64"
-          tar -xzf "$RUNNER_TEMP/codex-0.144.6-linux-x64.tgz" \
-            -C "$RUNNER_TEMP/codex-0.144.6-linux-x64"
-          codex_bin="$RUNNER_TEMP/codex-0.144.6-linux-x64/package/vendor/x86_64-unknown-linux-musl/bin/codex"
+            "$RUNNER_TEMP/codex-0.145.0-linux-x64.tgz" | shasum -a 256 -c -
+          mkdir "$RUNNER_TEMP/codex-0.145.0-linux-x64"
+          tar -xzf "$RUNNER_TEMP/codex-0.145.0-linux-x64.tgz" \
+            -C "$RUNNER_TEMP/codex-0.145.0-linux-x64"
+          codex_bin="$RUNNER_TEMP/codex-0.145.0-linux-x64/package/vendor/x86_64-unknown-linux-musl/bin/codex"
           printf '%s  %s\n' "$CODEX_BINARY_SHA256" "$codex_bin" | shasum -a 256 -c -
           chmod +x "$codex_bin"
-          test "$("$codex_bin" --version)" = "codex-cli 0.144.6"
+          test "$("$codex_bin" --version)" = "codex-cli 0.145.0"
           node scripts/run-native-sandbox-preflight.mjs --codex "$codex_bin"
       - name: Pull frozen verifier anonymously by exact digest
         if: runner.os == 'Linux'
@@ -169,10 +169,10 @@ jobs:
         run: |
           $archive = "$env:RUNNER_TEMP\vela-windows-x86_64.zip"
           Invoke-WebRequest `
-            -Uri "https://github.com/vela-science/vela/releases/download/v0.912.0/vela-windows-x86_64.zip" `
+            -Uri "https://github.com/vela-science/vela/releases/download/v0.914.0/vela-windows-x86_64.zip" `
             -OutFile $archive
           if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLower() -ne `
-              "2b7445b0781529b1aca0689744d3aa155fc6e82b1fff360005af54dbbb631145") {
+              "fb489f88cf64ce3ef0cfe314ca452c18980b406c4dd5a01aa71d71c8314e6e95") {
             throw "Vela archive checksum mismatch"
           }
           Expand-Archive $archive "$env:RUNNER_TEMP\vela"

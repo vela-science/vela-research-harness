@@ -1,5 +1,20 @@
 # Release evidence
 
+## Canopus v0.6.3
+
+Version `0.6.3` is a narrow composition repair for released Vela `0.914.0`.
+It changes no mission, Receipt, verifier, policy, proposal, or authority
+contract. The release gate requires the exact installed Vela binary to pass
+work, authored Defer landing, accepted-event delta zero, retained-artifact
+binding, and clean-clone replay before publication. The current worker requires
+Codex CLI `0.145.0`; CI verifies the exact Linux package and executable digests,
+while every mission continues to bind its observed platform binary hash.
+The diagnostic projection now names Vela's `scientific_state_root` directly;
+the retired `snapshot_root` label is not carried forward into new output.
+
+Release identities, package hashes, attestations, registry integrity, and the
+installed-package smoke are filled only after the exact tag workflow succeeds.
+
 ## Canopus v0.6.2
 
 Version `0.6.2` is the final Build Week distribution correction. It packages

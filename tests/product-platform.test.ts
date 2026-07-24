@@ -74,14 +74,14 @@ test("native Windows doctor remains read-only and does not probe worker runtimes
         const executable = path.basename(options.argv[0] ?? "");
         observed.push(`${executable} ${options.argv.slice(1).join(" ")}`);
         if (options.argv[1] === "--version") {
-          return commandResult(options, executable === "vela" ? "vela 0.912.0\n" : "git version 2.50.0\n");
+          return commandResult(options, executable === "vela" ? "vela 0.914.0\n" : "git version 2.50.0\n");
         }
         if (executable === "vela" && options.argv[1] === "status") {
           return commandResult(options, JSON.stringify({
             schema: "vela.status.v1",
             roots: {
               event_log: `sha256:${"a".repeat(64)}`,
-              snapshot: `sha256:${"b".repeat(64)}`,
+              scientific_state_root: `sha256:${"b".repeat(64)}`,
             },
             git: { commit: "c".repeat(40), tree: "d".repeat(40) },
             integrity: { blocker_count: 0 },
@@ -102,6 +102,10 @@ test("native Windows doctor remains read-only and does not probe worker runtimes
     assert.equal(result.public.ok, true);
     assert.equal(result.public.worker.mission_runtime, "wsl2_required");
     assert.equal(result.public.worker.mission_ready, false);
+    assert.equal(
+      result.public.frontier.scientific_state_root,
+      `sha256:${"b".repeat(64)}`,
+    );
     assert.equal(result.public.runtimes.codex, null);
     assert.equal(result.public.runtimes.docker, null);
     assert.match(result.public.next_action, /Open WSL2.+rerun canopus doctor/su);

@@ -14,7 +14,11 @@ import {
 } from "./profile.js";
 import { runNativeCustodyPreflight } from "./custody.js";
 import { runtimeIdentity, type RuntimeIdentity } from "./runtime.js";
-import { CANOPUS_VERSION } from "./version.js";
+import {
+  CANOPUS_VERSION,
+  SUPPORTED_CODEX_VERSION,
+  SUPPORTED_VELA_VERSION,
+} from "./version.js";
 
 export interface ProductDoctorResult {
   schema: "canopus.doctor.v1";
@@ -25,7 +29,7 @@ export interface ProductDoctorResult {
     git_commit: string;
     git_tree: string;
     event_log_root: string;
-    snapshot_root: string;
+    scientific_state_root: string;
     clean: boolean;
     strict_blockers: number;
   };
@@ -197,8 +201,10 @@ export async function doctorProduct(options: {
       runtimeIdentity({ name: "vela", cwd: frontier, home: runtime, runner }),
       runtimeIdentity({ name: "git", cwd: frontier, home: runtime, runner }),
     ]);
-    if (vela.version !== "vela 0.912.0") {
-      throw new Error(`Canopus ${CANOPUS_VERSION} requires vela 0.912.0, observed ${vela.version}`);
+    if (vela.version !== `vela ${SUPPORTED_VELA_VERSION}`) {
+      throw new Error(
+        `Canopus ${CANOPUS_VERSION} requires vela ${SUPPORTED_VELA_VERSION}, observed ${vela.version}`,
+      );
     }
     const [status, offer, gitStatus] = await Promise.all([
       jsonCommand({ runner, argv: [vela.binary, "status", ".", "--json"], cwd: frontier, home: runtime, label: "vela status" }),
@@ -231,7 +237,10 @@ export async function doctorProduct(options: {
             git_commit: stringAt(gitState.commit, "vela status.git.commit", { min: 40, max: 64 }),
             git_tree: stringAt(gitState.tree, "vela status.git.tree", { min: 40, max: 64 }),
             event_log_root: sha256At(roots.event_log, "vela status.roots.event_log"),
-            snapshot_root: sha256At(roots.snapshot, "vela status.roots.snapshot"),
+            scientific_state_root: sha256At(
+              roots.scientific_state_root,
+              "vela status.roots.scientific_state_root",
+            ),
             clean,
             strict_blockers: nonnegative(integrity.blocker_count, "vela status.integrity.blocker_count"),
           },
@@ -262,8 +271,11 @@ export async function doctorProduct(options: {
       runtimeIdentity({ name: "codex", cwd: frontier, home: runtime, runner }),
       runtimeIdentity({ name: "docker", cwd: frontier, home: runtime, runner }),
     ]);
-    if (codex.version !== "codex-cli 0.144.6") {
-      throw new Error(`registered worker requires codex-cli 0.144.6, observed ${codex.version}`);
+    if (codex.version !== `codex-cli ${SUPPORTED_CODEX_VERSION}`) {
+      throw new Error(
+        `Canopus ${CANOPUS_VERSION} requires codex-cli ${SUPPORTED_CODEX_VERSION}, ` +
+        `observed ${codex.version}`,
+      );
     }
     const daemon = await runner({
       argv: [docker.binary, "info", "--format={{.ServerVersion}}"],
@@ -328,7 +340,10 @@ export async function doctorProduct(options: {
           git_commit: stringAt(gitState.commit, "vela status.git.commit", { min: 40, max: 64 }),
           git_tree: stringAt(gitState.tree, "vela status.git.tree", { min: 40, max: 64 }),
           event_log_root: sha256At(roots.event_log, "vela status.roots.event_log"),
-          snapshot_root: sha256At(roots.snapshot, "vela status.roots.snapshot"),
+          scientific_state_root: sha256At(
+            roots.scientific_state_root,
+            "vela status.roots.scientific_state_root",
+          ),
           clean,
           strict_blockers: nonnegative(integrity.blocker_count, "vela status.integrity.blocker_count"),
         },

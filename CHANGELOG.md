@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.6.3 - 2026-07-24
+
+- Restore exact composition with released Vela `0.914.0` after Canopus
+  `0.6.2` correctly refused the newer binary at its version boundary.
+- Advance the current native-worker boundary to Codex CLI `0.145.0` and pin
+  the exact Linux archive and binary digests used by CI. Immutable missions
+  continue to require their own recorded Codex versions and hashes.
+- Preserve the compact status, offer, Receipt, Defer, replay, and zero-authority
+  contracts through the released-binary integration test.
+- Report Vela's current `scientific_state_root` directly from `canopus doctor`
+  instead of preserving the retired, ambiguous `snapshot_root` label.
+- Replace the brittle list of individual Vela 0.9 patch versions with one
+  bounded compact-status compatibility rule. Historical missions still require
+  their exact recorded binary and digest.
+
 ## 0.6.2 - 2026-07-21
 
 - Ship the exact pending Sidon artifact reproduction command and independent

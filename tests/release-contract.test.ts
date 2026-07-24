@@ -2,6 +2,25 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import {
+  SUPPORTED_CODEX_VERSION,
+  SUPPORTED_VELA_VERSION,
+} from "../src/product/version.js";
+
+test("current product release pins the tested Vela and Codex boundaries", async () => {
+  const workflow = await readFile(
+    new URL("../../.github/workflows/ci.yml", import.meta.url),
+    "utf8",
+  );
+
+  assert.equal(SUPPORTED_VELA_VERSION, "0.914.0");
+  assert.equal(SUPPORTED_CODEX_VERSION, "0.145.0");
+  assert.match(workflow, /releases\/download\/v0\.914\.0/u);
+  assert.match(workflow, /codex-0\.145\.0-linux-x64\.tgz/u);
+  assert.doesNotMatch(workflow, /releases\/download\/v0\.912\.0/u);
+  assert.doesNotMatch(workflow, /codex-0\.144\.6-linux-x64\.tgz/u);
+});
+
 test("release binds tag, GitHub attestation, and npm trusted provenance", async () => {
   const workflow = await readFile(
     new URL("../../.github/workflows/release.yml", import.meta.url),
@@ -40,7 +59,7 @@ test("published package carries the exact Build Week judge path", async () => {
   const auditCommit = "825657d7e87618c0aa6fc9af7e3182e05f324750";
   const velaRelease = "https://github.com/vela-science/vela/releases/tag/v0.912.0";
 
-  assert.equal(packageJson.version, "0.6.2");
+  assert.equal(packageJson.version, "0.6.3");
   for (const file of ["README.md", "BUILD_WEEK.md", "THIRD_PARTY.md", "docs/RELEASES.md"]) {
     assert.ok(packageJson.files?.includes(file), `${file} must ship in the npm package`);
   }
