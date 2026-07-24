@@ -64,4 +64,7 @@ scratch view because the read-only worker profile made the repository-local
 repository-context check. The runner repair is operational and narrower than
 the scored cell: grant write access only to the ignored `.tmp` scratch
 directory while keeping the source checkout, human keys, authentication,
-unrelated repositories, and network unavailable.
+unrelated repositories, and network unavailable. A direct default-deny sandbox
+check after that repair returned `ok: true`, verified the pinned repository
+context, reproduced the event log, and retained the exact 1,511/81 strict
+classification.
