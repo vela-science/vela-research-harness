@@ -10,6 +10,10 @@ const registrationPath = path.join(
   repoRoot,
   "benchmarks/registration/adoption-0.914-six-role-v1.json",
 );
+const retryRegistrationPath = path.join(
+  repoRoot,
+  "benchmarks/registration/adoption-0.914-six-role-reader-retry-v1.json",
+);
 const preflightPath = path.join(
   repoRoot,
   "benchmarks/results/adoption-0.914-six-role-preflight-2026-07-23/run.json",
@@ -70,6 +74,23 @@ test("rendered cold-use fixtures use only registered canonical product hosts", a
       assert.match(route.file, /^[a-z0-9][a-z0-9.-]*\.html$/u);
     }
   }
+});
+
+test("reader retry is bounded to unfinished roles and the hardened runner", async () => {
+  const registration = JSON.parse(await readFile(retryRegistrationPath, "utf8"));
+  const runnerBytes = await readFile(path.join(repoRoot, registration.runner.path));
+
+  assert.deepEqual(
+    registration.tasks.map((task: { role: string }) => task.role),
+    ["reader", "correction_reader", "downstream_consumer"],
+  );
+  assert.deepEqual(
+    registration.continuation.carried_forward_roles,
+    ["operator", "producer", "reviewer"],
+  );
+  assert.equal(registration.continuation.unscored_interrupted_role, "reader");
+  assert.equal(registration.limits.model_calls, 3);
+  assert.equal(sha256(runnerBytes), registration.runner.sha256);
 });
 
 test("recorded six-role preflight binds the immutable registration", async () => {
